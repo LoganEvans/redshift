@@ -1,0 +1,4 @@
+venv/
+redshift.egg-info/
+build/
+*.swp
