@@ -1,0 +1,111 @@
+\documentclass{article}
+
+\usepackage{arxiv}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{amsmath}
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{graphicx}
+\usepackage{natbib}
+\usepackage{doi}
+\usepackage{csquotes}
+
+
+\def \thetitle {Correcting supernova luminosity for redshift implies no accelerated expansion}
+\title{\thetitle}
+
+\date{\today}
+
+\author{
+  \href{https://orcid.org/0000-0001-6450-3262}{\includegraphics[scale=0.06]{orcid.pdf}\hspace{1mm}Logan P.~Evans}
+  \\ \texttt{loganpevans@gmail.com}
+}
+
+% Uncomment to override  the `A preprint' in the header
+%\renewcommand{\headeright}{Technical Report}
+%\renewcommand{\undertitle}{Technical Report}
+\renewcommand{\shorttitle}{\textit{arXiv} Template}
+
+%%% Add PDF metadata to help others organize their library
+%%% Once the PDF is generated, you can check the metadata with
+%%% $ pdfinfo template.pdf
+\hypersetup{
+pdftitle={\thetitle},
+pdfsubject={astro-ph.CO},
+pdfauthor={Logan P.~Evans},
+pdfkeywords={cosmological parameters, dark energy},
+}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  Existing analysis of Type Ia supernova relies on the assumption that
+  luminosity is not affected by redshift. However, when luminosity is corrected
+  for redshift, the relationship between luminosity distance and redshift for
+  Type Ia supernova becomes linear. This implies that the expansion rate of the
+  universe is not accelerating and there is no need for dark energy to explain
+  observational data.
+\end{abstract}
+
+% keywords can be removed
+\keywords{Cosmological Parameters \and Dark Energy \and Luminosity Distance}
+
+\section{Introduction}
+
+TODO: Discuss \citet{riess1998}, \citet{perlmutter1999}, and \citet{perlmutter2003}, as well as their nobel prize, summarizd in \citet{straumann2012}.
+
+Summarize dark energy. Emphasize that dark energy is a popular explanation for
+why distant supernova appear to be too far away.
+
+Talk about the difficulty of curating supernova data, and summarize the work
+done by \citet{betoule2014}.
+
+\begin{displayquote}
+\end{displayquote}
+
+\section{Derivation of luminosity distance}
+
+Luminosity distance, $D_L$, is the appearant distance of an object based on the
+measured luminosity. This does not take into any movement of the observed
+object between the time when the light was emitted and the light is observed.
+
+Measurements of Type Ia supernova provide magnitude and redshift. To derive the
+luminosity distance from these measurements, we start by computing the relative
+brightness. Magnitude is defined on a logarithmic scale where magnitude 1 has
+100 times the brightness of magnitude 6. To convert magnitude to relative brightness, we use:
+
+\begin{equation}
+  a
+\end{equation}
+
+\begin{equation}
+\label{eq:g_def}
+  G = \sqrt{ \bigg( s_i + \frac{s_j p_j}{p_i} \bigg)
+             \bigg( s_j + \frac{s_i p_i}{p_j} \bigg)
+           }
+    = \frac{s_i p_i + s_j p_j}{\sqrt{p_i p_j}}.
+\end{equation}
+
+\section{Calibrated distance models}
+\label{sec:disproof}
+
+\section{Discussion of discrepancy}
+
+\section{Conclusions}
+What the heck?
+
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+
+\end{document}
