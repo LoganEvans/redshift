@@ -3,11 +3,19 @@ authors = [
     {name = "Logan Evans", email = "loganpevans@gmail.com"},
 ]
 dependencies = [
+    "beautifulsoup4",
+    "jdcal",
+    "matplotlib",
     "mypy",
     "numpy",
-    "matplotlib",
+    "requests",
+    "scipy"
 ]
 name = "redshift"
 requires-python = ">=3.12"
 version = "0.0.2"
 
+[tool.pytest.ini_options]
+pythonpath = [
+  "redshift",
+]
