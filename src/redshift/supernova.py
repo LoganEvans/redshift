@@ -1,4 +1,6 @@
-from dataclasses import dataclass, field
+from __future__ import annotations
+from dataclasses import dataclass, field, asdict
+from numpy.polynomial.polynomial import Polynomial
 from datetime import date
 from matplotlib import pyplot as plt
 from matplotlib import pyplot as plt
@@ -27,6 +29,7 @@ def parse_jd_date(jd: str):
 class Supernova:
     name: str | None
     magnitude: float
+    magnitude_error: float
     redshift: float
 
     H0: ClassVar[float] = 70
@@ -35,49 +38,71 @@ class Supernova:
     def z(self):
         return self.redshift
 
-    def uncalibrated_distance(self, corrected):
-        d = 10 ** (self.magnitude / 5)
+    @property
+    def corrected_magnitude(self):
+        return self.magnitude * (self.z + 1)
+
+    @staticmethod
+    def _uncalibrated_distance(corrected, magnitude, z):
+        d = 10 ** (magnitude / 5)
         if corrected:
-            d /= np.sqrt(self.z + 1)
+            d /= np.sqrt(z + 1)
         return d
 
-    def calibrated_distance(self, slope, intercept, corrected):
-        # XXX This is wrong.
-        return (
-            (self.uncalibrated_distance(corrected=corrected) - intercept)
-            * self.H0
-            / slope
+    def uncalibrated_distance(self, corrected):
+        return self._uncalibrated_distance(corrected, self.magnitude, self.z)
+
+    def calibrated_distance(self, calibration: Calibration):
+        return calibration.correction * self.uncalibrated_distance(
+            corrected=calibration.corrected
         )
 
     @property
     def velocity_kms(self):
-        c = 299792.458 # km/s
+        c = 299792.458  # km/s
         return self.z * c
 
     @staticmethod
-    def from_wolfram():
-        """https://datarepository.wolframcloud.com/resources/Type-Ia-Supernova-Data/"""
-        # https://arxiv.org/pdf/1401.4064
-
+    def from_perlmutter():
+        # https://iopscience.iop.org/article/10.1086/307221/pdf
         data = []
 
-        with open(DATA_DIR / "type-Ia-supernova-data.json", "r") as json_file:
-            raw = json.load(json_file)[1]
-            for item in raw[1:]:
-                fields = {}
+        with open(DATA_DIR / "perlmutter.csv", "r") as csv_file:
+            raw = csv.reader(csv_file)
+            header = next(raw)
+            idx = {val: i for i, val in enumerate(header)}
 
-                for rule in item[1:]:
-                    label = rule[1].strip("'")
-                    if label in ["stretch", "color"]:
-                        continue
+            for row in raw:
+                sn = Supernova(
+                    name=row[idx["name"]],
+                    magnitude=float(row[idx["mb_eff"]]),
+                    magnitude_error=float(row[idx["mb_eff_error"]]),
+                    redshift=float(row[idx["z"]])
+                )
+                data.append(sn)
+        return data
 
-                    if label == "supernova name":
-                        fields["name"] = rule[2].strip("'")
-                    else:
-                        fields[rule[1].strip("'")] = rule[2]
+    @staticmethod
+    def from_betoule():
+        # https://arxiv.org/pdf/1401.4064
+        data = []
 
-                data.append(Supernova(**fields))
+        name_idx = 0
+        z_idx = 1
+        magnitude_idx = 4
+        magnitude_error_idx = 5
 
+        with open(DATA_DIR / "jla_lcparams.txt", "r") as csv_file:
+            raw = csv.reader(csv_file)
+            header = next(raw)
+            for row in raw:
+                sn = Supernova(
+                    name=row[name_idx],
+                    magnitude=float(row[magnitude_idx]),
+                    magnitude_error=float(row[magnitude_error_idx]),
+                    redshift=float(row[z_idx]),
+                )
+                data.append(sn)
         return data
 
     @staticmethod
@@ -111,7 +136,37 @@ class Supernova:
         return supernovas
 
 
-def uncalibrated_graph(data, corrected=True):
+class Calibration:
+    def __init__(self, data, corrected):
+        self.corrected = corrected
+
+        # distance = [sn.uncalibrated_distance(corrected) for sn in data]
+        # velocity = [sn.velocity_kms for sn in data]
+
+        # coefficients = scipy.stats.siegelslopes(x=distance, y=velocity)
+        # print(coefficients)
+        # self.intercept = coefficients.intercept
+
+        # c = 299792.458  # km/s
+        ks = []
+
+        # d(z) = ud(z) * k
+        # H0 = v(z) / d(z)
+        # H0 = v(z) / (ud(z) * k)
+        # ud(z) * k = v(z) / H0
+        # k = v(z) / (H0 * ud(z))
+
+        for sn in data:
+            k = sn.velocity_kms / (
+                Supernova.H0 * sn.uncalibrated_distance(corrected=corrected)
+            )
+            # print(k, sn.velocity_kms / (sn.uncalibrated_distance(corrected=corrected) * k))
+            ks.append(k)
+
+        self.correction = np.median(ks)
+
+
+def uncalibrated_graph(data, corrected=True, save=True):
     plt.cla()
     xs = [sn.redshift for sn in data]
     ys = [sn.uncalibrated_distance(corrected) for sn in data]
@@ -136,187 +191,231 @@ def uncalibrated_graph(data, corrected=True):
     )
     plt.xlabel("z")
     plt.ylabel("unscaled d")
-    plt.savefig(
-        GRAPHS_DIR / f"{'corrected' if corrected else 'uncorrected'}_uncalibrated.png",
-        bbox_inches="tight",
-    )
-    plt.cla()
-
-
-def both_calibrated_redshift_vs_distance_graph(data):
-    plt.cla()
-    xs = [sn.redshift for sn in data]
-
-    ys = [sn.uncalibrated_distance(corrected=False) for sn in data]
-    coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
-    ys = [
-        sn.calibrated_distance(
-            coefficients.slope, coefficients.intercept, corrected=False
+    if save:
+        plt.savefig(
+            GRAPHS_DIR
+            / f"{'corrected' if corrected else 'uncorrected'}_uncalibrated.png",
+            bbox_inches="tight",
         )
-        for sn in data
-    ]
+        plt.cla()
+
+
+def both_calibrated_redshift_vs_distance_graph(data, save=True):
+    plt.cla()
+    ys = [sn.redshift for sn in data]
+
+    cal = Calibration(data, corrected=False)
+    xs = [sn.calibrated_distance(cal) for sn in data]
     plt.scatter(xs, ys, s=2, marker=".", color="red")
 
-    ys = [sn.uncalibrated_distance(corrected=True) for sn in data]
-    coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
-    ys = [
-        sn.calibrated_distance(
-            coefficients.slope, coefficients.intercept, corrected=True
-        )
-        for sn in data
-    ]
+    cal = Calibration(data, corrected=True)
+    xs = [sn.calibrated_distance(cal) for sn in data]
     plt.scatter(xs, ys, s=2, marker=".", color="blue")
+
+    plt.xlabel("distance (Mpsc)")
+    plt.ylabel("z")
+
+    plt.title("Scaled Distance vs Redshift")
+    plt.legend(["uncorrected", "corrected", f"H0 = {Supernova.H0:.0f} km/s / Mpsc"])
+    if save:
+        plt.savefig(
+            GRAPHS_DIR / "both_calibrated_distance_vs_redshift.png", bbox_inches="tight"
+        )
+        plt.cla()
+
+
+def both_calibrated_velocity_vs_distance_graph(data, save=True):
+    plt.cla()
+    ys = [sn.velocity_kms for sn in data]
+
+    cal = Calibration(data, corrected=False)
+    xs = [sn.calibrated_distance(cal) for sn in data]
+    plt.scatter(xs, ys, s=2, marker=".", color="red", label="uncorrected")
+
+    cal = Calibration(data, corrected=True)
+    xs = [sn.calibrated_distance(cal) for sn in data]
+    plt.scatter(xs, ys, s=2, marker=".", color="blue", label="corrected")
 
     plt.axline(
         (0, 0),
         (1, Supernova.H0),
         color="black",
         linewidth=0.5,
+        label=f"H0 = {Supernova.H0:.0f} km/s / Mpsc",
     )
-
-    plt.xlabel("z")
-    plt.ylabel("Mpsc")
-
-    plt.title("Scaled Distance vs Redshift")
-    plt.legend(["uncorrected", "corrected", f"H0 = {Supernova.H0:.0f} km/s / Mpsc"])
-    plt.savefig(GRAPHS_DIR / "both_calibrated_distance_vs_redshift.png", bbox_inches="tight")
-    plt.cla()
-
-
-def both_calibrated_velocity_vs_distance_graph(data):
-    plt.cla()
-    xs = [sn.redshift for sn in data]
-    velo = [sn.velocity_kms for sn in data]
-
-    ys = [sn.uncalibrated_distance(corrected=False) for sn in data]
-    coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
-    distance = [
-        sn.calibrated_distance(
-            coefficients.slope, coefficients.intercept, corrected=False
-        )
-        for sn in data
-    ]
-    plt.scatter(distance, velo, s=2, marker=".", color="red")
-
-    ys = [sn.uncalibrated_distance(corrected=True) for sn in data]
-    coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
-    distance = [
-        sn.calibrated_distance(
-            coefficients.slope, coefficients.intercept, corrected=True
-        )
-        for sn in data
-    ]
-    plt.scatter(distance, velo, s=2, marker=".", color="blue")
 
     plt.xlabel("distance (Mpsc)")
     plt.ylabel("velocity (km/s)")
 
     plt.title("Velocity vs Distance")
-    plt.legend(["uncorrected", "corrected", f"H0 = {Supernova.H0:.0f} km/s / Mpsc"])
-    plt.savefig(GRAPHS_DIR / "both_calibrated_velocity_vs_distance.png", bbox_inches="tight")
-    plt.cla()
+    plt.legend()
+    if save:
+        plt.savefig(
+            GRAPHS_DIR / "both_calibrated_velocity_vs_distance.png", bbox_inches="tight"
+        )
+        plt.cla()
 
 
-def bootstrap_slope(data, corrected, trials):
+def bootstrap_z_vs_ud(data, corrected, trials):
+    slopes = []
+    for i in range(trials):
+        print(
+            f"Bootstraping trial z vs ud (corrected={corrected}): {i:7.0f}/{trials}",
+            end="\r",
+        )
+        resampled = [Supernova(**asdict(sn)) for sn in np.random.choice(data, size=len(data), replace=True)]
+        for sn in resampled:
+            sn.magnitude += scipy.stats.norm.rvs(scale=sn.magnitude_error)
+
+        coefficients = scipy.stats.siegelslopes(
+            x=[sn.uncalibrated_distance(corrected=corrected) for sn in resampled],
+            y=[sn.redshift for sn in resampled],
+        )
+        slopes.append(coefficients.slope)
+
+    print()
+    return slopes
+
+
+def bootstrap_z_vs_ud_graph(data, corrected, trials, save=True):
     med = np.median([sn.z for sn in data])
 
     left = [sn for sn in data if sn.z <= med]
     right = [sn for sn in data if sn.z > med]
 
-    trial_results = []
-    for label, data in [(f"z <= {med:.2f}", left), (f"z > {med:.2f}", right)]:
-        slopes = []
-        for i in range(trials):
-            print(f"Bootstraping trial ({label}, corrected={corrected}): {i}/{trials}", end="\r")
-            sample = np.random.choice(data, size=len(data), replace=True)
-            y = [sn.velocity_kms for sn in sample]
-            coefficients = scipy.stats.siegelslopes(
-                x=[sn.uncalibrated_distance(corrected=corrected) for sn in sample],
-                y=y,
-            )
-            coefficients = scipy.stats.siegelslopes(
-                x=[sn.calibrated_distance(slope=coefficients.slope, intercept=coefficients.intercept, corrected=corrected) for sn in sample],
-                y=y
-            )
+    left_z_vs_ud = bootstrap_z_vs_ud(data=left, corrected=corrected, trials=trials)
+    right_z_vs_ud = bootstrap_z_vs_ud(data=right, corrected=corrected, trials=trials)
 
-            slopes.append(coefficients.slope)
-        trial_results.append(slopes)
-        print()
+    bins = np.linspace(
+        min(min(left_z_vs_ud), min(right_z_vs_ud)),
+        max(max(left_z_vs_ud), max(right_z_vs_ud)),
+        100,
+    )
 
-    return trial_results
+    plt.hist(
+        left_z_vs_ud,
+        bins,
+        alpha=0.5,
+        label=f"z vs ud bootstrapped from z <= {med:.2f}\n(median: {np.median(left_z_vs_ud):.2f})",
+    )
 
+    plt.hist(
+        right_z_vs_ud,
+        bins,
+        alpha=0.5,
+        label=f"z vs ud bootstrapped from z > {med:.2f}\n(median: {np.median(right_z_vs_ud):.2f})",
+    )
 
-def bootstrap_graphs(data):
-    for corrected in [True, False]:
-        trials = 10000
-        med = np.median([sn.z for sn in data])
-        left, right = bootstrap_slope(data, corrected, trials)
-
-        bins = np.linspace(
-            min(min(left), min(right)),
-            max(max(left), max(right)),
-            100,
+    plt.legend()
+    plt.title("Bootstrapped z vs ud slope")
+    if save:
+        plt.savefig(
+            GRAPHS_DIR / f"bootstrapped_H0_{'' if corrected else 'un'}corrected.png",
+            bbox_inches="tight",
         )
-
-        plt.hist(
-            left,
-            bins,
-            alpha=0.5,
-            label=f"slopes z <= {med:.2f}\n(median: {np.median(left):.2f})",
-        )
-        plt.hist(
-            right,
-            bins,
-            alpha=0.5,
-            label=f"slopes z > {med:.2f}\n(median: {np.median(right):.2f})",
-        )
-        plt.legend()
-
-        plt.title(f"Bootstrapped Velocity (km/s) per {'Corrected' if corrected else 'Uncorrected'} Distance (Mpsc)")
-        plt.savefig(GRAPHS_DIR / f"bootstrapped_velocity_per_{'' if corrected else 'un'}corrected_distance.png", bbox_inches="tight")
         plt.cla()
 
 
-def generate_all_graphs(data):
-    uncalibrated_graph(data, corrected=True)
-    uncalibrated_graph(data, corrected=False)
-    both_calibrated_redshift_vs_distance_graph(data)
-    both_calibrated_velocity_vs_distance_graph(data)
-    #bootstrap_graphs(data)
+def bootstrap_H0(data, corrected, trials, save=True):
+    slopes = []
+    for i in range(trials):
+        print(
+            f"Bootstraping H0 (corrected={corrected}): {i:7.0f}/{trials}",
+            end="\r",
+        )
+
+        resampled = [Supernova(**asdict(sn)) for sn in np.random.choice(data, size=len(data), replace=True)]
+        for sn in resampled:
+            sn.magnitude += scipy.stats.norm.rvs(scale=sn.magnitude_error)
+
+        cal = Calibration(resampled, corrected=corrected)
+        xs = [sn.calibrated_distance(cal) for sn in resampled]
+        ys = [sn.velocity_kms for sn in resampled]
+        coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
+        slopes.append(coefficients.slope)
+    print()
+    return slopes
+
+
+def bootstrap_H0_graph(data, corrected, trials, save=True):
+    med = np.median([sn.z for sn in data])
+    #z = 0.15
+
+    left = [sn for sn in data if sn.z <= med]
+    right = [sn for sn in data if sn.z > med]
+
+    left_H0 = bootstrap_H0(data=left, corrected=corrected, trials=trials)
+    right_H0 = bootstrap_H0(data=right, corrected=corrected, trials=trials)
+
+    bins = np.linspace(
+        min(min(left_H0), min(right_H0)),
+        max(max(left_H0), max(right_H0)),
+        100,
+    )
+
+    plt.hist(
+        left_H0,
+        bins,
+        alpha=0.5,
+        label=f"H0 bootstrapped from z <= {med:.2f}\n(median: {np.median(left_H0):.2f})",
+    )
+
+    plt.hist(
+        right_H0,
+        bins,
+        alpha=0.5,
+        label=f"H0 bootstrapped from z > {med:.2f}\n(median: {np.median(right_H0):.2f})",
+    )
+
+    plt.legend()
+    plt.title(f"Bootstrapped H0 calibrated at H0 = {Supernova.H0:.0f} ({'corrected' if corrected else 'uncorrected'})")
+    if save:
+        plt.savefig(
+            GRAPHS_DIR / f"bootstrapped_H0_{'' if corrected else 'un'}corrected.png",
+            bbox_inches="tight",
+        )
+        plt.cla()
+
+
+def generate_all_graphs(data, save=True):
+    uncalibrated_graph(data, corrected=True, save=save)
+    uncalibrated_graph(data, corrected=False, save=save)
+    both_calibrated_redshift_vs_distance_graph(data, save=save)
+    both_calibrated_velocity_vs_distance_graph(data, save=save)
+    bootstrap_H0_graph(data, corrected=True, trials=1000, save=save)
+    bootstrap_H0_graph(data, corrected=False, trials=1000, save=save)
+    bootstrap_z_vs_ud_graph(data, corrected=True, trials=1000, save=save)
+
 
 if __name__ == "__main__":
     # data = Supernova.from_rochester()
-    data = Supernova.from_wolfram()
+    data = Supernova.from_betoule()
     generate_all_graphs(data)
-
-    #generate_distance_vs_redshift_graphs(data)
-    #exit()
-
     exit()
+    #data = Supernova.from_perlmutter()
 
-    print("Samples:", len(data))
-
-    xs = [sn.z for sn in data]
-    ys = [sn.uncalibrated_distance(corrected=corrected) for sn in data]
-
-    s = 100 / len(xs)
-
-    plt.scatter(xs, ys, s=s, marker=".", color="black")
-
-    # coefficients = np.polyfit(xs, ys, 1)
-    # print(coefficients)
-
-    # coefficients = scipy.stats.theilslopes(x=xs, y=ys)
-    # print(coefficients)
-
+    xs = [sn.redshift for sn in data]
+    ys = [sn.uncalibrated_distance(corrected=True) for sn in data]
+    plt.scatter(xs, ys, s=2, marker=".", color="blue", label="corrected")
     coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
-    print(coefficients)
-
     plt.axline(
         (0, coefficients.intercept),
-        (1, coefficients.intercept + coefficients.slope),
-        color="red",
+        (1, coefficients.slope + coefficients.intercept),
+        color="black",
         linewidth=0.5,
     )
+
+    #poly = Polynomial(np.polyfit(xs, ys, 2)[::-1])
+    #poly_xs, poly_ys = poly.linspace()
+    #plt.plot(poly_xs, poly_ys, lw=1, color="red")
+
+    plt.show()
+    exit()
+
+    both_calibrated_redshift_vs_distance_graph(data, save=False)
+    #both_calibrated_velocity_vs_distance_graph(data, save=False)
+
+    #bootstrap_H0_graph(data, corrected=False, trials=1000, save=False)
+    #bootstrap_z_vs_ud_graph(data, corrected=True, trials=1000, save=False)
 
     plt.show()
