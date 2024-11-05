@@ -77,33 +77,146 @@ done by \citet{betoule2014}.
 \section{Derivation of luminosity distance}
 
 Luminosity distance, $D_L$, is the appearant distance of an object based on the
-measured luminosity. This does not take into any movement of the observed
-object between the time when the light was emitted and the light is observed.
+measured luminosity. This does not take into account any movement of the
+observed object between the time when the light was emitted and the light is
+observed.
 
 Measurements of Type Ia supernova provide magnitude and redshift. To derive the
 luminosity distance from these measurements, we start by computing the relative
-brightness. Magnitude is defined on a logarithmic scale where magnitude 1 has
-100 times the brightness of magnitude 6. To convert magnitude to relative brightness, we use:
+brightness. Magnitude $M$ is defined on a logarithmic scale where magnitude 1 has
+100 times the brightness of magnitude 6. To convert magnitude to relative
+brightness $B$, we use
 
 \begin{equation}
-  a
+  B = \frac{1}{\sqrt[5]{100}^{M - 1}}.
 \end{equation}
 
+This is proportional to the amount of energy detected by a telescope. However,
+we instead want a number that is proportional to the number of photons detected
+by the telescope. Redshifting decreases the amount of energy carried by a
+photon from $E_{\text{emit}}$ to $E_{\text{obs}}$, but we can correct for this
+phenomenon by taking
+
 \begin{equation}
-\label{eq:g_def}
-  G = \sqrt{ \bigg( s_i + \frac{s_j p_j}{p_i} \bigg)
-             \bigg( s_j + \frac{s_i p_i}{p_j} \bigg)
-           }
-    = \frac{s_i p_i + s_j p_j}{\sqrt{p_i p_j}}.
+  B^{*} = B \frac{E_{\text{emit}}}{E_{\text{obs}}}.
 \end{equation}
+
+Since the energy for a photon is given by $E = \frac{hc}{\lambda}$ where $h$ is
+the Planck constant and $c$ is the speed of light, we have
+
+\begin{equation}
+\begin{aligned}
+  B^{*} &= B \frac{\frac{hc}{\lambda_{\text{emit}}}}{\frac{hc}{\lambda_{\text{obs}}}} \\
+        &= B \frac{\lambda_{\text{obs}}}{\lambda_{\text{emit}}}.
+\end{aligned}
+\end{equation}
+
+We use the redshift equation $(1 + z)\lambda_{\text{emit}} =
+\lambda_{\text{obs}}$ to obtain
+
+\begin{equation}
+\begin{aligned}
+  B^{*} &= B \frac{(1 + z)\lambda_{\text{emit}}}{\lambda_{\text{emit}}} \\
+        &= B(1 + z).
+\end{aligned}
+\end{equation}
+
+We note that since all Type Ia supernova have approximately the same intrinsic
+brightness, we can use a geometric model to compute relative distances. Imagine
+holding up two coins, one in each hand.  If you arange them so that the
+distance from your eyes to the first coin double the distance from your eyes to
+the second coin, the second coin should appear to be $\frac{1}{4}$ of the size.
+More formally, for two objects of the same radius $r$, the appearant area $A$
+is
+
+\begin{equation}
+  A = \pi \bigg(\frac{r}{d}\bigg)^2
+\end{equation}
+
+where $d$ is the relative distance between the two objects.
+
+Replacing the area with the brightness, we have
+
+\begin{equation}
+\begin{aligned}
+  B^{*} = \pi \bigg(\frac{r}{d}\bigg)^2 \\
+      d = r \sqrt{\frac{\pi}{B^*}}.
+\end{aligned}
+\end{equation}
+
+Finally, since this equation has no specified units, we will need to find a calibration factor $k$. To beautify the equation, we can collect all constants (which includes $r$ since all Type Ia supernova have the same intrinsic brightness) into $k$. This gives
+
+\begin{equation}
+\begin{aligned}
+  d &= r \sqrt{\frac{\pi}{\frac{1}{\sqrt[5]{100}^{M - 1}}(1 + z)}} \\
+    &= \frac{k 10^\frac{M}{5}}{\sqrt{z + 1}}.
+\end{aligned}
+\end{equation}
+
+The results of this model are shown in Figure \ref{fig:corrected_uncalibrated}.
+
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{../graphs/corrected_uncalibrated.png}
+  \caption{Uncalibrated distance model using the corrected $B^*$ values for
+  brightness.}
+  \label{fig:corrected_uncalibrated}
+\end{figure}
+
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{../graphs/uncorrected_uncalibrated.png}
+  \caption{Uncalibrated distance model using the uncorrected $B$ values for brightness.
+  The deviation from linearity suggests that distant objects are
+  farther away than expected due to an accelerated expansion rate.}
+  \label{fig:uncorrected_uncalibrated}
+\end{figure}
+
+It's worth noting that previous studies use $B$ instead of $B*$. According to
+\citet{betoule2014},
+
+\begin{displayquote}
+  Specifically, the distance estimator used in this analysis (and in most
+  similar cosmological analyses) assumes that supernovae with identical color,
+  shape and galactic environment have on average the same intrinsic luminosity
+  for all redshifts.
+\end{displayquote}
+
+This leads to
+
+\begin{equation}
+  d_{\text{uncorrected}} = k 10^\frac{M}{5}
+\end{equation}
+
+which is displayed in Figure \ref{fig:uncorrected_uncalibrated}.
 
 \section{Calibrated distance models}
 \label{sec:disproof}
 
-\section{Discussion of discrepancy}
+Calibrating a distance model involves finding a linear regression line for a
+model and then computing the value $k$ required to make the regression model
+match a Hubble paramater. By arbitrary choice, we use $H_0 = 70 \frac{km/s}{Mpsc}$.
 
-\section{Conclusions}
-What the heck?
+The final units for distance will be in megaparsecs $Mpsc$. To find the
+recessional speed for a given redshift, we use $v = cz$ where $c$ is the speed
+of light.
+
+To compute a model, we use non-parametric regression via repeated means as described in
+\citet{siegel1982}. A comparison of both models is shown in Figure \ref{fig:calibrated}.
+
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{../graphs/both_calibrated_velocity_vs_distance.png}
+  \caption{Calibrated distance model using both the corrected $B^*$ values as
+  well as the uncorrected $B$ brightness values.}
+  \label{fig:calibrated}
+\end{figure}
+
+
+\section{Next steps}
+\label{sec:nextsteps}
+
+Is my understanding of the literature correct? My understanding is that
+existing models don't correct for the impact of redshift on the brightness of
+distant objects, and models that use an accelerating expansion for the universe
+are based on adding that correction back into the model.
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}

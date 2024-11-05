@@ -377,30 +377,61 @@ def bootstrap_H0_graph(data, corrected, trials, save=True):
         plt.cla()
 
 
+def effective_magnitude_vs_log_redshift_graph(data, save=True):
+    xs = [sn.redshift for sn in data]
+    ys = [sn.magnitude for sn in data]
+    plt.scatter(xs, ys, s=2, marker=".", color="black")
+    plt.xscale("log")
+
+    plt.title("magnitude vs redshift")
+    plt.xlabel("z")
+    plt.ylabel("magnitude")
+    #coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
+    #m, b = coefficients.slope, coefficients.intercept
+    #m, b = np.polyfit(xs, ys, 1)
+    #plt.axline(
+    #    (0, b),
+    #    (1, m + b),
+    #    color="black",
+    #    linewidth=0.5,
+    #)
+    if save:
+        plt.savefig(
+            GRAPHS_DIR / f"magnitude_vs_log_redshift.png",
+            bbox_inches="tight",
+        )
+        plt.cla()
+
+
 def generate_all_graphs(data, save=True):
     uncalibrated_graph(data, corrected=True, save=save)
     uncalibrated_graph(data, corrected=False, save=save)
     both_calibrated_redshift_vs_distance_graph(data, save=save)
     both_calibrated_velocity_vs_distance_graph(data, save=save)
-    bootstrap_H0_graph(data, corrected=True, trials=1000, save=save)
-    bootstrap_H0_graph(data, corrected=False, trials=1000, save=save)
-    bootstrap_z_vs_ud_graph(data, corrected=True, trials=1000, save=save)
+    #bootstrap_H0_graph(data, corrected=True, trials=1000, save=save)
+    #bootstrap_H0_graph(data, corrected=False, trials=1000, save=save)
+    #bootstrap_z_vs_ud_graph(data, corrected=True, trials=1000, save=save)
 
 
 if __name__ == "__main__":
+    plt.rcParams["figure.figsize"] = (15, 10)
+
     # data = Supernova.from_rochester()
     data = Supernova.from_betoule()
-    generate_all_graphs(data)
-    exit()
     #data = Supernova.from_perlmutter()
+    generate_all_graphs(data)
+    #effective_magnitude_vs_log_redshift_graph(data, save=False)
+    #plt.show()
+    exit()
 
-    xs = [sn.redshift for sn in data]
-    ys = [sn.uncalibrated_distance(corrected=True) for sn in data]
+    xs = [np.log(sn.redshift) for sn in data]
+    ys = [sn.magnitude for sn in data]
     plt.scatter(xs, ys, s=2, marker=".", color="blue", label="corrected")
-    coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
+    #coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
+    m, b = np.polyfit(xs, ys, 1)
     plt.axline(
-        (0, coefficients.intercept),
-        (1, coefficients.slope + coefficients.intercept),
+        (0, b),
+        (1, m + b),
         color="black",
         linewidth=0.5,
     )
