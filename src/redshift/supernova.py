@@ -77,7 +77,7 @@ class Supernova:
                     name=row[idx["name"]],
                     magnitude=float(row[idx["mb_eff"]]),
                     magnitude_error=float(row[idx["mb_eff_error"]]),
-                    redshift=float(row[idx["z"]])
+                    redshift=float(row[idx["z"]]),
                 )
                 data.append(sn)
         return data
@@ -171,7 +171,18 @@ def uncalibrated_graph(data, corrected=True, save=True):
     plt.rcParams["figure.figsize"] = (8, 6)
     xs = [sn.redshift for sn in data]
     ys = [sn.uncalibrated_distance(corrected) for sn in data]
-    plt.scatter(xs, ys, marker=".", color="blue" if corrected else "darkorange")
+    if corrected:
+        plt.scatter(
+            xs,
+            ys,
+            s=15,
+            marker="^",
+            linewidths=0.7,
+            facecolors="none",
+            edgecolors="blue",
+        )
+    else:
+        plt.scatter(xs, ys, s=15, marker="x", linewidths=0.7, color="red")
 
     coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
     plt.axline(
@@ -207,11 +218,19 @@ def both_calibrated_redshift_vs_distance_graph(data, save=True):
 
     cal = Calibration(data, corrected=False)
     xs = [sn.calibrated_distance(cal) for sn in data]
-    plt.scatter(xs, ys, marker=".", color="darkorange")
+    plt.scatter(xs, ys, s=15, marker="x", linewidths=0.7, color="red")
 
     cal = Calibration(data, corrected=True)
     xs = [sn.calibrated_distance(cal) for sn in data]
-    plt.scatter(xs, ys, marker=".", color="blue")
+    plt.scatter(
+        xs,
+        ys,
+        s=15,
+        marker="^",
+        linewidths=0.7,
+        facecolors="none",
+        edgecolors="blue",
+    )
 
     plt.xlabel("distance (Mpsc)")
     plt.ylabel("z")
@@ -231,11 +250,28 @@ def both_calibrated_velocity_vs_distance_graph(data, save=True):
 
     cal = Calibration(data, corrected=False)
     xs = [sn.calibrated_distance(cal) for sn in data]
-    plt.scatter(xs, ys, marker=".", color="darkorange", label="uncorrected")
+    plt.scatter(
+        xs,
+        ys,
+        s=15,
+        marker="x",
+        linewidths=0.7,
+        color="red",
+        label="uncorrected",
+    )
 
     cal = Calibration(data, corrected=True)
     xs = [sn.calibrated_distance(cal) for sn in data]
-    plt.scatter(xs, ys, marker=".", color="blue", label="corrected")
+    plt.scatter(
+        xs,
+        ys,
+        s=15,
+        marker="^",
+        linewidths=0.7,
+        facecolors="none",
+        edgecolors="blue",
+        label="corrected",
+    )
 
     plt.axline(
         (0, 0),
@@ -264,7 +300,10 @@ def bootstrap_z_vs_ud(data, corrected, trials):
             f"Bootstraping trial z vs ud (corrected={corrected}): {i:7.0f}/{trials}",
             end="\r",
         )
-        resampled = [Supernova(**asdict(sn)) for sn in np.random.choice(data, size=len(data), replace=True)]
+        resampled = [
+            Supernova(**asdict(sn))
+            for sn in np.random.choice(data, size=len(data), replace=True)
+        ]
         for sn in resampled:
             sn.magnitude += scipy.stats.norm.rvs(scale=sn.magnitude_error)
 
@@ -327,7 +366,10 @@ def bootstrap_H0(data, corrected, trials, save=True):
             end="\r",
         )
 
-        resampled = [Supernova(**asdict(sn)) for sn in np.random.choice(data, size=len(data), replace=True)]
+        resampled = [
+            Supernova(**asdict(sn))
+            for sn in np.random.choice(data, size=len(data), replace=True)
+        ]
         for sn in resampled:
             sn.magnitude += scipy.stats.norm.rvs(scale=sn.magnitude_error)
 
@@ -343,7 +385,7 @@ def bootstrap_H0(data, corrected, trials, save=True):
 def bootstrap_H0_graph(data, corrected, trials, save=True):
     plt.rcParams["figure.figsize"] = (8, 6)
     med = np.median([sn.z for sn in data])
-    #z = 0.15
+    # z = 0.15
 
     left = [sn for sn in data if sn.z <= med]
     right = [sn for sn in data if sn.z > med]
@@ -372,7 +414,9 @@ def bootstrap_H0_graph(data, corrected, trials, save=True):
     )
 
     plt.legend()
-    plt.title(f"Bootstrapped H0 calibrated at H0 = {Supernova.H0:.0f} ({'corrected' if corrected else 'uncorrected'})")
+    plt.title(
+        f"Bootstrapped H0 calibrated at H0 = {Supernova.H0:.0f} ({'corrected' if corrected else 'uncorrected'})"
+    )
     if save:
         plt.savefig(
             GRAPHS_DIR / f"bootstrapped_H0_{'' if corrected else 'un'}corrected.png",
@@ -391,15 +435,15 @@ def effective_magnitude_vs_log_redshift_graph(data, save=True):
     plt.title("magnitude vs redshift")
     plt.xlabel("z")
     plt.ylabel("magnitude")
-    #coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
-    #m, b = coefficients.slope, coefficients.intercept
-    #m, b = np.polyfit(xs, ys, 1)
-    #plt.axline(
+    # coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
+    # m, b = coefficients.slope, coefficients.intercept
+    # m, b = np.polyfit(xs, ys, 1)
+    # plt.axline(
     #    (0, b),
     #    (1, m + b),
     #    color="black",
     #    linewidth=0.5,
-    #)
+    # )
     if save:
         plt.savefig(
             GRAPHS_DIR / f"magnitude_vs_log_redshift.png",
@@ -413,11 +457,28 @@ def hubble_diagram_graph(data, save=True):
     plt.xscale("log")
     xs = [sn.redshift for sn in data]
     ys = [sn.magnitude for sn in data]
-    plt.scatter(xs, ys, marker=".", color="darkorange", label="uncorrected")
+    plt.scatter(
+        xs,
+        ys,
+        s=15,
+        marker="x",
+        color="red",
+        linewidths=0.7,
+        label="uncorrected",
+    )
 
     xs = [sn.redshift for sn in data]
     ys = [sn.corrected_magnitude for sn in data]
-    plt.scatter(xs, ys, marker=".", color="blue", label="corrected")
+    plt.scatter(
+        xs,
+        ys,
+        s=15,
+        marker="^",
+        facecolors="none",
+        edgecolors="blue",
+        linewidths=0.7,
+        label="corrected",
+    )
 
     plt.title("Hubble diagram")
     plt.xlabel("z")
@@ -438,9 +499,9 @@ def generate_all_graphs(data, save=True):
     both_calibrated_redshift_vs_distance_graph(data, save=save)
     both_calibrated_velocity_vs_distance_graph(data, save=save)
     hubble_diagram_graph(data, save=save)
-    #bootstrap_H0_graph(data, corrected=True, trials=1000, save=save)
-    #bootstrap_H0_graph(data, corrected=False, trials=1000, save=save)
-    #bootstrap_z_vs_ud_graph(data, corrected=True, trials=1000, save=save)
+    # bootstrap_H0_graph(data, corrected=True, trials=1000, save=save)
+    # bootstrap_H0_graph(data, corrected=False, trials=1000, save=save)
+    # bootstrap_z_vs_ud_graph(data, corrected=True, trials=1000, save=save)
 
 
 if __name__ == "__main__":
@@ -448,14 +509,27 @@ if __name__ == "__main__":
 
     # data = Supernova.from_rochester()
     data = Supernova.from_betoule()
-    #data = Supernova.from_perlmutter()
+    # data = Supernova.from_perlmutter()
     generate_all_graphs(data)
     exit()
 
-    both_calibrated_redshift_vs_distance_graph(data, save=False)
-    #both_calibrated_velocity_vs_distance_graph(data, save=False)
+    xs = [np.log(sn.redshift) for sn in data]
+    ys = [np.log(sn.uncalibrated_distance(corrected=True)) for sn in data]
+    m, b = np.polyfit(xs, ys, 1)
+    print(m, b)
+    ys = [(m * np.log(sn.z) + b) - np.log(sn.uncalibrated_distance(corrected=True)) for sn in data]
+    print('sum squares', sum([y**2 for y in ys]))
+    print(np.mean(ys))
+    print(np.std(ys))
 
-    #bootstrap_H0_graph(data, corrected=False, trials=1000, save=False)
-    #bootstrap_z_vs_ud_graph(data, corrected=True, trials=1000, save=False)
+    plt.scatter(
+            xs,
+            ys,
+            s=15,
+            marker="^",
+            linewidths=0.7,
+            facecolors="none",
+            edgecolors="blue",
+        )
 
     plt.show()

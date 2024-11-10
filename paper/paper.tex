@@ -76,19 +76,20 @@ done by \citet{betoule2014}.
 
 \section{Derivation of luminosity distance}
 
-Luminosity distance, $D_L$, is the apparent distance of an object based on the
-measured luminosity. This does not take into account any movement of the
-observed object between the time when the light was emitted and the light is
-observed.
+Luminosity distance $D_L$, is the apparent distance of an object based on the
+observed luminisity, also known as the flux $F$.  This does not take into
+account any movement of the observed object between the time when the light was
+emitted and the light is observed. $D_L$ also does not take into account
+redshift. We are instead interested in $D_{L^*}$, which is the distance based
+on the luminosity corrected for redshift.
 
 Measurements of Type Ia supernova provide magnitude and redshift. To derive the
-luminosity distance from these measurements, we start by computing the relative
-brightness. Magnitude $M$ is defined on a logarithmic scale where magnitude 1 has
-100 times the brightness of magnitude 6. To convert magnitude to relative
-brightness $B$, we use
+luminosity distance from these measurements, we start by computing the flux
+$L$. Magnitude $M$ is defined on a logarithmic scale where magnitude 1 has 100
+times the brightness of magnitude 6, leading to
 
 \begin{equation}
-  B = \frac{1}{\sqrt[5]{100}^{M - 1}}.
+  F = \frac{1}{\sqrt[5]{100}^{M - 1}}.
 \end{equation}
 
 This is proportional to the amount of energy detected by a telescope. However,
@@ -98,7 +99,7 @@ photon from $E_{\text{emit}}$ to $E_{\text{obs}}$, but we can correct for this
 phenomenon by taking
 
 \begin{equation}
-  B^{*} = B \frac{E_{\text{emit}}}{E_{\text{obs}}}.
+  F^{*} = F \frac{E_{\text{emit}}}{E_{\text{obs}}}.
 \end{equation}
 
 Since the energy for a photon is given by $E = \frac{hc}{\lambda}$ where $h$ is
@@ -106,8 +107,8 @@ the Planck constant and $c$ is the speed of light, we have
 
 \begin{equation}
 \begin{aligned}
-  B^{*} &= B \frac{\frac{hc}{\lambda_{\text{emit}}}}{\frac{hc}{\lambda_{\text{obs}}}} \\
-        &= B \frac{\lambda_{\text{obs}}}{\lambda_{\text{emit}}}.
+  F^{*} &= F \frac{\frac{hc}{\lambda_{\text{emit}}}}{\frac{hc}{\lambda_{\text{obs}}}} \\
+        &= F \frac{\lambda_{\text{obs}}}{\lambda_{\text{emit}}}.
 \end{aligned}
 \end{equation}
 
@@ -116,8 +117,17 @@ We use the redshift equation $(1 + z)\lambda_{\text{emit}} =
 
 \begin{equation}
 \begin{aligned}
-  B^{*} &= B \frac{(1 + z)\lambda_{\text{emit}}}{\lambda_{\text{emit}}} \\
+  F^{*} &= B \frac{(1 + z)\lambda_{\text{emit}}}{\lambda_{\text{emit}}} \\
         &= B(1 + z).
+\end{aligned}
+\end{equation}
+
+To compute the corrected magnitue $M^*$, we can solve
+
+\begin{equation}
+\begin{aligned}
+   F^* &= \frac{1}{\sqrt[5]{100}^{M^* - 1}} \\
+   M^* &= M - \frac{\ln{(z + 1)}}{\ln{(\sqrt[5]{100})}}.
 \end{aligned}
 \end{equation}
 
@@ -133,23 +143,28 @@ is
   A = \pi \bigg(\frac{r}{d}\bigg)^2
 \end{equation}
 
-where $d$ is the relative distance between the two objects.
+where $D$ is the relative distance between the two objects.
 
 Replacing the area with the brightness, we have
 
+\begin{equation*}
+  F^{*} = \pi \bigg(\frac{r}{D}\bigg)^2
+\end{equation*}
+
 \begin{equation}
-\begin{aligned}
-  B^{*} = \pi \bigg(\frac{r}{d}\bigg)^2 \\
-      d = r \sqrt{\frac{\pi}{B^*}}.
-\end{aligned}
+\label{eq:D*}
+  D_{L^*} = r \sqrt{\frac{\pi}{F^*}}.
 \end{equation}
 
-Finally, since this equation has no specified units, we will need to find a calibration factor $k$. To beautify the equation, we can collect all constants (which includes $r$ since all Type Ia supernova have the same intrinsic brightness) into $k$. This gives
+Since this equation has no specified units, we will need to find a
+calibration factor $k$. To beautify the equation, we can collect all constants
+(which includes $r$ since all Type Ia supernova have the same intrinsic
+brightness) into $k$. This gives
 
 \begin{equation}
 \begin{aligned}
-  d &= r \sqrt{\frac{\pi}{\frac{1}{\sqrt[5]{100}^{M - 1}}(1 + z)}} \\
-    &= \frac{k 10^\frac{M}{5}}{\sqrt{z + 1}}.
+  D_{L^*} &= r \sqrt{\frac{\pi}{\frac{1}{\sqrt[5]{100}^{M - 1}}(1 + z)}} \\
+          &= \frac{k 10^\frac{M}{5}}{\sqrt{z + 1}}.
 \end{aligned}
 \end{equation}
 
@@ -157,39 +172,21 @@ The results of this model are shown in Figure \ref{fig:corrected_uncalibrated}.
 
 \begin{figure}[h!]
   \includegraphics[width=\linewidth]{../graphs/corrected_uncalibrated.png}
-  \caption{Uncalibrated distance model using the corrected $B^*$ values for
-  brightness.}
+  \caption{Uncalibrated distance model using the corrected $F^*$ values for
+  brightness. The data were obtained from \citet{betoule2014}.}
   \label{fig:corrected_uncalibrated}
 \end{figure}
 
 \begin{figure}[h!]
   \includegraphics[width=\linewidth]{../graphs/uncorrected_uncalibrated.png}
-  \caption{Uncalibrated distance model using the uncorrected $B$ values for brightness.
+  \caption{Uncalibrated distance model using the uncorrected $F$ values for brightness.
   The deviation from linearity suggests that distant objects are
   farther away than expected due to an accelerated expansion rate.}
   \label{fig:uncorrected_uncalibrated}
 \end{figure}
 
-It's worth noting that previous studies use $B$ instead of $B*$. According to
-\citet{betoule2014},
-
-\begin{displayquote}
-  Specifically, the distance estimator used in this analysis (and in most
-  similar cosmological analyses) assumes that supernovae with identical color,
-  shape and galactic environment have on average the same intrinsic luminosity
-  for all redshifts.
-\end{displayquote}
-
-This leads to
-
-\begin{equation}
-  d_{\text{uncorrected}} = k 10^\frac{M}{5}
-\end{equation}
-
-which is displayed in Figure \ref{fig:uncorrected_uncalibrated}.
-
 \section{Calibrated distance models}
-\label{sec:disproof}
+\label{sec:calibrated}
 
 Calibrating a distance model involves finding a linear regression line for a
 model and then computing the value $k$ required to make the regression model
@@ -204,28 +201,48 @@ To compute a model, we use non-parametric regression via repeated means as descr
 
 \begin{figure}[h!]
   \includegraphics[width=\linewidth]{../graphs/both_calibrated_velocity_vs_distance.png}
-  \caption{Calibrated distance model using both the corrected $B^*$ values as
-  well as the uncorrected $B$ brightness values.}
+  \caption{Calibrated distance model using both the corrected $F^*$ values as
+  well as the uncorrected $F$ brightness values.}
   \label{fig:calibrated}
 \end{figure}
 
+\section{Disagreement with existing research}
 
-\section{Next steps}
-\label{sec:nextsteps}
+Previous studies use $F$ instead of $F*$. According to \citet{betoule2014},
 
-Is my understanding of the literature correct? My understanding is that
-existing models don't correct for the impact of redshift on the brightness of
-distant objects, and models that use an accelerating expansion for the universe
-are based on adding that correction back into the model.
+\begin{displayquote}
+  Specifically, the distance estimator used in this analysis (and in most
+  similar cosmological analyses) assumes that supernovae with identical color,
+  shape and galactic environment have on average the same intrinsic luminosity
+  for all redshifts. This hypothesis is quantified by a linear model, yielding
+  a standardized distance modulus $\mu = 5 \log_{10}{(d_L / 10 \text{pc})}$:
 
-If that's accurate, it would be interesting to repeat the computation of
-cosmological constants. Is there evidence for acceleration or deceleration
-for the expansion rate?
+  \begin{equation}
+  \label{eq:betoule_distance_modulus}
+    \mu = m_B^* - (M_B - \alpha \times X_1 + \beta \times C)
+  \end{equation}
 
-Find a bigger dataset. Use \citet{abbott2024} perhaps?
+  where $m_B^*$ corresponds to the observed peak magnitude in restframe $B$
+  band and $\alpha$, $\beta$ and $M_B$ are nuisance parameters in the distance
+  estimate.
+\end{displayquote}
 
-Is it necessary to figure out a hypothesis test? What would that even look
-like?
+This statement may refer to the idea that a Type Ia supernova can have an
+evolving intrinsic luminosity $L$ over time as conditions within the universe
+change which was first hypothesized by \citet{tinsley1968}. In Equation
+\ref{eq:betoule_distance_modulus}, there is no correction for redshift, which
+suggests the interpretation that the flux $F$ is unaffected by redshift.
+
+The model where $F$ is not corrected for redshift is explored in Figure
+\ref{fig_uncorrected_uncalibrated} by replacing $F^*$ with $F$ in Equation
+\ref{eq:D*} and obtaining
+
+\begin{equation}
+  D_L = k 10^\frac{M}{5}.
+\end{equation}
+
+\section{Conclusions}
+\label{sec:conclusions}
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}
