@@ -17,7 +17,7 @@
 \usepackage{csquotes}
 
 
-\def \thetitle {Correcting supernova luminosity for redshift implies no accelerated expansion}
+\def \thetitle {Correcting supernova luminosity for time dilation implies no dark energy}
 \title{\thetitle}
 
 \date{\today}
@@ -51,11 +51,11 @@ pdfkeywords={cosmological parameters, dark energy},
 
 \begin{abstract}
   Existing analysis of Type Ia supernova relies on the assumption that
-  luminosity is not affected by redshift. However, when luminosity is corrected
-  for redshift, the relationship between luminosity distance and redshift for
-  Type Ia supernova becomes linear. This implies that the expansion rate of the
-  universe is not accelerating and there is no need for dark energy to explain
-  observational data.
+  luminosity is not affected by time dilation. However, when luminosity is
+  corrected for time dilation, the relationship between luminosity distance and
+  redshift for Type Ia supernova becomes linear. This indicates that the
+  expansion rate of the universe is not accelerating and there is no need for
+  dark energy to explain observational data.
 \end{abstract}
 
 % keywords can be removed
@@ -74,51 +74,70 @@ done by \citet{betoule2014}.
 \begin{displayquote}
 \end{displayquote}
 
-\section{Derivation of luminosity distance}
+\section{The dimming effects of redshift}
+
+The characteristics of redshift depend on the reason distant objects are
+redshifted. The dominant model is the big bang theory, where the farther away
+an object is from us, the more quickly it is moving away from us. Another
+theory is the tired light hypothesis, as described by \citet{shao2013}, where
+distant objects are mostly stationary relative to us, but where the energy of
+light is lost as it travels through space. A feature of the tired light
+hypothesis is that since distant objects do not have a high relative velocity
+to us, they should not show time dilation. However, as shown by
+\citet{white2024}, distant supernova do experience time dilation. Based on
+this, we reject the tired light hypothesis and assume the big bang model.
+
+The magnitude measurements for Type Ia supernova goes through a long chain of
+data processing. The data used here was collected by the Dark Energy Survey
+Collaboration, as summarized in \citet{abbott2024}, while \citet{vincenzi2024}
+describes the data processing pipeline in more detail. However, the data
+processing does not explicitly correct for either redshift or time dilation.
+
+In the big bang model, there are two phenomena associated with redshift that we
+might expect to reduce the appearant magnitude of a Type Ia supernova. The
+first phenomenon is that the energy carried by a photon is inversely
+proportional to wavelength, so as redshift increases the wavelength of a
+photon, the energy decreases. The second phenomenon is that time dilation for
+objects moving quickly relative to our observational rest frame will reduce the
+rate at which photons are being emitted.
+
+The supernova data collected by the DES Collaboration used a CCD camera, a
+photon counting device, as described by \citet{flaughter2015}.  As noted by
+\citet{kim1996}, photometric measurements that depend on bolometers will need
+to be corrected for the reduced energy level of redshifted light, but with a
+photon counting device, this correction is not necessary.
+
+However, time dilation also reduces the magnitude of light. Instead of changing
+the properties of individual photons, it reduces the count of photons by a
+factor of $\frac{1}{1+z}$. This phenomenon will not be addressed by the nuances
+of any measuring device, so it must be explicitly corrected.
+
+\section{Correcting magnitude for time dilation}
+
+
 
 Luminosity distance $D_L$, is the apparent distance of an object based on the
-observed luminisity, also known as the flux $F$.  This does not take into
+observed luminosity, also known as the flux $F$. This does not take into
 account any movement of the observed object between the time when the light was
-emitted and the light is observed. $D_L$ also does not take into account
-redshift. We are instead interested in $D_{L^*}$, which is the distance based
-on the luminosity corrected for redshift.
+emitted and the light is observed.
 
-Measurements of Type Ia supernova provide magnitude and redshift. To derive the
-luminosity distance from these measurements, we start by computing the flux
-$L$. Magnitude $M$ is defined on a logarithmic scale where magnitude 1 has 100
-times the brightness of magnitude 6, leading to
+To derive the luminosity distance from these measurements, we start
+by computing the flux $L$. Magnitude $M$ is defined on a logarithmic scale
+where magnitude 1 has 100 times the brightness of magnitude 6, leading to
 
 \begin{equation}
   F = \frac{1}{\sqrt[5]{100}^{M - 1}}.
 \end{equation}
 
-This is proportional to the amount of energy detected by a telescope. However,
-we instead want a number that is proportional to the number of photons detected
-by the telescope. Redshifting decreases the amount of energy carried by a
-photon from $E_{\text{emit}}$ to $E_{\text{obs}}$, but we can correct for this
-phenomenon by taking
-
-\begin{equation}
-  F^{*} = F \frac{E_{\text{emit}}}{E_{\text{obs}}}.
-\end{equation}
-
-Since the energy for a photon is given by $E = \frac{hc}{\lambda}$ where $h$ is
-the Planck constant and $c$ is the speed of light, we have
+This is proportional to the number of photons detected by a telescope. We can
+find the corrected flux $F^*$ by multiplying by $k(z)$, the redshift correction factor. Time
+dilation of quickly moving objects reduces the number of photons by a factor of
+$\frac{1}{1 + z}$, so we have
 
 \begin{equation}
 \begin{aligned}
-  F^{*} &= F \frac{\frac{hc}{\lambda_{\text{emit}}}}{\frac{hc}{\lambda_{\text{obs}}}} \\
-        &= F \frac{\lambda_{\text{obs}}}{\lambda_{\text{emit}}}.
-\end{aligned}
-\end{equation}
-
-We use the redshift equation $(1 + z)\lambda_{\text{emit}} =
-\lambda_{\text{obs}}$ to obtain
-
-\begin{equation}
-\begin{aligned}
-  F^{*} &= B \frac{(1 + z)\lambda_{\text{emit}}}{\lambda_{\text{emit}}} \\
-        &= B(1 + z).
+  F^* &= F \times k(z) \\
+      &= F (1 + z).
 \end{aligned}
 \end{equation}
 
@@ -131,57 +150,28 @@ To compute the corrected magnitue $M^*$, we can solve
 \end{aligned}
 \end{equation}
 
-We note that since all Type Ia supernova have approximately the same intrinsic
-brightness, we can use a geometric model to compute relative distances. Imagine
-holding up two coins, one in each hand.  If you arange them so that the
-distance from your eyes to the first coin double the distance from your eyes to
-the second coin, the second coin should appear to be $\frac{1}{4}$ of the size.
-More formally, for two objects of the same radius $r$, the apparent area $A$
-is
 
-\begin{equation}
-  A = \pi \bigg(\frac{r}{d}\bigg)^2
-\end{equation}
 
-where $D$ is the relative distance between the two objects.
 
-Replacing the area with the brightness, we have
 
-\begin{equation*}
-  F^{*} = \pi \bigg(\frac{r}{D}\bigg)^2
-\end{equation*}
 
-\begin{equation}
-\label{eq:D*}
-  D_{L^*} = r \sqrt{\frac{\pi}{F^*}}.
-\end{equation}
 
-Since this equation has no specified units, we will need to find a
-calibration factor $k$. To beautify the equation, we can collect all constants
-(which includes $r$ since all Type Ia supernova have the same intrinsic
-brightness) into $k$. This gives
 
-\begin{equation}
-\begin{aligned}
-  D_{L^*} &= r \sqrt{\frac{\pi}{\frac{1}{\sqrt[5]{100}^{M - 1}}(1 + z)}} \\
-          &= \frac{k 10^\frac{M}{5}}{\sqrt{z + 1}}.
-\end{aligned}
-\end{equation}
 
-The results of this model are shown in Figure \ref{fig:corrected_uncalibrated}.
+
+
+
+
 
 \begin{figure}[h!]
-  \includegraphics[width=\linewidth]{../graphs/corrected_uncalibrated.png}
-  \caption{Uncalibrated distance model using the corrected $F^*$ values for
-  brightness. The data were obtained from \citet{betoule2014}.}
+  \includegraphics[width=\linewidth]{../graphs/mu_distance_vs_redshift.png}
+  \caption{todo}
   \label{fig:corrected_uncalibrated}
 \end{figure}
 
 \begin{figure}[h!]
-  \includegraphics[width=\linewidth]{../graphs/uncorrected_uncalibrated.png}
-  \caption{Uncalibrated distance model using the uncorrected $F$ values for brightness.
-  The deviation from linearity suggests that distant objects are
-  farther away than expected due to an accelerated expansion rate.}
+  \includegraphics[width=\linewidth]{../graphs/velocity_vs_distance.png}
+  \caption{todo}
   \label{fig:uncorrected_uncalibrated}
 \end{figure}
 
@@ -197,45 +187,12 @@ recessional speed for a given redshift, we use $v = cz$ where $c$ is the speed
 of light.
 
 To compute a model, we use non-parametric regression via repeated means as described in
-\citet{siegel1982}. A comparison of both models is shown in Figure \ref{fig:calibrated}.
+\citet{siegel1982}. A comparison of both models is shown in Figure .
 
-\begin{figure}[h!]
-  \includegraphics[width=\linewidth]{../graphs/both_calibrated_velocity_vs_distance.png}
-  \caption{Calibrated distance model using both the corrected $F^*$ values as
-  well as the uncorrected $F$ brightness values.}
-  \label{fig:calibrated}
-\end{figure}
 
 \section{Disagreement with existing research}
 
 Previous studies use $F$ instead of $F*$. According to \citet{betoule2014},
-
-\begin{displayquote}
-  Specifically, the distance estimator used in this analysis (and in most
-  similar cosmological analyses) assumes that supernovae with identical color,
-  shape and galactic environment have on average the same intrinsic luminosity
-  for all redshifts. This hypothesis is quantified by a linear model, yielding
-  a standardized distance modulus $\mu = 5 \log_{10}{(d_L / 10 \text{pc})}$:
-
-  \begin{equation}
-  \label{eq:betoule_distance_modulus}
-    \mu = m_B^* - (M_B - \alpha \times X_1 + \beta \times C)
-  \end{equation}
-
-  where $m_B^*$ corresponds to the observed peak magnitude in restframe $B$
-  band and $\alpha$, $\beta$ and $M_B$ are nuisance parameters in the distance
-  estimate.
-\end{displayquote}
-
-This statement may refer to the idea that a Type Ia supernova can have an
-evolving intrinsic luminosity $L$ over time as conditions within the universe
-change which was first hypothesized by \citet{tinsley1968}. In Equation
-\ref{eq:betoule_distance_modulus}, there is no correction for redshift, which
-suggests the interpretation that the flux $F$ is unaffected by redshift.
-
-The model where $F$ is not corrected for redshift is explored in Figure
-\ref{fig_uncorrected_uncalibrated} by replacing $F^*$ with $F$ in Equation
-\ref{eq:D*} and obtaining
 
 \begin{equation}
   D_L = k 10^\frac{M}{5}.
