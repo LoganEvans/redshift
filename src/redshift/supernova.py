@@ -359,7 +359,7 @@ def generate_all_graphs(data):
 
 
 if __name__ == "__main__":
-    plt.rcParams["figure.figsize"] = (8, 6)
+    plt.rcParams["figure.figsize"] = (80, 60)
     plt.rcParams["text.usetex"] = True
 
     # data = Supernova.from_rochester()
@@ -369,6 +369,6 @@ if __name__ == "__main__":
     generate_all_graphs(data)
 
     #all_mu_distance_vs_redshift_graph(data, save=False)
-    #velocity_vs_distance_graph(data, save=False)
+    velocity_vs_distance_graph(data, save=False)
     #hubble_diagram_graph(data, save=False)
     #plt.show()

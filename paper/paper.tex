@@ -63,29 +63,12 @@ pdfkeywords={cosmological parameters, dark energy},
 
 \section{Introduction}
 
-TODO: Discuss \citet{riess1998}, \citet{perlmutter1999}, and \citet{perlmutter2003}, as well as their nobel prize, summarized in \citet{straumann2012}.
-
-Summarize dark energy. Emphasize that dark energy is a popular explanation for
-why distant supernova appear to be too far away.
-
-Talk about the difficulty of curating supernova data, and summarize the work
-done by \citet{betoule2014}.
+TODO.
 
 \begin{displayquote}
 \end{displayquote}
 
 \section{The dimming effects of redshift}
-
-The characteristics of redshift depend on the reason distant objects are
-redshifted. The dominant model is the big bang theory, where the farther away
-an object is from us, the more quickly it is moving away from us. Another
-theory is the tired light hypothesis, as described by \citet{shao2013}, where
-distant objects are mostly stationary relative to us, but where the energy of
-light is lost as it travels through space. A feature of the tired light
-hypothesis is that since distant objects do not have a high relative velocity
-to us, they should not show time dilation. However, as shown by
-\citet{white2024}, distant supernova do experience time dilation. Based on
-this, we reject the tired light hypothesis and assume the big bang model.
 
 The magnitude measurements for Type Ia supernova goes through a long chain of
 data processing. The data used here was collected by the Dark Energy Survey
@@ -93,28 +76,70 @@ Collaboration, as summarized in \citet{abbott2024}, while \citet{vincenzi2024}
 describes the data processing pipeline in more detail. However, the data
 processing does not explicitly correct for either redshift or time dilation.
 
-In the big bang model, there are two phenomena associated with redshift that we
-might expect to reduce the appearant magnitude of a Type Ia supernova. The
-first phenomenon is that the energy carried by a photon is inversely
-proportional to wavelength, so as redshift increases the wavelength of a
-photon, the energy decreases. The second phenomenon is that time dilation for
-objects moving quickly relative to our observational rest frame will reduce the
-rate at which photons are being emitted.
+In the big bang model, there are multiple phenomena associated with redshift that we
+might expect to reduce the apparent magnitude of a Type Ia supernova.
+
+\subsection{Recessional velocity redshift}
+
+The energy carried by a photon is inversely proportional to wavelength, given
+by the Planck relation
+
+\begin{equation}
+  E = \frac{hc}{\lambda}
+\end{equation}
+
+where $E$ is energy, $h$ is the Planck constant, $c$ is the speed of light, and
+$\lambda$ is the wavelength.
+
+As redshift increases the wavelength of a photon, the energy decreases.
 
 The supernova data collected by the DES Collaboration used a CCD camera, a
-photon counting device, as described by \citet{flaughter2015}.  As noted by
-\citet{kim1996}, photometric measurements that depend on bolometers will need
-to be corrected for the reduced energy level of redshifted light, but with a
-photon counting device, this correction is not necessary.
+photon counting device, as described by \citet{flaughter2015}.  \citet{kim1996}
+noted that photometric measurements that depend on bolometers will need to be
+corrected for the reduced energy level of redshifted light, but with a photon
+counting device, this correction is not necessary.
 
-However, time dilation also reduces the magnitude of light. Instead of changing
-the properties of individual photons, it reduces the count of photons by a
-factor of $\frac{1}{1+z}$. This phenomenon will not be addressed by the nuances
-of any measuring device, so it must be explicitly corrected.
+While the redshift phenomenon should impact the light detected from distant
+supernova, it shouldn't impact the magnitude measurements so it does not need
+to be explicitly corrected.
+
+\subsection{Time dilation}
+
+The second phenomenon is that time dilation for objects moving quickly relative
+to our observational rest frame will reduce the rate at which photons are being
+emitted. Instead of changing the properties of individual photons, time
+dilation reduces the count of photons by a factor of $\frac{1}{1+z}$.
+
+This phenomenon will not be addressed by the nuances of any measuring device,
+so it must be explicitly corrected.
+
+\subsection{Stretching of space}
+
+If space itself is stretching, it will both increase the wavelength of photons
+and also reduce the density of those photons. If space is stretching at a
+constant rate, the effect would be indistinguishable from the redshift and time
+dilation created by high relative recessional velocities. However, an
+accelarting expansion of the universe may indicate a non-constant rate of
+stretching. This would manifest by distant objects having a greater distance
+per redshift than nearby objects.
+
+This non-linear streching-of-space model would be indistinguishable from a
+scenario where a constant force is pushing all objects away from each other.
+
+\subsection{Tired light}
+
+And alternative to the big bang theory is the tired light hypothesis, as
+described by \citet{zwicky1929} and \citet{shao2013}. The idea is that distant
+objects are mostly stationary relative to us, but the energy of light is lost
+as it travels through space. A feature of the tired light hypothesis is that
+since distant objects do not have a high relative velocity to us, they should
+not show time dilation.
+
+However, as shown by \citet{blonden2008} and \citet{white2024}, distant
+supernova do experience time dilation. Based on this, we can reject the tired
+light hypothesis and assume the big bang model.
 
 \section{Correcting magnitude for time dilation}
-
-
 
 Luminosity distance $D_L$, is the apparent distance of an object based on the
 observed luminosity, also known as the flux $F$. This does not take into
@@ -122,17 +147,17 @@ account any movement of the observed object between the time when the light was
 emitted and the light is observed.
 
 To derive the luminosity distance from these measurements, we start
-by computing the flux $L$. Magnitude $M$ is defined on a logarithmic scale
+by computing the flux $F$. Magnitude $m$ is defined on a logarithmic scale
 where magnitude 1 has 100 times the brightness of magnitude 6, leading to
 
 \begin{equation}
-  F = \frac{1}{\sqrt[5]{100}^{M - 1}}.
+  F = \frac{1}{\sqrt[5]{100}^{m - 1}}.
 \end{equation}
 
 This is proportional to the number of photons detected by a telescope. We can
-find the corrected flux $F^*$ by multiplying by $k(z)$, the redshift correction factor. Time
-dilation of quickly moving objects reduces the number of photons by a factor of
-$\frac{1}{1 + z}$, so we have
+find the corrected flux $F^*$ by multiplying by $k(z)$, the redshift correction
+factor. Time dilation of quickly moving objects reduces the number of photons
+by a factor of $\frac{1}{1 + z}$, so we have
 
 \begin{equation}
 \begin{aligned}
@@ -141,65 +166,73 @@ $\frac{1}{1 + z}$, so we have
 \end{aligned}
 \end{equation}
 
-To compute the corrected magnitue $M^*$, we can solve
+To compute the corrected magnitude $m^*$, we can solve
 
 \begin{equation}
 \begin{aligned}
-   F^* &= \frac{1}{\sqrt[5]{100}^{M^* - 1}} \\
-   M^* &= M - \frac{\ln{(z + 1)}}{\ln{(\sqrt[5]{100})}}.
+   F^* &= \frac{1}{\sqrt[5]{100}^{m^* - 1}} \\
+   m^* &= m - \frac{\ln{(z + 1)}}{\ln{(\sqrt[5]{100})}}.
 \end{aligned}
 \end{equation}
 
+From here, we can use the standard distance modules $\mu$ defined as
 
+\begin{equation}
+  \mu = m^* - M
+\end{equation}
 
+where $M$ is the absolute magnitude. The luminosity distance $D_L$ in parsecs
+can then be calculated as
 
+\begin{equation}
+  D_L = 10^{1 + \frac{\mu}{5}}.
+\end{equation}
 
+\section{Linear distance vs redshift relationship}
 
+The theory of an accelerating expansion is based on there being a non-linear
+relationship between redshift and distance. More specifically, old objects (the
+ones that are more distant) should have more distance per redshift than newer
+objects.
 
+As shown in Figure \ref{fig:mu_distance_vs_redshift}, this non-linear
+relationship is only observed when $k(z) = 1$, meaning that magnitude is not
+corrected for time dilation.
 
-
-
-
-
-
+In contrast, when $k(z) = 1 + z$, time dilation is accounted for and there is a
+linear relationship between redshift and distance. A linear model rules out an
+accellerated expansion.
 
 \begin{figure}[h!]
   \includegraphics[width=\linewidth]{../graphs/mu_distance_vs_redshift.png}
-  \caption{todo}
-  \label{fig:corrected_uncalibrated}
+  \caption{The relationship between distance and redshift for two treatments of
+  magnitude data. The displayed points are roughly a third of the values in the
+  full DES dataset, selected evenly to aid visibility. The $k(z) = 1$ treatment
+  is clearly non-linear while the $k(z) = 1 + z$ treatment appears to be
+  linear.}
+  \label{fig:mu_distance_vs_redshift}
 \end{figure}
 
 \begin{figure}[h!]
   \includegraphics[width=\linewidth]{../graphs/velocity_vs_distance.png}
-  \caption{todo}
+  \caption{The expansion rate of the universe based on the full DES dataset.
+  This displays the full DES dataset using $k(z) = 1 + z$. The velocity $v$ is
+  calculated from $v = zc$, where $c$ is the speed of light. Note that the axis
+  are flipped compared to \ref{fig:mu_distance_vs_redshift}. In a perfectly
+  calibrated dataset, the fitted line should match the Hubble constant. This
+  graph is based on an absolute magnitude for Type Ia supernova at
+  $M = -19.3232$, which yields a slope of about $63 \frac{\text{km/s}}{\text{Mpc}}$.
+  If the absolute magnitude of a Type Ia supernova is instead $M = -19.102746$,
+  the slope would be $70 \frac{\text{km/s}}{\text{Mpc}}$.}
   \label{fig:uncorrected_uncalibrated}
 \end{figure}
 
-\section{Calibrated distance models}
-\label{sec:calibrated}
-
-Calibrating a distance model involves finding a linear regression line for a
-model and then computing the value $k$ required to make the regression model
-match a Hubble paramater. By arbitrary choice, we use $H_0 = 70 \frac{km/s}{Mpsc}$.
-
-The final units for distance will be in megaparsecs $Mpsc$. To find the
-recessional speed for a given redshift, we use $v = cz$ where $c$ is the speed
-of light.
-
-To compute a model, we use non-parametric regression via repeated means as described in
-\citet{siegel1982}. A comparison of both models is shown in Figure .
-
-
 \section{Disagreement with existing research}
 
-Previous studies use $F$ instead of $F*$. According to \citet{betoule2014},
-
-\begin{equation}
-  D_L = k 10^\frac{M}{5}.
-\end{equation}
-
-\section{Conclusions}
-\label{sec:conclusions}
+Previous studies use $F$ instead of $F*$. To the best of our knowledge, no
+studies that depend on the distance of Type Ia supernova, reaching back at
+least to \citet{riess1998} and \citet{perlmutter1999}, have accounted for time
+dilation.
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}
