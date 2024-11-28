@@ -64,7 +64,10 @@ class Supernova:
     @property
     def velocity_kms(self):
         c = 299792.458  # km/s
-        return self.z * c
+
+        z2 = self.z * self.z
+
+        return (c * z2 + 2 * c * self.z) / (z2 + 2 * self.z + 2)
 
     def mu(self, correction=Correction.NONE):
         return self.corrected_magnitude(correction) - self.absolute_magnitude
@@ -317,6 +320,7 @@ def hubble_diagram_graph(data, save=True):
 
 
 def velocity_vs_distance_graph(data, correction=Correction.ONE, save=True):
+    c = 299792.458  # km/s
     plt.rcParams["figure.figsize"] = (8, 6)
 
     xs = [sn.mu_distance(correction=correction) / 1e6 for sn in data]
@@ -331,14 +335,17 @@ def velocity_vs_distance_graph(data, correction=Correction.ONE, save=True):
         edgecolors="blue",
         label="k(z) = 1"
     )
-    coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
-    plt.axline(
-        (min_x, min_x * coefficients.slope + coefficients.intercept),
-        (max_x, max_x * coefficients.slope + coefficients.intercept),
-        color="black",
-        linewidth=0.5,
-        linestyle="--",
-    )
+
+    #coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
+    #plt.axline(
+    #    (min_x, min_x * coefficients.slope + coefficients.intercept),
+    #    (max_x, max_x * coefficients.slope + coefficients.intercept),
+    #    color="black",
+    #    linewidth=0.5,
+    #    linestyle="--",
+    #)
+
+    plt.hlines(c, xmin=min_x, xmax=max_x, label="c (speed of light)")
 
     plt.title("Linear Hubble constant")
     plt.xlabel("distance (Mpc)")
@@ -350,6 +357,26 @@ def velocity_vs_distance_graph(data, correction=Correction.ONE, save=True):
             bbox_inches="tight",
         )
         plt.cla()
+
+
+def delta_distance_graph(data, save=True):
+    #c = 299792.458  # km/s
+
+    def delta(d_one, d_none):
+        t = d_none / 9.71561e-9
+        return math.log(d_none / d_one) / t
+
+    plt.rcParams["figure.figsize"] = (8, 6)
+
+    xs = [sn.mu_distance(correction=Correction.ONE) for sn in data]
+    ys = [delta(sn.mu_distance(Correction.ONE), sn.mu_distance(Correction.NONE)) for sn in data]
+
+    plt.scatter(
+        xs, ys, s=15, marker="^", linewidths=0.7,
+        facecolors="none",
+        edgecolors="blue",
+        label="k(z) = 1"
+    )
 
 
 def generate_all_graphs(data):
@@ -366,9 +393,12 @@ if __name__ == "__main__":
     # data = Supernova.from_betoule()
     # data = Supernova.from_perlmutter()
     data = Supernova.from_abbott()
-    generate_all_graphs(data)
+    #generate_all_graphs(data)
 
     #all_mu_distance_vs_redshift_graph(data, save=False)
-    velocity_vs_distance_graph(data, save=False)
+    velocity_vs_distance_graph(data, correction=Correction.ONE, save=False)
+
+    #delta_distance_graph(data)
+
     #hubble_diagram_graph(data, save=False)
-    #plt.show()
+    plt.show()
