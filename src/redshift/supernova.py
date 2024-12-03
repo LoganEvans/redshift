@@ -61,6 +61,17 @@ class Supernova:
         else:  # Tired light
             return self.magnitude - np.log(1 + self.z) / np.log(100**0.2)
 
+    def inflation_rate(self):
+        # A = P e^(rt)
+        # T = xA
+        # A/P = e^(rx A)
+        # ln(A/P) = rx A
+        # r = ln(A/P) / (Ax)
+        A = self.mu_distance(correction=Correction.ONE)
+        P = self.orig_distance(correction=Correction.ONE)
+        x = 3.26156
+        return math.log(A / P) / (x * A)
+
     @property
     def velocity_kms(self):
         c = 299792.458  # km/s
@@ -72,11 +83,25 @@ class Supernova:
     def mu(self, correction=Correction.NONE):
         return self.corrected_magnitude(correction) - self.absolute_magnitude
 
-    def mu_distance(self, correction=Correction.NONE, use_mpc=True):
+    def mu_distance(self, correction=Correction.ONE, use_mpc=True):
         d = 10 ** (1 + self.mu(correction) / 5)
         if use_mpc:
             d /= 1e6
         return d
+
+    def orig_distance(self, correction=Correction.ONE):
+        return self.mu_distance(correction) / (self.z + 1)
+
+    def delta_distance(self, correction=Correction.ONE):
+        return self.mu_distance(correction) - self.orig_distance(correction)
+
+    def energy_loss(self):
+        # E = hc / l
+        # E_loss = hc/l - hc/(l*(1+z))
+        # E_loss = (hc(1+z) - hc) / (l(1+z))
+        # E_loss = hcz / (l(1+z))
+        # E_loss = hc/l * (z / (1+z))
+        return self.z / (1 + self.z)
 
     @staticmethod
     def from_perlmutter():
@@ -239,9 +264,8 @@ def all_mu_distance_vs_redshift_graph(data, save=True):
         linestyle="--",
     )
 
-
-    #ys = [sn.mu_distance(correction=Correction.TWO) for sn in data]
-    #plt.scatter(
+    # ys = [sn.mu_distance(correction=Correction.TWO) for sn in data]
+    # plt.scatter(
     #    xs,
     #    ys,
     #    s=15,
@@ -250,18 +274,18 @@ def all_mu_distance_vs_redshift_graph(data, save=True):
     #    facecolors="none",
     #    edgecolors="green",
     #    label="k(z) = (1+z)^2",
-    #)
-    #coefficients = scipy.stats.siegelslopes(
+    # )
+    # coefficients = scipy.stats.siegelslopes(
     #    x=[sn.z for sn in old_data],
     #    y=[sn.mu_distance(correction=Correction.TWO) for sn in old_data],
-    #)
-    #plt.axline(
+    # )
+    # plt.axline(
     #    (0, coefficients.intercept),
     #    (1, coefficients.slope + coefficients.intercept),
     #    color="black",
     #    linewidth=0.5,
     #    linestyle="--",
-    #)
+    # )
 
     plt.xlabel("z")
     plt.ylabel("distance (Mps)")
@@ -269,9 +293,7 @@ def all_mu_distance_vs_redshift_graph(data, save=True):
     plt.title("Distance vs Redshift")
     plt.legend()  # ["uncorrected", "corrected", f"H0 = {Supernova.H0:.0f} km/s / Mpsc"])
     if save:
-        plt.savefig(
-            GRAPHS_DIR / "mu_distance_vs_redshift.png", bbox_inches="tight"
-        )
+        plt.savefig(GRAPHS_DIR / "mu_distance_vs_redshift.png", bbox_inches="tight")
         plt.cla()
 
 
@@ -323,29 +345,61 @@ def velocity_vs_distance_graph(data, correction=Correction.ONE, save=True):
     c = 299792.458  # km/s
     plt.rcParams["figure.figsize"] = (8, 6)
 
-    xs = [sn.mu_distance(correction=correction) / 1e6 for sn in data]
-    ys = [sn.velocity_kms for sn in data]
+    #xs = [sn.mu_distance(Correction.TWO) for sn in data]
+    #ys = [sn.energy_loss() / sn.inflation_rate() for sn in data]
 
-    min_x = min(xs)
-    max_x = max(xs)
+    xs = [sn.z for sn in data]
+    ys = [sn.mu_distance(Correction.ONE) for sn in data]
+    coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
+    dist_per_z = coefficients.slope
+
+    xs = [sn.mu_distance() for sn in data]
+    ys = [sn.delta_distance() for sn in data]
+
+    #xs = [sn.energy_loss() for sn in data]
+    #ys = [6.67146866 * sn.mu_distance(Correction.ONE) * sn.inflation_rate() for sn in data]
+
+    #xs = [sn.mu_distance(Correction.NONE) for sn in data]
+    #ys = [sn.inflation_rate() + 0.00004035447 * sn.energy_loss() for sn in data]
+
+    #xs = [sn.mu_distance(Correction.NONE) for sn in data]
+    #ys = [sn.energy_loss() / (6.428291819047782 * sn.mu_distance(Correction.ONE)) - sn.inflation_rate() for sn in data]
+
+    #xs = [sn.mu_distance(Correction.NONE) for sn in data]
+    #ys = [sn.inflation_rate() - 3.7806029237107605e-05 / (1 + sn.z) for sn in data]
+
+    #xs = [sn.mu_distance(Correction.NONE) for sn in data]
+    #ys = [sn.inflation_rate() - 3.7806029237107605e-05 / sn.mu_distance(Correction.ONE) for sn in data]
+
+
+    xmin = min(xs)
+    xmax = max(xs)
 
     plt.scatter(
-        xs, ys, s=15, marker="^", linewidths=0.7,
+        xs,
+        ys,
+        s=15,
+        marker="^",
+        linewidths=0.7,
         facecolors="none",
         edgecolors="blue",
-        label="k(z) = 1"
+        label="k(z) = 1",
     )
 
-    #coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
-    #plt.axline(
-    #    (min_x, min_x * coefficients.slope + coefficients.intercept),
-    #    (max_x, max_x * coefficients.slope + coefficients.intercept),
-    #    color="black",
-    #    linewidth=0.5,
-    #    linestyle="--",
-    #)
+    p = np.polyfit(xs, ys, 2)
+    xfit = np.linspace(xmin, xmax, 1000)
+    yfit = np.polyval(p, xfit)
+    plt.plot(xfit, yfit)
 
-    plt.hlines(c, xmin=min_x, xmax=max_x, label="c (speed of light)")
+    coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
+    print(coefficients)
+    plt.axline(
+        (xmin, xmin * coefficients.slope + coefficients.intercept),
+        (xmax, xmax * coefficients.slope + coefficients.intercept),
+        color="black",
+        linewidth=0.5,
+        linestyle="--",
+    )
 
     plt.title("Linear Hubble constant")
     plt.xlabel("distance (Mpc)")
@@ -360,7 +414,7 @@ def velocity_vs_distance_graph(data, correction=Correction.ONE, save=True):
 
 
 def delta_distance_graph(data, save=True):
-    #c = 299792.458  # km/s
+    # c = 299792.458  # km/s
 
     def delta(d_one, d_none):
         t = d_none / 9.71561e-9
@@ -369,13 +423,20 @@ def delta_distance_graph(data, save=True):
     plt.rcParams["figure.figsize"] = (8, 6)
 
     xs = [sn.mu_distance(correction=Correction.ONE) for sn in data]
-    ys = [delta(sn.mu_distance(Correction.ONE), sn.mu_distance(Correction.NONE)) for sn in data]
+    ys = [
+        delta(sn.mu_distance(Correction.ONE), sn.mu_distance(Correction.NONE))
+        for sn in data
+    ]
 
     plt.scatter(
-        xs, ys, s=15, marker="^", linewidths=0.7,
+        xs,
+        ys,
+        s=15,
+        marker="^",
+        linewidths=0.7,
         facecolors="none",
         edgecolors="blue",
-        label="k(z) = 1"
+        label="k(z) = 1",
     )
 
 
@@ -384,21 +445,157 @@ def generate_all_graphs(data):
     velocity_vs_distance_graph(data, save=True)
     # hubble_diagram_graph(data, save=save)
 
+def my_model(data, save=True):
+    xs = [sn.z for sn in data]
+    ys = [sn.mu_distance() for sn in data]
+
+    xs = [math.log(x) for x in xs]
+    ys = [math.log(y) for y in ys]
+
+    coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
+    b, m = coefficients.intercept, coefficients.slope
+    ys = [y - m * x - b for x, y in zip(xs, ys)]
+
+    q1 = np.percentile(ys, 25)
+    q3 = np.percentile(ys, 75)
+    iqr = q3 - q1
+
+    data = [sn for sn, y in zip(data, ys) if q1 - 1.5 * iqr <= y <= q3 + 1.5 * iqr]
+
+    xs = [sn.z for sn in data]
+    ys = [sn.mu_distance() for sn in data]
+    coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
+    b, m = coefficients.intercept, coefficients.slope
+
+    xs = [math.log(x) for x in xs]
+    ys = [math.log(y) for y in ys]
+
+    m, _ = np.polyfit(xs, ys, 1)
+    ys = [y - m * x for x, y in zip(xs, ys)]
+
+    _, sigma = scipy.stats.norm.fit(ys)
+    xs = [sn.z for sn in data]
+    ys = [sn.mu_distance() for sn in data]
+    m, b = scipy.stats.siegelslopes(x=xs, y=ys)
+    return data, m, b, sigma
+
+def graph_model(data):
+    xs = [sn.z for sn in data]
+    ys = [sn.mu_distance() for sn in data]
+
+    xmin, xmax = min(xs), max(xs)
+    plt.scatter(
+        xs,
+        ys,
+        s=15,
+        marker="^",
+        linewidths=0.7,
+        facecolors="none",
+        edgecolors="blue",
+        label="k(z) = 1",
+    )
+
+    coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
+    plt.axline(
+        (xmin, xmin * coefficients.slope + coefficients.intercept),
+        (xmax, xmax * coefficients.slope + coefficients.intercept),
+        color="black",
+        linewidth=0.5,
+        linestyle="--",
+    )
+
+    data, m, b, sigma = my_model(data)
+    xs = [sn.z for sn in data]
+    ys = [m * x * np.e ** (scipy.stats.norm(0, sigma).rvs()) + b for x in xs]
+    plt.scatter(xs, ys, s=15, marker="x", linewidths=0.7, color="red")
+
+
+def graph(data):
+    xs = [sn.z for sn in data]
+    ys = [sn.x1 for sn in data]
+
+    xmin, xmax = min(xs), max(xs)
+    plt.scatter(
+        xs,
+        ys,
+        s=15,
+        marker="^",
+        linewidths=0.7,
+        facecolors="none",
+        edgecolors="blue",
+        label="k(z) = 1",
+    )
+
+    coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
+    print(coefficients)
+    plt.axline(
+        (xmin, xmin * coefficients.slope + coefficients.intercept),
+        (xmax, xmax * coefficients.slope + coefficients.intercept),
+        color="black",
+        linewidth=0.5,
+        linestyle="--",
+    )
+
+
+def energy_loss_vs_orig_distance(data, correction=Correction.ONE, save=True):
+    c = 299792.458  # km/s
+    plt.rcParams["figure.figsize"] = (8, 6)
+
+    xs = [sn.orig_distance() for sn in data]
+    ys = [sn.energy_loss() for sn in data]
+
+    xmin = min(xs)
+    xmax = max(xs)
+
+    plt.scatter(
+        xs,
+        ys,
+        s=15,
+        marker="^",
+        linewidths=0.7,
+        facecolors="none",
+        edgecolors="blue",
+    )
+
+    coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
+    print(coefficients)
+    print(f"If linear, 100% energy loss occurs for distances greater than {1 / coefficients.slope} parsecs.")
+    plt.axline(
+        (xmin, xmin * coefficients.slope + coefficients.intercept),
+        (xmax, xmax * coefficients.slope + coefficients.intercept),
+        color="black",
+        linewidth=0.5,
+        linestyle="--",
+    )
+
+    plt.title("Linear Hubble constant")
+    plt.xlabel("Original distance (Mpc)")
+    plt.ylabel("energy loss")
+
+    if save:
+        plt.savefig(
+            GRAPHS_DIR / f"energy_loss_vs_orig_distance.png",
+            bbox_inches="tight",
+        )
+        plt.cla()
+
 
 if __name__ == "__main__":
     plt.rcParams["figure.figsize"] = (80, 60)
     plt.rcParams["text.usetex"] = True
 
-    # data = Supernova.from_rochester()
-    # data = Supernova.from_betoule()
-    # data = Supernova.from_perlmutter()
     data = Supernova.from_abbott()
+
+    #data, m, b, sigma = my_model(data)
+
     #generate_all_graphs(data)
 
     #all_mu_distance_vs_redshift_graph(data, save=False)
     velocity_vs_distance_graph(data, correction=Correction.ONE, save=False)
+    #energy_loss_vs_orig_distance(data, correction=Correction.ONE, save=False)
 
-    #delta_distance_graph(data)
+    #graph_model(data)
 
-    #hubble_diagram_graph(data, save=False)
+    #graph(data)
+
     plt.show()
