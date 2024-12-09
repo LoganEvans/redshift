@@ -2,23 +2,17 @@
 
 \usepackage{arxiv}
 
-\usepackage[utf8]{inputenc} % allow utf-8 input
-\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
 \usepackage{hyperref}       % hyperlinks
 \usepackage{url}            % simple URL typesetting
-\usepackage{booktabs}       % professional-quality tables
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{amsmath}
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
-\usepackage{microtype}      % microtypography
 \usepackage{graphicx}
 \usepackage{natbib}
-\usepackage{doi}
 \usepackage{csquotes}
 
 
-\def \thetitle {Correcting supernova luminosity for time dilation implies no dark energy}
-\title{\thetitle}
+\title{Dark energy is due to a math error from 1935}
 
 \date{\today}
 
@@ -32,30 +26,27 @@
 %\renewcommand{\undertitle}{Technical Report}
 \renewcommand{\shorttitle}{\textit{arXiv} Template}
 
-%%% Add PDF metadata to help others organize their library
-%%% Once the PDF is generated, you can check the metadata with
-%%% $ pdfinfo template.pdf
 \hypersetup{
-pdftitle={\thetitle},
+pdftitle={Dark energy is due to a math error from 1935},
 pdfsubject={astro-ph.CO},
 pdfauthor={Logan P.~Evans},
 pdfkeywords={cosmological parameters, dark energy},
 }
 
-\newtheorem{theorem}{Theorem}
-\newtheorem{corollary}{Corollary}
-\newtheorem{lemma}{Lemma}
-
 \begin{document}
 \maketitle
 
 \begin{abstract}
-  Existing analysis of Type Ia supernova relies on the assumption that
-  luminosity is not affected by time dilation. However, when luminosity is
-  corrected for time dilation, the relationship between luminosity distance and
-  redshift for Type Ia supernova becomes linear. This indicates that the
-  expansion rate of the universe is not accelerating and there is no need for
-  dark energy to explain observational data.
+  Observations of distant objects, such as supernovae and galaxies, is dimmed
+  due to three phenomena associated with redshift: energy levels per photon,
+  spectral bandwidth, and time dilation. Observed magnitudes are reported with
+  k-corrections that should correct for these dimming effects, but since 1935,
+  the equations used to perform these k-corrections have been missing the
+  correction factor for time dilation. When observations of Type Ia supernova
+  are corrected for this missing factor, the relationship between luminosity
+  distance and redshift for Type Ia supernova becomes linear. This indicates
+  that the expansion rate of the universe is not accelerating and there is no
+  need for dark energy to explain observational data.
 \end{abstract}
 
 % keywords can be removed
@@ -63,7 +54,59 @@ pdfkeywords={cosmological parameters, dark energy},
 
 \section{Introduction}
 
-TODO.
+Observations of Type Ia supernova are fundamental to the study of cosmology.
+These measurements are necessary to calibrate models that measure redshift and
+estimate distance. This relationship, often called the Hubble-Lema\^{i}tre law,
+[TODO: find citation] describes how quickly the universe is expanding. However,
+\citet{riess1998} and \citet{perlmutter1999} presented evidence that there
+isn't a linear relationship between redshift and distance, but instead, distant
+objects are father away than their redshift would predict (see Figure
+\ref{fig:mu_distance_vs_redshift}). This phenomenon, whatever its source, is
+referred to as dark energy.
+
+Type Ia supernova are used to explore the relationship between distances and
+redshifts because these events always happen in similar ways, so the absolute
+brightness is roughly always the same. An analogy is to imagine someone walking
+in the dark and lighting matches. As long as we know how brightly a match burns
+at a known distance, we can estimate the distance to any match by measuring the
+appearant brightness before applying some geometry.
+
+It turns out that measuring the apperant brightness of a Type Ia supernova is
+non-trivial. The aspect of the process that we will explore here concerns how
+redshift affects the light we observe. This problem is often referred to as
+k-corrections, and one of the first mathematical treatments of the problem was
+performed by \citet{desitter1934}.
+
+Willem de Sitter recognized three issues that would reduce the observed
+magnitude of a distant observation. First, a redshifted photon carries less
+energy than when it was originally emitted. Second, a narrow spectrum of
+emitted light will be spread out over a larger observed spectrum. Finally, time
+dilation will reduce the rate at which an observer detects photons. The
+correction for each of these issues is identical: take a measurement and
+multiply it by the factor $1 + z$.
+
+A year later, \citet{hubble1935} published a similar set of calculations for
+k-corrections, but these equations used $(1 + z)^2$ instead of the $(1 + z)^3$
+correction term used by de Sitter. The Hubble k-corrections have been used ever
+since.
+
+Hubble and de Sitter were clearly aware of all three dimming effects associated
+with redshift, but by \citet{oke1968energy}, the two factors of $(1 + z)$ were
+attributed to the change in energy and to the spectral bandwidth elongation,
+which leaves time dilation as the factor that was omitted.
+
+In 1935, the correction of $(1 + z)^2$ empirically lined up the data so that
+there seemed to be a linear relationship between redshift and distance. It
+wasn't until \citet{riess1998}, sixty-three years later, that the omission of a
+third $(1 + z)$ correction factor resulted in faulty conclusions.
+
+Those faulty conclusions, however, have been the basis for a substantial amount
+of scientific interest. In 2011, three physicists received the Nobel Prize in
+Physics for discovering that the expansion rate of the universe is accelerating
+\citet{straumann2012}. The papers \citet{riess1998} and \citet{perlmutter1999}
+have each received over 20000 citations. It's not clear how much cosmology work
+will need to be revisited with corrected distance measurements, but it is a
+non-trivial amount.
 
 \begin{displayquote}
 \end{displayquote}
@@ -72,9 +115,9 @@ TODO.
 
 The magnitude measurements for Type Ia supernova goes through a long chain of
 data processing. The data used here was collected by the Dark Energy Survey
-Collaboration, as summarized in \citet{abbott2024}, while \citet{vincenzi2024}
-describes the data processing pipeline in more detail. However, the data
-processing does not explicitly correct for either redshift or time dilation.
+Collaboration, as summarized in \citet{abbott2024} and described in more detail
+by \citet{vincenzi2024}. However, the data processing does not explicitly
+correct for either redshift or time dilation.
 
 In the big bang model, there are multiple phenomena associated with redshift that we
 might expect to reduce the apparent magnitude of a Type Ia supernova.
@@ -205,12 +248,40 @@ linear relationship between redshift and distance. A linear model rules out an
 accellerated expansion.
 
 \begin{figure}[h!]
-  \includegraphics[width=\linewidth]{../graphs/mu_distance_vs_redshift.png}
+  \includegraphics[width=\linewidth]{mu_distance_vs_redshift.png}
   \caption{The relationship between distance and redshift for two treatments of
   magnitude data. The displayed points are roughly a third of the values in the
   full DES dataset, selected evenly to aid visibility. The $k(z) = 1$ treatment
   is clearly non-linear while the $k(z) = 1 + z$ treatment appears to be
   linear.}
+  \label{fig:mu_distance_vs_redshift}
+\end{figure}
+
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{k-corrections_for_photon_counts.png}
+  \caption{An example of how k-corrections take an observed spectrum and
+  produce a rest-frame spectrum. [TODO]
+  }
+  \label{fig:mu_distance_vs_redshift}
+\end{figure}
+
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{velocity_vs_distance.png}
+  \caption{The relationship between expansion velocity and distance. The slope of this graph demonstrates the Hubble constant.
+  }
+  \label{fig:mu_distance_vs_redshift}
+\end{figure}
+
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{bootstrapped_H0.png}
+  \caption{A histogram of 100000 bootstrap trials measuring the Hubble constant
+  $H0$. Each trial samples an absolute Type Ia magnitude $M \sim Norm(-19.2334,
+  0.0404)$ based on data published by \citet{camarena2020}. It then samples,
+  with replacement, a population of supernovae from the dataset published by
+  \citet{abbott2024}. Finally, it uses the non-parametric linear regression
+  technique described by \citet{siegel1982}. The result of the bootstrap is $H0
+  \sim Norm(65.94, 1.29)$.
+  }
   \label{fig:mu_distance_vs_redshift}
 \end{figure}
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 from bisect import bisect
+import dataclasses
 from dataclasses import dataclass, field, asdict
 from datetime import date
 from matplotlib import pyplot as plt
@@ -19,7 +20,7 @@ import scipy
 
 REPO_DIR = pathlib.Path(os.environ["VIRTUAL_ENV"]).parent.resolve()
 DATA_DIR = REPO_DIR / "data"
-GRAPHS_DIR = REPO_DIR / "graphs"
+GRAPHS_DIR = REPO_DIR / "paper"
 
 
 class Correction(Enum):
@@ -102,7 +103,12 @@ class Supernova:
 
     @property
     def hubble(self):
-        return self.rate * self.mu_distance(use_mpc=False) * 3.086e+13 / (365 * 24 * 60 * 60)
+        return (
+            self.rate
+            * self.mu_distance(use_mpc=False)
+            * 3.086e13
+            / (365 * 24 * 60 * 60)
+        )
 
     @staticmethod
     def from_perlmutter():
@@ -165,10 +171,10 @@ class Supernova:
                     x1=float(row[idx["x1"]]),
                     MU=float(row[idx["MU"]]),
                     # see perivolaropoulos2022 for the Camerena and Marra references
-                    #absolute_magnitude=-19.105, # ~70km/s / Mpc
-                    #absolute_magnitude=-19.2334, # Camarena and Marra 2020b
-                    absolute_magnitude=-19.3232, # Abbott
-                    #absolute_magnitude=-19.401, # Camarena and Marra 2020a
+                    # absolute_magnitude=-19.105, # ~70km/s / Mpc
+                    absolute_magnitude=-19.2334, # Camarena and Marra 2020b
+                    # absolute_magnitude=-19.3232,  # Abbott
+                    # absolute_magnitude=-19.401, # Camarena and Marra 2020a
                     color=float(row[idx["c"]]),
                 )
                 data.append(sn)
@@ -203,6 +209,138 @@ class Supernova:
                     Supernova(name=row[idx["SN"]], magnitude=magnitude, redshift=z)
                 )
         return supernovas
+
+
+def k_corrections_for_photon_counts_graph(save=False):
+    lo = 100
+    hi = 2000
+    xs = np.linspace(lo, hi, hi - lo)
+
+    pdf = scipy.stats.norm(500, 100)
+    fig, axs = plt.subplots(2, 2)
+
+    fig.suptitle("k-corrections for photon counts")
+
+    z = 1
+
+    p_per = 100000
+
+    ps_00 = np.zeros(len(xs))
+    for i, nm in enumerate(xs):
+        nm_upper = (nm + 1) / 2
+        nm_lower = nm / 2
+        cdf_upper = pdf.cdf(nm_upper)
+        cdf_lower = pdf.cdf(nm_lower)
+        ps_00[i] = p_per * (cdf_upper - cdf_lower) / 2
+
+    axs[0, 0].sharex(axs[1, 1])
+    axs[0, 0].sharey(axs[1, 1])
+    axs[0, 0].plot(xs, ps_00, "tab:green")
+    axs[0, 0].set_title(r"Observed photon counts per $\lambda$")
+    axs[0, 0].set_xlabel(r"$\lambda$ (nm)")
+    axs[0, 0].set_ylabel("photons")
+    photon_count = sum(
+        [photons if 1000 <= x <= 1200 else 0 for x, photons in zip(xs, ps_00)]
+    )
+    axs[0, 0].fill_between(
+        xs,
+        ps_00,
+        where=[True if 1000 <= x <= 1200 else False for x in xs],
+        facecolor="darkgreen",
+        edgecolor="lightgreen",
+        hatch=r"//",
+        label=f"photons/nm = {photon_count:.0f}/200nm = {photon_count // 200:.0f}/nm",
+    )
+    axs[0, 0].legend()
+
+    ps_10 = np.zeros(len(xs))
+    for i, nm in enumerate(xs):
+        nm_upper = (nm + 1) / 2
+        nm_lower = nm / 2
+        cdf_upper = pdf.cdf(nm_upper)
+        cdf_lower = pdf.cdf(nm_lower)
+        ps_10[i] = p_per * (cdf_upper - cdf_lower)
+
+    axs[1, 0].sharex(axs[1, 1])
+    axs[1, 0].sharey(axs[1, 1])
+    axs[1, 0].plot(xs, ps_10, "tab:red")
+    axs[1, 0].set_title("Corrected for time dilation")
+    axs[1, 0].set_xlabel(r"$\lambda$ (nm)")
+    axs[1, 0].set_ylabel("photons")
+    photon_count = sum(
+        [photons if 1000 <= x <= 1200 else 0 for x, photons in zip(xs, ps_10)]
+    )
+    axs[1, 0].fill_between(
+        xs,
+        ps_10,
+        where=[True if 1000 <= x <= 1200 else False for x in xs],
+        facecolor="darkred",
+        edgecolor="red",
+        hatch=r"//",
+        label=f"photons/nm = {photon_count:.0f}/200nm = {photon_count // 200:.0f}/nm",
+    )
+    axs[1, 0].legend()
+
+    ps_01 = np.zeros(len(xs))
+    for i, nm in enumerate(xs):
+        nm_upper = nm + 1
+        nm_lower = nm
+        cdf_upper = pdf.cdf(nm_upper)
+        cdf_lower = pdf.cdf(nm_lower)
+        ps_01[i] = p_per * (cdf_upper - cdf_lower) / 2
+
+    axs[0, 1].sharex(axs[1, 1])
+    axs[0, 1].sharey(axs[1, 1])
+    axs[0, 1].plot(xs, ps_01, "tab:red")
+    axs[0, 1].set_title("Corrected for redshift")
+    axs[0, 1].set_xlabel(r"$\lambda$ (nm)")
+    axs[0, 1].set_ylabel("photons")
+    photon_count = sum(
+        [photons if 500 <= x <= 600 else 0 for x, photons in zip(xs, ps_01)]
+    )
+    axs[0, 1].fill_between(
+        xs,
+        ps_01,
+        where=[True if 500 <= x <= 600 else False for x in xs],
+        facecolor="darkred",
+        edgecolor="red",
+        hatch=r"//",
+        label=f"photons/nm = {photon_count:.0f}/100nm = {photon_count // 100:.0f}/nm",
+    )
+    axs[0, 1].legend()
+
+    ps_11 = np.zeros(len(xs))
+    for i, nm in enumerate(xs):
+        nm_upper = nm + 1
+        nm_lower = nm
+        cdf_upper = pdf.cdf(nm_upper)
+        cdf_lower = pdf.cdf(nm_lower)
+        ps_11[i] = p_per * (cdf_upper - cdf_lower)
+
+    axs[1, 1].plot(xs, ps_11, "tab:blue")
+    axs[1, 1].set_title(r"Corrected for redshift and time dilation")
+    axs[1, 1].set_xlabel(r"$\lambda$ (nm)")
+    axs[1, 1].set_ylabel("photons")
+    photon_count = sum(
+        [photons if 500 <= x <= 600 else 0 for x, photons in zip(xs, ps_11)]
+    )
+    axs[1, 1].fill_between(
+        xs,
+        ps_11,
+        where=[True if 500 <= x <= 600 else False for x in xs],
+        facecolor="darkblue",
+        edgecolor="lightblue",
+        hatch=r"//",
+        label=f"photons/nm = {photon_count:.0f}/100nm = {photon_count // 100:.0f}/nm",
+    )
+    axs[1, 1].legend()
+
+    if save:
+        plt.savefig(
+            GRAPHS_DIR / f"k-corrections_for_photon_counts.png",
+            bbox_inches="tight",
+        )
+        plt.cla()
 
 
 def reduce_data(data, step=0.002) -> list[Supernova]:
@@ -345,6 +483,48 @@ def hubble_diagram_graph(data, save=True):
         plt.cla()
 
 
+def recessional_velocity_vs_intercept_time_graph(
+    data, correction=Correction.ONE, save=True
+):
+    plt.rcParams["figure.figsize"] = (8, 6)
+
+    xs = [sn.velocity_kms for sn in data]
+    ys = [sn.mu_distance(correction) / sn.velocity_kms for sn in data]
+
+    coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
+    dist_per_z = coefficients.slope
+
+    xmin = min(xs)
+    xmax = max(xs)
+
+    plt.scatter(
+        xs,
+        ys,
+        s=15,
+        marker="^",
+        linewidths=0.7,
+        facecolors="none",
+        edgecolors="blue",
+        label="k(z) = 1+z",
+    )
+
+    coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
+    plt.axline(
+        (xmin, xmin * coefficients.slope + coefficients.intercept),
+        (xmax, xmax * coefficients.slope + coefficients.intercept),
+        color="black",
+        linewidth=0.5,
+        linestyle="--",
+    )
+
+    if save:
+        plt.savefig(
+            GRAPHS_DIR / f"recessional_velocity_vs_intercept_time.png",
+            bbox_inches="tight",
+        )
+        plt.cla()
+
+
 def velocity_vs_distance_graph(data, correction=Correction.ONE, save=True):
     c = 299792.458  # km/s
     plt.rcParams["figure.figsize"] = (8, 6)
@@ -421,10 +601,71 @@ def delta_distance_graph(data, save=True):
     )
 
 
+def bootstrap_hubble_parameter_graph(data, save=False):
+    trials = 100000
+
+    # From https://journals.aps.org/prresearch/pdf/10.1103/PhysRevResearch.2.013028
+    # Local determination of the Hubble constant and the deceleration parameter,
+    # David Camarena and Valerio Marra
+    abs_mag_dist = scipy.stats.norm(-19.2334, 0.0404)
+
+    results = []
+    for i in range(trials):
+        print(f"Trial: {i:5d} / {trials}", end="\r")
+
+        abs_mag = abs_mag_dist.rvs()
+        new_data = [dataclasses.replace(sn) for sn in data]
+        for sn in new_data:
+            sn.absolute_magnitude = abs_mag
+        sample = random.choices(new_data, k=len(data))
+        coefficients = scipy.stats.siegelslopes(
+            x=[sn.mu_distance() for sn in sample],
+            y=[sn.hubble for sn in sample],
+        )
+        results.append(coefficients.slope)
+
+    print("H0 normal distribution fit:")
+    print(scipy.stats.norm.fit(results))
+
+    plt.hist([results], bins=200)
+    plt.title("Bootstrapped H0")
+    plt.xlabel(r"$\frac{km/s}{Mpc}$")
+    if save:
+        plt.savefig(
+            GRAPHS_DIR / f"bootstrapped_H0.png",
+            bbox_inches="tight",
+        )
+        plt.cla()
+
+
 def generate_all_graphs(data):
+    figsize = (12, 9)
+    linewidth = 4
+
+    plt.cla()
+    plt.rcParams["figure.figsize"] = figsize
+    plt.rcParams["text.usetex"] = True
+    plt.rcParams["hatch.linewidth"] = linewidth
     all_mu_distance_vs_redshift_graph(data, save=True)
+
+    plt.cla()
+    plt.rcParams["figure.figsize"] = figsize
+    plt.rcParams["text.usetex"] = True
+    plt.rcParams["hatch.linewidth"] = linewidth
     velocity_vs_distance_graph(data, save=True)
-    # hubble_diagram_graph(data, save=save)
+
+    #plt.cla()
+    #plt.rcParams["figure.figsize"] = figsize
+    #plt.rcParams["text.usetex"] = True
+    #plt.rcParams["hatch.linewidth"] = linewidth
+    #bootstrap_hubble_parameter_graph(data, save=True)
+
+    plt.cla()
+    plt.rcParams["figure.figsize"] = figsize
+    plt.rcParams["text.usetex"] = True
+    plt.rcParams["hatch.linewidth"] = linewidth
+    k_corrections_for_photon_counts_graph(save=True)
+
 
 def my_model(data, save=True):
     xs = [sn.z for sn in data]
@@ -459,6 +700,7 @@ def my_model(data, save=True):
     ys = [sn.mu_distance() for sn in data]
     m, b = scipy.stats.siegelslopes(x=xs, y=ys)
     return data, m, b, sigma
+
 
 def graph_model(data):
     xs = [sn.z for sn in data]
@@ -540,7 +782,9 @@ def energy_loss_vs_orig_distance(data, correction=Correction.ONE, save=True):
 
     coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
     print(coefficients)
-    print(f"If linear, 100% energy loss occurs for distances greater than {1 / coefficients.slope} parsecs.")
+    print(
+        f"If linear, 100% energy loss occurs for distances greater than {1 / coefficients.slope} parsecs."
+    )
     plt.axline(
         (xmin, xmin * coefficients.slope + coefficients.intercept),
         (xmax, xmax * coefficients.slope + coefficients.intercept),
@@ -562,21 +806,24 @@ def energy_loss_vs_orig_distance(data, correction=Correction.ONE, save=True):
 
 
 if __name__ == "__main__":
-    plt.rcParams["figure.figsize"] = (80, 60)
+    plt.rcParams["figure.figsize"] = (16, 12)
     plt.rcParams["text.usetex"] = True
+    plt.rcParams["hatch.linewidth"] = 4
 
     data = Supernova.from_abbott()
 
-    #data, m, b, sigma = my_model(data)
+    # data, m, b, sigma = my_model(data)
 
     generate_all_graphs(data)
 
-    #all_mu_distance_vs_redshift_graph(data, save=False)
-    #velocity_vs_distance_graph(data, correction=Correction.ONE, save=False)
-    #energy_loss_vs_orig_distance(data, correction=Correction.ONE, save=False)
+    # all_mu_distance_vs_redshift_graph(data, save=False)
+    # velocity_vs_distance_graph(data, correction=Correction.ONE, save=False)
+    # energy_loss_vs_orig_distance(data, correction=Correction.ONE, save=False)
+    # recessional_velocity_vs_intercept_time_graph(data, correction=Correction.ONE, save=False)
 
-    #graph_model(data)
+    # graph_model(data)
 
-    #graph(data)
+    # graph(data)
 
+    #bootstrap_hubble_parameter_graph(data)
     #plt.show()
