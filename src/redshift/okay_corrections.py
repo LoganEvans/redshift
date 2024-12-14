@@ -69,17 +69,24 @@ class SnInfo:
                         name=row[idx["SN"]].upper(),
                         sn_type=row[idx["Type"]],
                         host=row[idx["Host"]],
-                        discovery_timestamp=parse_jd_date(row[idx["Discovery date (JD)"]]),
+                        discovery_timestamp=parse_jd_date(
+                            row[idx["Discovery date (JD)"]]
+                        ),
                         max_mag_timestamp=parse_jd_date(row[idx["Max mag date (JD)"]]),
                         max_mag=float(row[idx["Max mag"]]),
-                        last_mag_timestamp=parse_jd_date(row[idx["Last mag date (JD)"]]),
+                        last_mag_timestamp=parse_jd_date(
+                            row[idx["Last mag date (JD)"]]
+                        ),
                         last_mag=float(row[idx["Last mag"]]),
                         z=None if row[idx["z"]] == "n/a" else float(row[idx["z"]]),
-                        z_host=None if row[idx["z host"]] == "n/a" else float(row[idx["z host"]]),
-                        reference=row[idx["Reference"]]
+                        z_host=(
+                            None
+                            if row[idx["z host"]] == "n/a"
+                            else float(row[idx["z host"]])
+                        ),
+                        reference=row[idx["Reference"]],
                     )
                     SnInfo._all_info_cache[sn_info.name] = sn_info
-
 
         return SnInfo._all_info_cache
 
@@ -100,15 +107,15 @@ class Supernova:
     def __post_init__(self):
         self.sn_info = SnInfo.all_info()[self.name.upper().lstrip("SN")]
 
+        light_curves = {}
+
         for fname in LC_DIR.iterdir():
             if fname.stem.startswith(self.name):
                 bands = fname.stem.split("_")[-1]
-                print(f"bands: `{bands}`")
                 header = ["ja"]
                 for band in bands:
                     header.append(band)
                     header.append(f"{band}_std_dev")
-                print("header", header)
 
                 with open(fname, "r") as fin:
                     use_hjd = None
@@ -117,6 +124,8 @@ class Supernova:
 
                     for line in fin.readlines():
                         if "HJD" in line:
+                            use_hjd = True
+                        elif "Julian Day" in line:
                             use_hjd = True
                         elif "JD-2400000" in line:
                             use_2400000 = True
@@ -139,8 +148,16 @@ class Supernova:
                             else:
                                 data[col] = float(raw)
 
-                        pprint(data)
+                        bands_data = {}
+                        for band in bands:
+                            bands_data[band] = LightCurveBand(
+                                band=band,
+                                mag=data[band],
+                                std_dev=data[f"{band}_std_dev"],
+                            )
 
+                        lc = LightCurve(timestamp=data["timestamp"], bands=bands_data)
+                        light_curves[lc.timestamp] = lc
                 break
 
         self.observations = []
@@ -151,6 +168,6 @@ if __name__ == "__main__":
     sns = []
     for f in SPEC_DIR.iterdir():
         if f.is_dir():
-            sn = Supernova(name=f.stem)
-            print(sn)
-
+            sns.append(Supernova(name=f.stem))
+    zs = [sn.sn_info.z for sn in sns if sn.sn_info.z]
+    print(sorted(zs))
