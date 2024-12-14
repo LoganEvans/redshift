@@ -10,7 +10,8 @@ dependencies = [
     "numpy",
     "pdflatex",
     "requests",
-    "scipy"
+    "scipy",
+    "snpy",
 ]
 name = "redshift"
 requires-python = ">=3.12"

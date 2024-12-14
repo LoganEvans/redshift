@@ -9,7 +9,6 @@ from pprint import pprint
 from typing import ClassVar
 from enum import Enum
 import csv
-import jdcal
 import json
 import math
 import numpy as np
@@ -27,11 +26,6 @@ class Correction(Enum):
     NONE = 0
     ONE = 1  # Single correction factor: 1+z
     TWO = 2  # Two correction factors: (1+z)^2
-
-
-def parse_jd_date(jd: str):
-    year, month, day, _ = jdcal.jd2gcal(float(jd), 0)
-    return date(year=year, month=month, day=day)
 
 
 @dataclass()

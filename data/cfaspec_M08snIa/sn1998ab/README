@@ -1,0 +1,33 @@
+These spectra are part of the data obtained by the Center for
+Astrophysics supernova program (R.P. Kirshner, PI).  The paper
+describing the data (with the full data table) can be found on
+arXiv.org here: 
+http://arxiv.org/abs/0803.1705
+
+The published version is here:
+http://www.iop.org/EJ/abstract/1538-3881/135/4/1598/
+
+The reference is Matheson, T., et al. 2008, AJ, 135, 1598.
+
+These are two-column ASCII files, wavelength in column 1 (in
+Angstroms) and flux in column 2 (in f_lambda, erg/s/cm^2/A, scaled up
+by a factor of 10^15).  The UT date of observation is in the name of
+the file.  Data not obtained with the FAST spectrograph at the
+F.L. Whipple Observatory is indicated with the other telescope name in
+the file name, usually the MMT.  Observational details can be found in
+the data table accompanying the data.
+
+The spectra have been scaled, where possible, to match the V-Band
+photometry of Jha, S., et al. 2006, AJ, 131, 527.  Some spectra fall
+outside the time frame of the photometry, or in sparsely sampled
+regions, so the flux may not be completely accurate as a result of
+extrapolation or interpolation errors.  This is frequently the case
+for spectra well past maximum.  Note that SN 2001V and SN 2000cx have
+not been scaled at all.
+
+The spectra have only been flux and wavelength calibrated.  No attempt
+has been made to deredden the spectra or to remove the recession
+velocity of the host galaxy.
+
+Please direct any questions or concerns to Tom Matheson
+(matheson@noao.edu). 

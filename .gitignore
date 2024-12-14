@@ -2,6 +2,7 @@ venv/
 redshift.egg-info/
 build/
 *.swp
+*.swo
 paper/paper.aux
 paper/paper.log
 paper/paper.out
