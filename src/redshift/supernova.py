@@ -392,6 +392,7 @@ def all_mu_distance_vs_redshift_graph(data, save=True):
         x=[sn.z for sn in data],
         y=[sn.mu_distance(correction=Correction.NONE) for sn in data],
     )
+    print(coefficients.slope)
     plt.axline(
         (0, coefficients.intercept),
         (1, coefficients.slope + coefficients.intercept),
@@ -806,11 +807,9 @@ if __name__ == "__main__":
 
     data = Supernova.from_abbott()
 
-    # data, m, b, sigma = my_model(data)
+    #generate_all_graphs(data)
 
-    generate_all_graphs(data)
-
-    # all_mu_distance_vs_redshift_graph(data, save=False)
+    all_mu_distance_vs_redshift_graph(data, save=False)
     # velocity_vs_distance_graph(data, correction=Correction.ONE, save=False)
     # energy_loss_vs_orig_distance(data, correction=Correction.ONE, save=False)
     # recessional_velocity_vs_intercept_time_graph(data, correction=Correction.ONE, save=False)

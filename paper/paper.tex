@@ -27,7 +27,7 @@
 \renewcommand{\shorttitle}{\textit{arXiv} Template}
 
 \hypersetup{
-pdftitle={Dark energy is due to a math error from 1935},
+pdftitle={Dark energy is due to a math error from 1930},
 pdfsubject={astro-ph.CO},
 pdfauthor={Logan P.~Evans},
 pdfkeywords={cosmological parameters, dark energy},
@@ -37,10 +37,10 @@ pdfkeywords={cosmological parameters, dark energy},
 \maketitle
 
 \begin{abstract}
-  Observations of distant objects, such as supernovae and galaxies, is dimmed
+  Light from distant objects, such as supernovae and galaxies, is dimmed
   due to three phenomena associated with redshift: energy levels per photon,
   spectral bandwidth, and time dilation. Observed magnitudes are reported with
-  k-corrections that should correct for these dimming effects, but since 1935,
+  k-corrections that should correct for these dimming effects, but since 1930,
   the equations used to perform these k-corrections have been missing the
   correction factor for time dilation. When observations of Type Ia supernova
   are corrected for this missing factor, the relationship between luminosity
@@ -60,9 +60,9 @@ estimate distance. This relationship, often called the Hubble-Lema\^{i}tre law,
 [TODO: find citation] describes how quickly the universe is expanding. However,
 \citet{riess1998} and \citet{perlmutter1999} presented evidence that there
 isn't a linear relationship between redshift and distance, but instead, distant
-objects are father away than their redshift would predict (see Figure
-\ref{fig:mu_distance_vs_redshift}). This phenomenon, whatever its source, is
-referred to as dark energy.
+objects are farther away than their redshift would predict (see Figure
+\ref{fig:mu_distance_vs_redshift}). This phenomenon is referred to as dark
+energy.
 
 Type Ia supernova are used to explore the relationship between distances and
 redshifts because these events always happen in similar ways, so the absolute
@@ -75,29 +75,42 @@ It turns out that measuring the apperant brightness of a Type Ia supernova is
 non-trivial. The aspect of the process that we will explore here concerns how
 redshift affects the light we observe. This problem is often referred to as
 k-corrections, and one of the first mathematical treatments of the problem was
-performed by \citet{desitter1934}.
+performed by \citet{tolman1930}. However, when Tolman made his derivation, he
+did not consider the effects of a spectra that is stretched out due to
+redshift.
 
-Willem de Sitter recognized three issues that would reduce the observed
-magnitude of a distant observation. First, a redshifted photon carries less
-energy than when it was originally emitted. Second, a narrow spectrum of
-emitted light will be spread out over a larger observed spectrum. Finally, time
-dilation will reduce the rate at which an observer detects photons. The
-correction for each of these issues is identical: take a measurement and
-multiply it by the factor $1 + z$.
+A few years later, \citet{desitter1934}, discussed all three issues that would
+reduce the observed magnitude of a distant observation. The correction for each
+of these issues is identical: take a measurement for luminosity and multiply it
+by the factor $1 + z$.
 
 A year later, \citet{hubble1935} published a similar set of calculations for
 k-corrections, but these equations used $(1 + z)^2$ instead of the $(1 + z)^3$
-correction term used by de Sitter. The Hubble k-corrections have been used ever
+correction term used by de Sitter. They started their derivation by copying the
+incorrect equation from 1930. After their derivation, they noted,
+
+\begin{quote}
+It should be specially noted that this expression differs from the correction
+to m proposed by de Sitter, which contains the term $(1 + z)^3$ instead of
+$(1 + z)^2$. Expression (28), however, would seem to give the proper correction
+to use in connection with our equation (21), since it has been derived in such
+a way as to make appropriate allowance, first, for the double effect of nebular
+recession in reducing both the individual energy and the rate of arrival of
+photons, and then for the further circumstance that a change in spectral
+distribution of the energy that does arrive will lead to changes in its
+photographic effectiveness.
+\end{quote}
+
+The Hubble k-corrections with the incorrect correction term have been used ever
 since.
 
-Hubble and de Sitter were clearly aware of all three dimming effects associated
-with redshift, but by \citet{oke1968energy}, the two factors of $(1 + z)$ were
-attributed to the change in energy and to the spectral bandwidth elongation,
-which leaves time dilation as the factor that was omitted.
+By \citet{oke1968}, the two factors of $(1 + z)$ were attributed to the change
+in energy and to the spectral bandwidth elongation, which leaves time dilation
+as the factor that was omitted.
 
 In 1935, the correction of $(1 + z)^2$ empirically lined up the data so that
 there seemed to be a linear relationship between redshift and distance. It
-wasn't until \citet{riess1998}, sixty-three years later, that the omission of a
+wasn't until \citet{riess1998}, sixty-eight years later, that the omission of a
 third $(1 + z)$ correction factor resulted in faulty conclusions.
 
 Those faulty conclusions, however, have been the basis for a substantial amount
@@ -137,7 +150,7 @@ $\lambda$ is the wavelength.
 As redshift increases the wavelength of a photon, the energy decreases.
 
 The supernova data collected by the DES Collaboration used a CCD camera, a
-photon counting device, as described by \citet{flaughter2015}.  \citet{kim1996}
+photon counting device, as described by \citet{flaugher2015}.  \citet{kim1996}
 noted that photometric measurements that depend on bolometers will need to be
 corrected for the reduced energy level of redshifted light, but with a photon
 counting device, this correction is not necessary.
@@ -179,7 +192,7 @@ as it travels through space. A feature of the tired light hypothesis is that
 since distant objects do not have a high relative velocity to us, they should
 not show time dilation.
 
-However, as shown by \citet{blonden2008} and \citet{white2024}, distant
+However, as shown by \citet{blondin2008} and \citet{white2024}, distant
 supernova do experience time dilation. Based on this, we can reject the tired
 light hypothesis and assume the big bang model.
 
@@ -247,7 +260,7 @@ In contrast, when $k(z) = 1 + z$, time dilation is accounted for and there is a
 linear relationship between redshift and distance. A linear model rules out an
 accelerated expansion.
 
-\begin{figure}[h!]
+\begin{figure}[ht]
   \includegraphics[width=\linewidth]{mu_distance_vs_redshift.png}
   \caption{The relationship between distance and redshift for two treatments of
   magnitude data. The displayed points are roughly a third of the values in the
@@ -257,22 +270,20 @@ accelerated expansion.
   \label{fig:mu_distance_vs_redshift}
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure}[ht]
   \includegraphics[width=\linewidth]{k-corrections_for_photon_counts.png}
   \caption{An example of how k-corrections take an observed spectrum and
   produce a rest-frame spectrum. [TODO]
   }
-  \label{fig:mu_distance_vs_redshift}
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure}[ht]
   \includegraphics[width=\linewidth]{velocity_vs_distance.png}
   \caption{The relationship between expansion velocity and distance. The slope of this graph demonstrates the Hubble constant.
   }
-  \label{fig:mu_distance_vs_redshift}
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure}[ht]
   \includegraphics[width=\linewidth]{bootstrapped_H0.png}
   \caption{A histogram of 100000 bootstrap trials measuring the Hubble constant
   $H0$. Each trial samples an absolute Type Ia magnitude $M \sim Norm(-19.2334,
@@ -282,7 +293,6 @@ accelerated expansion.
   technique described by \citet{siegel1982}. The result of the bootstrap is $H0
   \sim Norm(65.94, 1.29)$.
   }
-  \label{fig:mu_distance_vs_redshift}
 \end{figure}
 
 \section{Disagreement with existing research}
