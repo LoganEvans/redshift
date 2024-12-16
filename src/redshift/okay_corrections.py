@@ -93,9 +93,15 @@ class SnInfo:
 
 @dataclass()
 class Observation:
+    name: str
     timestamp: date
-    light_curve: LightCurve
-    spec: Spec
+    filt: Filter
+    flux: float
+    flux_std_dev: float
+    epoch: timedelta
+    kcorr_filt: Filter | None = field(default=None)
+    kcorr_mag: float | None = field(default=None)
+    kcorr_mag_std_dev: float | None = field(default=None)
 
 
 @dataclass()
