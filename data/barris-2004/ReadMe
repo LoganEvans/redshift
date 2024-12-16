@@ -1,0 +1,120 @@
+J/ApJ/602/571       High-redshift supernovae IRZ fluxes      (Barris+, 2004)
+================================================================================
+Twenty-three high-redshift supernovae from the Institute for
+Astronomy Deep Survey: doubling the supernova sample at z > 0.7.
+    Barris B.J., Tonry J.L., Blondin S., Challis P., Chornock R.,
+    Clocchiatti A., Filippenko A.V., Garnavich P., Holland S.T., Jha S.,
+    Kirshner R.P., Krisciunas K., Leibundgut B., Li W., Matheson T.,
+    Miknaitis G., Riess A.G., Schmidt B.P., Smith R.C., Sollerman J.,
+    Spyromilio J., Stubbs C.W., Suntzeff N.B., Aussel H., Chambers K.C.,
+    Connelley M.S., Donovan D., Henry J.P., Kaiser N., Liu M.C., Martin E.L.,
+    Wainscoat R.J.
+   <Astrophys. J., 602, 571-594 (2004)>
+   =2004ApJ...602..571B
+================================================================================
+ADC_Keywords: Supernovae ; Redshifts ; Photometry
+Keywords: cosmological parameters - distance scale -
+          galaxies: distances and redshifts - supernovae: general
+
+Abstract:
+    We present photometric and spectroscopic observations of 23
+    high-redshift supernovae (SNe) spanning a range of z=0.34-1.03, nine
+    of which are unambiguously classified as Type Ia. These SNe were
+    discovered during the IfA Deep Survey, which began in 2001 September
+    and observed a total of 2.5deg^2^ to a depth of approximately m~25-26
+    in RIZ over 9-17 visits, typically every 1-3 weeks for nearly 5
+    months, with additional observations continuing until 2002 April.
+
+Description:
+    SNe were identified by matching spectral features with those of SNe Ia
+    through a program called SNID (J.L. Tonry 2004, in preparation),
+    which cross-correlates an observed spectrum against a set of template
+    spectra to determine the SN type, redshift, and age.
+
+File Summary:
+--------------------------------------------------------------------------------
+ FileName   Lrecl  Records   Explanations
+--------------------------------------------------------------------------------
+ReadMe         80        .   This file
+table1.dat     34       15   Target Field Central Coordinate
+table4.dat     37       23   IfA Deep Survey Type Ia Supernovae
+table5.dat     44       24   IfA Deep Survey SN Ia Spectroscopic Observations
+table6.dat    114       23   SN Spectroscopic Identifications
+table8.dat     66      703   Supernovae observations
+--------------------------------------------------------------------------------
+
+Byte-by-byte Description of file: table1.dat
+--------------------------------------------------------------------------------
+   Bytes Format Units   Label     Explanations
+--------------------------------------------------------------------------------
+   1-  6  A6    ---     Tel       Telescope
+   9- 13  A5    ---     Field     Field name
+  17- 18  I2    h       RAh       Right ascension (J2000.0)
+  20- 21  I2    min     RAm       Right ascension (J2000.0)
+  23- 24  I2    s       RAs       Right ascension (J2000.0)
+      26  A1    ---     DE-       Declination sign (J2000.0)
+  27- 28  I2    deg     DEd       Declination (J2000.0)
+  30- 31  I2    arcmin  DEm       Declination (J2000.0)
+  33- 34  I2    arcsec  DEs       Declination (J2000.0)
+--------------------------------------------------------------------------------
+
+Byte-by-byte Description of file: table4.dat
+--------------------------------------------------------------------------------
+   Bytes Format Units   Label     Explanations
+--------------------------------------------------------------------------------
+   1-  6  A6    ---     SN        Supernova name
+   9- 10  I2    h       RAh       Right ascension (J2000.0)
+  12- 13  I2    min     RAm       Right ascension (J2000.0)
+  15- 19  F5.2  s       RAs       Right ascension (J2000.0)
+      21  A1    ---     DE-       Declination sign (J2000.0)
+  22- 23  I2    deg     DEd       Declination (J2000.0)
+  25- 26  I2    arcmin  DEm       Declination (J2000.0)
+  28- 31  F4.1  arcsec  DEs       Declination (J2000.0)
+  33- 37  F5.3  mag     E(B-V)    Galactic extinction from Schlegel et al.
+                                   (1998ApJ...500..525S)
+--------------------------------------------------------------------------------
+
+Byte-by-byte Description of file: table5.dat
+--------------------------------------------------------------------------------
+   Bytes Format Units      Label     Explanations
+--------------------------------------------------------------------------------
+   1-  6  A6    ---        SN        Supernova name
+   9- 15  F7.1  d          MJD       Modified Julian date 
+  17- 26  A10 "YYYY/MM/DD" Date      Observation date
+  29- 39  A11   ---        Inst      Instrument
+  41- 44  I4    s          Int       Integration time
+--------------------------------------------------------------------------------
+
+Byte-by-byte Description of file: table6.dat
+--------------------------------------------------------------------------------
+   Bytes Format Units   Label     Explanations
+--------------------------------------------------------------------------------
+   1-  6  A6    ---     SN        Supernova name
+   8-114  A107  ---     Id        Spectroscopic identification comments
+--------------------------------------------------------------------------------
+
+Byte-by-byte Description of file: table8.dat
+--------------------------------------------------------------------------------
+   Bytes Format Units   Label     Explanations
+--------------------------------------------------------------------------------
+   1-  2  A2    ---     ---       [SN]
+   4-  9  A6    ---     SN        Supernova name
+  11- 18  F8.2  d       MJD       Modified Julian Date minus 2400000.0
+      20  A1    ---     Filt      [IRZ] Cousins RI or Subaru Z filters
+  22- 31  E10.4 ---     Flux      Flux in filter (1)
+  33- 41  E9.4  ---   e_Flux      The 1{sigma} error in Flux (2)
+  43- 47  F5.1  d       Epoch     Rest epoch
+      49  A1    ---     KcorFilt  [BV] K-corrected filter (Johnson B or V)
+  51- 56  F6.3  mag     Kcor      ? K-correction
+  58- 62  F5.3  mag   e_Kcor      ? The 1{sigma} error in Kcor
+--------------------------------------------------------------------------------
+Note (1): Magnitudes may be calculated from all flux values by
+           mag=-2.5log(Flux)+25.0.
+Note (2): Magnitude uncertainties may be calculated from all flux uncertainties
+           by {sigma}(mag)=2.5log(1+{sigma}(Flux)/Flux).
+--------------------------------------------------------------------------------
+
+History:
+    From electronic version of the journal
+================================================================================
+(End)                  Greg Schwarz [AAS], Patricia Vannier [CDS]    06-Apr-2004
