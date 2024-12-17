@@ -1,42 +1,59 @@
 from dataclasses import dataclass, field
-import csv
-from datetime import date, date, timedelta
+from datetime import date, datetime, timedelta
 from pprint import pprint
-import jdcal
 from redshift import supernova
-import pathlib
+import bisect
+import csv
+import jdcal
+import numpy as np
 import os
+import pathlib
+import scipy
+import snpy
+import math
 
 
 REPO_DIR = pathlib.Path(os.environ["VIRTUAL_ENV"]).parent.resolve()
 DATA_DIR = REPO_DIR / "data"
-LC_DIR = DATA_DIR / "cfalc_allsnIa"
-SPEC_DIR = DATA_DIR / "cfaspec_M08snIa"
+FILTERS_DIR = DATA_DIR / "filters" / "suprime-cam"
 
 
-def parse_jd_date(jd: str):
-    year, month, day, _ = jdcal.jd2gcal(float(jd), 0)
+def parse_jd_date(jd):
+    if isinstance(jd, str):
+        jd = float(jd)
+    year, month, day, _ = jdcal.jd2gcal(jd, 0)
     return date(year=year, month=month, day=day)
 
 
 @dataclass()
-class LightCurveBand:
-    band: str
-    mag: float
-    std_dev: float
+class Filter:
+    name: str
+    wavelengths: list[float] = field(init=False)
+    sensitivities: list[float] = field(init=False)
 
+    def __post_init__(self):
+        fpath = FILTERS_DIR / f"{self.name}.txt"
+        self.wavelengths = []
+        self.sensitivities = []
+        with open(fpath, "r") as fin:
+            for line in fin.readlines():
+                vals = line.split()
+                self.wavelengths.append(float(vals[0]))
+                self.sensitivities.append(float(vals[1]))
 
-@dataclass()
-class LightCurve:
-    timestamp: date
-    bands: dict[str, LightCurveBand]
+    def __repr__(self):
+        return f"Filter({self.name})"
 
+    def sensitivity(self, wavelength):
+        idx = bisect.bisect_right(self.wavelengths, wavelength) - 1
+        return self.sensitivities[idx]
 
-@dataclass()
-class Spec:
-    timestamp: date
-    wave: list[float]
-    spec: list[float]
+    _get_cache = {}
+    @staticmethod
+    def get(name):
+        if name == "Z":
+            name = "z"
+        return Filter._get_cache.get(name, Filter(name))
 
 
 @dataclass()
@@ -66,7 +83,7 @@ class SnInfo:
 
                 for row in reader:
                     sn_info = SnInfo(
-                        name=row[idx["SN"]].upper(),
+                        name=row[idx["SN"]],
                         sn_type=row[idx["Type"]],
                         host=row[idx["Host"]],
                         discovery_timestamp=parse_jd_date(
@@ -98,82 +115,217 @@ class Observation:
     filt: Filter
     flux: float
     flux_std_dev: float
-    epoch: timedelta
+    epoch: float
     kcorr_filt: Filter | None = field(default=None)
     kcorr_mag: float | None = field(default=None)
     kcorr_mag_std_dev: float | None = field(default=None)
 
+    @staticmethod
+    def from_file():
+        fpath = DATA_DIR / "barris-2004" / "table8.dat"
+
+        idx = {
+            "name": 1,
+            "jd": 2,
+            "filter": 3,
+            "flux": 4,
+            "flux_std_dev": 5,
+            "epoch": 6,
+            "kcorr_filter": 7,
+            "kcorr_mag": 8,
+            "kcorr_mag_std_dev": 9,
+        }
+
+        observations = []
+        with open(fpath, "r") as fin:
+            for line in fin.readlines():
+                vals = line.split()
+                if not vals:
+                    continue
+
+                args = {
+                    "name" : vals[idx["name"]],
+                    "timestamp" : parse_jd_date(2400000 + float(vals[idx["jd"]])),
+                    "filt" : Filter.get(vals[idx["filter"]]),
+                    "flux" : float(vals[idx["flux"]]),
+                    "flux_std_dev" : float(vals[idx["flux_std_dev"]]),
+                    "epoch" : float(vals[idx["epoch"]])
+                }
+
+                if len(vals) == 10:
+                    args["kcorr_filt"] = Filter.get(vals[idx["kcorr_filter"]])
+                    args["kcorr_mag"] = float(vals[idx["kcorr_mag"]])
+                    args["kcorr_mag_std_dev"] = float(vals[idx["kcorr_mag_std_dev"]])
+
+                observations.append(Observation(**args))
+
+        return observations
+
+
+# table6.dat
+_zs = {
+"2001fo" :0.772,
+"2001fs" :0.874,
+"2001hs" :0.833,
+"2001hu" :0.882,
+"2001hx" :0.799,
+"2001hy" :0.812,
+"2001iv" :0.3965,
+"2001iw" :0.3396,
+"2001ix" :0.711,
+"2001iy" :0.568,
+"2001jb" :0.698,
+"2001jf" :0.815,
+"2001jh" :0.885,
+"2001jm" :0.978,
+"2001jn" :0.645,
+"2001jp" :0.528,
+"2001kd" :0.936,
+"2002P"  :0.719,
+"2002W"  :1.031,
+"2002X"  :0.859,
+"2002aa" :0.946,
+"2002ab" :0.423,
+"2002ad" :0.514}
 
 @dataclass()
 class Supernova:
     name: str
-    sn_info: SnInfo = field(init=False)
-    observations: list[Observation] = field(init=False)
+    observations: list[Observation]
 
     def __post_init__(self):
-        self.sn_info = SnInfo.all_info()[self.name.upper().lstrip("SN")]
+        for obs in self.observations:
+            assert self.name == obs.name
 
-        light_curves = {}
+    @staticmethod
+    def get_all():
+        supernovas = []
 
-        for fname in LC_DIR.iterdir():
-            if fname.stem.startswith(self.name):
-                bands = fname.stem.split("_")[-1]
-                header = ["ja"]
-                for band in bands:
-                    header.append(band)
-                    header.append(f"{band}_std_dev")
+        observations = Observation.from_file()
+        data = {}
+        for obs in observations:
+            if obs.name not in data:
+                data[obs.name] = []
+            data[obs.name].append(obs)
 
-                with open(fname, "r") as fin:
-                    use_hjd = None
-                    use_2400000 = None
-                    use_2450000 = None
+        for name, sn_observations in data.items():
+            ten_day_obs = []
+            for obs in sn_observations:
+                if abs(obs.epoch) < 10:
+                    ten_day_obs.append(obs)
 
-                    for line in fin.readlines():
-                        if "HJD" in line:
-                            use_hjd = True
-                        elif "Julian Day" in line:
-                            use_hjd = True
-                        elif "JD-2400000" in line:
-                            use_2400000 = True
-                        elif "JD-2450000" in line:
-                            use_2450000 = True
+            supernovas.append(Supernova(name=name, observations=ten_day_obs))
 
-                        if line.startswith("#"):
-                            continue
-                        vals = line.split()
+        return supernovas
 
-                        data = {}
-                        for col, raw in zip(header, vals):
-                            if col == "ja":
-                                val = float(raw)
-                                if use_2400000:
-                                    val += 2400000
-                                elif use_2450000:
-                                    val += 2450000
-                                data["timestamp"] = parse_jd_date(str(val))
-                            else:
-                                data[col] = float(raw)
+    @property
+    def z(self):
+        return _zs[self.name]
 
-                        bands_data = {}
-                        for band in bands:
-                            bands_data[band] = LightCurveBand(
-                                band=band,
-                                mag=data[band],
-                                std_dev=data[f"{band}_std_dev"],
-                            )
 
-                        lc = LightCurve(timestamp=data["timestamp"], bands=bands_data)
-                        light_curves[lc.timestamp] = lc
-                break
+_frame_counts_cache = {}
 
-        self.observations = []
-        pass
+def frame_counts(z, epoch, trials, time_dilation):
+    cache_key = (z, epoch, trials, time_dilation)
+    if cache_key in _frame_counts_cache:
+        return _frame_counts_cache[cache_key]
+
+    wave, flux = snpy.getSED(epoch, "H3")
+    if flux is None:
+        return None
+
+    flux_cdf = [0.0]
+    total_flux = 0.0
+    for i, f in enumerate(flux):
+        total_flux += f
+        flux_cdf.append(total_flux)
+    flux_cdf_dist = scipy.stats.uniform(0, total_flux)
+    unif_dist = scipy.stats.uniform(0, 1)
+
+    def get_idx(cdf):
+        return bisect.bisect_right(flux_cdf, cdf) - 1
+
+    # Make sure get_idx is correct.
+    for i in range(len(flux_cdf) - 1):
+        left = flux_cdf[i]
+        right = flux_cdf[i + 1]
+        assert i == get_idx(left)
+        assert i == get_idx((left + right) / 2.0)
+
+    start = datetime(year=1930, month=6, day=14)
+    def gen_photon():
+        flux_cdf_rv = flux_cdf_dist.rvs()
+
+        idx = get_idx(flux_cdf_rv)
+        assert flux_cdf[idx] <= flux_cdf_rv < flux_cdf[idx + 1]
+
+        remaining = flux_cdf_rv - flux_cdf[idx]
+        assert remaining <= flux[idx]
+
+        # frac should be a uniform(0, 1) variable.
+        frac = remaining / flux[idx]
+        assert 0.0 <= frac <= 1.0
+
+        bucket_width = wave[1] - wave[0]
+        wavelength = wave[idx] + frac * bucket_width
+        timestamp = start + timedelta(minutes=unif_dist.rvs())
+        return (wavelength, timestamp)
+
+    end = datetime(year=2024, month=11, day=2)
+    def redshift(photon, z, time_dilation):
+        wavelength = photon[0] * (1 + z)
+        if time_dilation:
+            timestamp = end + (photon[1] - start) * (1 + z)
+        else:
+            timestamp = end + (photon[1] - start)
+        return (wavelength, timestamp)
+
+    filt_names = ["B", "I", "R", "V", "z"]
+    rest_frame_counts = {name: 0 for name in filt_names}
+    obs_frame_counts = {name: 0 for name in filt_names}
+
+    for _ in range(trials):
+        photon = gen_photon()
+        red_photon = redshift(photon, z=z, time_dilation=True)
+
+        for filt_name in filt_names:
+            filt = Filter.get(filt_name)
+
+            if unif_dist.rvs() < filt.sensitivity(photon[0]):
+                rest_frame_counts[filt_name] += 1
+
+            if (red_photon[1] - end) <= timedelta(minutes=1) and unif_dist.rvs() < filt.sensitivity(red_photon[0]):
+                obs_frame_counts[filt_name] += 1
+
+    result = rest_frame_counts, obs_frame_counts
+    _frame_counts_cache[cache_key] = result
+    return result
+
+def flux_to_magnitude(flux):
+    try:
+        return -2.5 * math.log(flux, 10) + 25.0
+    except ValueError:
+        print(f"Error on flux: {flux}")
+        raise
 
 
 if __name__ == "__main__":
-    sns = []
-    for f in SPEC_DIR.iterdir():
-        if f.is_dir():
-            sns.append(Supernova(name=f.stem))
-    zs = [sn.sn_info.z for sn in sns if sn.sn_info.z]
-    print(sorted(zs))
+    print(f"name,z,filt,epoch,flux,mag")
+    for sn in Supernova.get_all():
+        for obs in sn.observations:
+            if obs.flux <= 0.0:
+                continue
+
+            counts = frame_counts(z=sn.z, epoch=obs.epoch, trials=1000000, time_dilation=True)
+
+            if not counts:
+                continue
+
+            rest_frame_counts, obs_frame_counts = counts
+            if obs_frame_counts[obs.filt.name] == 0:
+                continue
+
+            flux = obs.flux * rest_frame_counts["B"] / obs_frame_counts[obs.filt.name]
+
+            print(f"{sn.name},{sn.z},{obs.filt.name},{obs.epoch},{flux},{flux_to_magnitude(flux)}")
+
