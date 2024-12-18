@@ -18,6 +18,14 @@ DATA_DIR = REPO_DIR / "data"
 FILTERS_DIR = DATA_DIR / "filters" / "suprime-cam"
 
 
+# 2001fo,0.772,I,-3.4,20.419540229885058,21.72488510198318
+mc_name = "2001fo"
+mc_epoch = -3.4
+mc_z = 0.772
+mc_rest_frame_counts = {"B": 238695, "I": 48180, "R": 88367, "V": 128791, "z": 39860}
+mc_obs_frame_counts = {"B": 12967, "I": 94417, "R": 100569, "V": 66972, "z": 63340}
+
+
 def parse_jd_date(jd):
     if isinstance(jd, str):
         jd = float(jd)
@@ -49,6 +57,7 @@ class Filter:
         return self.sensitivities[idx]
 
     _get_cache = {}
+
     @staticmethod
     def get(name):
         if name == "Z":
@@ -144,12 +153,12 @@ class Observation:
                     continue
 
                 args = {
-                    "name" : vals[idx["name"]],
-                    "timestamp" : parse_jd_date(2400000 + float(vals[idx["jd"]])),
-                    "filt" : Filter.get(vals[idx["filter"]]),
-                    "flux" : float(vals[idx["flux"]]),
-                    "flux_std_dev" : float(vals[idx["flux_std_dev"]]),
-                    "epoch" : float(vals[idx["epoch"]])
+                    "name": vals[idx["name"]],
+                    "timestamp": parse_jd_date(2400000 + float(vals[idx["jd"]])),
+                    "filt": Filter.get(vals[idx["filter"]]),
+                    "flux": float(vals[idx["flux"]]),
+                    "flux_std_dev": float(vals[idx["flux_std_dev"]]),
+                    "epoch": float(vals[idx["epoch"]]),
                 }
 
                 if len(vals) == 10:
@@ -164,29 +173,31 @@ class Observation:
 
 # table6.dat
 _zs = {
-"2001fo" :0.772,
-"2001fs" :0.874,
-"2001hs" :0.833,
-"2001hu" :0.882,
-"2001hx" :0.799,
-"2001hy" :0.812,
-"2001iv" :0.3965,
-"2001iw" :0.3396,
-"2001ix" :0.711,
-"2001iy" :0.568,
-"2001jb" :0.698,
-"2001jf" :0.815,
-"2001jh" :0.885,
-"2001jm" :0.978,
-"2001jn" :0.645,
-"2001jp" :0.528,
-"2001kd" :0.936,
-"2002P"  :0.719,
-"2002W"  :1.031,
-"2002X"  :0.859,
-"2002aa" :0.946,
-"2002ab" :0.423,
-"2002ad" :0.514}
+    "2001fo": 0.772,
+    "2001fs": 0.874,
+    "2001hs": 0.833,
+    "2001hu": 0.882,
+    "2001hx": 0.799,
+    "2001hy": 0.812,
+    "2001iv": 0.3965,
+    "2001iw": 0.3396,
+    "2001ix": 0.711,
+    "2001iy": 0.568,
+    "2001jb": 0.698,
+    "2001jf": 0.815,
+    "2001jh": 0.885,
+    "2001jm": 0.978,
+    "2001jn": 0.645,
+    "2001jp": 0.528,
+    "2001kd": 0.936,
+    "2002P": 0.719,
+    "2002W": 1.031,
+    "2002X": 0.859,
+    "2002aa": 0.946,
+    "2002ab": 0.423,
+    "2002ad": 0.514,
+}
+
 
 @dataclass()
 class Supernova:
@@ -223,9 +234,50 @@ class Supernova:
         return _zs[self.name]
 
 
+def frame_counts_deterministic(z, epoch, wave=None, flux=None):
+    if wave is None:
+        wave, flux = snpy.getSED(epoch, "H3")
+
+    filt_names = ["B", "I", "R", "V", "z"]
+    rest_frame_counts = {filt_name: 0 for filt_name in filt_names}
+    obs_frame_counts = {filt_name: 0 for filt_name in filt_names}
+
+    for filt_name in filt_names:
+        filt = Filter.get(filt_name)
+
+        wls = sorted(set(wave).union(set(filt.wavelengths)))
+        flxs = [0.0 for _ in wls]
+
+        wls_idx = 0
+        for flux_idx in range(len(flux)):
+            wls_idxs = []
+
+            if flux_idx + 1 == len(flux):
+                wls_idxs = list(range(wls_idx, len(wls) - 1))
+            else:
+                while wls_idx + 1 < len(wls) and wls[wls_idx + 1] <= wave[flux_idx + 1]:
+                    wls_idxs.append(wls_idx)
+                    wls_idx += 1
+
+            flux_per_bucket = flux[flux_idx] / len(wls_idxs)
+            for wls_idx in wls_idxs:
+                flxs[wls_idx] += flux_per_bucket
+
+        wls_idx = 0
+        for filt_idx in range(len(filt.wavelengths) - 1):
+            sensitivity = filt.sensitivities[filt_idx]
+
+            while wls_idx + 1 < len(wls) and wls[wls_idx] < filt.wavelengths[filt_idx + 1]:
+                rest_frame_counts[filt_name] += sensitivity * flxs[wls_idx]
+                wls_idx += 1
+
+    return rest_frame_counts, obs_frame_counts
+
+
 _frame_counts_cache = {}
 
-def frame_counts(z, epoch, trials, time_dilation):
+
+def frame_counts_monte_carlo(z, epoch, trials, time_dilation):
     cache_key = (z, epoch, trials, time_dilation)
     if cache_key in _frame_counts_cache:
         return _frame_counts_cache[cache_key]
@@ -253,6 +305,7 @@ def frame_counts(z, epoch, trials, time_dilation):
         assert i == get_idx((left + right) / 2.0)
 
     start = datetime(year=1930, month=6, day=14)
+
     def gen_photon():
         flux_cdf_rv = flux_cdf_dist.rvs()
 
@@ -272,6 +325,7 @@ def frame_counts(z, epoch, trials, time_dilation):
         return (wavelength, timestamp)
 
     end = datetime(year=2024, month=11, day=2)
+
     def redshift(photon, z, time_dilation):
         wavelength = photon[0] * (1 + z)
         if time_dilation:
@@ -294,12 +348,15 @@ def frame_counts(z, epoch, trials, time_dilation):
             if unif_dist.rvs() < filt.sensitivity(photon[0]):
                 rest_frame_counts[filt_name] += 1
 
-            if (red_photon[1] - end) <= timedelta(minutes=1) and unif_dist.rvs() < filt.sensitivity(red_photon[0]):
+            if (red_photon[1] - end) <= timedelta(
+                minutes=1
+            ) and unif_dist.rvs() < filt.sensitivity(red_photon[0]):
                 obs_frame_counts[filt_name] += 1
 
     result = rest_frame_counts, obs_frame_counts
     _frame_counts_cache[cache_key] = result
     return result
+
 
 def flux_to_magnitude(flux):
     try:
@@ -316,7 +373,17 @@ if __name__ == "__main__":
             if obs.flux <= 0.0:
                 continue
 
-            counts = frame_counts(z=sn.z, epoch=obs.epoch, trials=1000000, time_dilation=True)
+            # counts = frame_counts_monte_carlo(
+            #    z=sn.z, epoch=obs.epoch, trials=1000, time_dilation=True
+            # )
+            counts = frame_counts_deterministic(z=sn.z, epoch=obs.epoch)
+            rf = counts[0]
+            mult = mc_rest_frame_counts["B"] / rf["B"]
+            rf = {key: int(count * mult) for key, count in rf.items()}
+
+            print(mc_rest_frame_counts)
+            print(rf)
+            exit()
 
             if not counts:
                 continue
@@ -324,8 +391,12 @@ if __name__ == "__main__":
             rest_frame_counts, obs_frame_counts = counts
             if obs_frame_counts[obs.filt.name] == 0:
                 continue
+            pprint(rest_frame_counts)
+            pprint(obs_frame_counts)
 
             flux = obs.flux * rest_frame_counts["B"] / obs_frame_counts[obs.filt.name]
 
-            print(f"{sn.name},{sn.z},{obs.filt.name},{obs.epoch},{flux},{flux_to_magnitude(flux)}")
-
+            print(
+                f"{sn.name},{sn.z},{obs.filt.name},{obs.epoch},{flux},{flux_to_magnitude(flux)}"
+            )
+            exit()
