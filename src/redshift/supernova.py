@@ -67,17 +67,20 @@ class Supernova:
     def mu(self, correction=Correction.NONE):
         return self.corrected_magnitude(correction) - self.absolute_magnitude
 
-    def mu_distance(self, correction=Correction.ONE, use_mpc=True):
+    def lum_distance(self, correction=Correction.ONE, use_mpc=True):
         d = 10 ** (1 + self.mu(correction) / 5)
         if use_mpc:
             d /= 1e6
         return d
 
     def orig_distance(self, correction=Correction.ONE):
-        return self.mu_distance(correction) / math.exp(self.z)
+        return self.lum_distance(correction) / math.exp(self.z)
+
+    def comoving_distance(self, correction=Correction.ONE):
+        return self.orig_distance() * (1 + self.z)
 
     def delta_distance(self, correction=Correction.ONE):
-        return self.mu_distance(correction) - self.orig_distance(correction)
+        return self.lum_distance(correction) - self.orig_distance(correction)
 
     def energy_loss(self):
         # E = hc / l
@@ -89,7 +92,7 @@ class Supernova:
 
     @property
     def t(self):
-        return self.mu_distance(correction=Correction.ONE, use_mpc=False) * 3.26156
+        return self.lum_distance(correction=Correction.ONE, use_mpc=False) * 3.26156
 
     @property
     def rate(self):
@@ -99,7 +102,7 @@ class Supernova:
     def hubble(self):
         return (
             self.rate
-            * self.mu_distance(use_mpc=False)
+            * self.lum_distance(use_mpc=False)
             * 3.086e13
             / (365 * 24 * 60 * 60)
         )
@@ -357,13 +360,13 @@ def reduce_data(data, step=0.002) -> list[Supernova]:
     return new_data
 
 
-def all_mu_distance_vs_redshift_graph(data, save=True):
+def all_lum_distance_vs_redshift_graph(data, save=True):
     plt.rcParams["figure.figsize"] = (8, 6)
 
     reduced_data = reduce_data(data)
     xs = [sn.z for sn in reduced_data]
 
-    ys = [sn.mu_distance(correction=Correction.ONE) for sn in reduced_data]
+    ys = [sn.lum_distance(correction=Correction.ONE) for sn in reduced_data]
     plt.scatter(
         xs,
         ys,
@@ -376,7 +379,7 @@ def all_mu_distance_vs_redshift_graph(data, save=True):
     )
     coefficients = scipy.stats.siegelslopes(
         x=[sn.z for sn in data],
-        y=[sn.mu_distance(correction=Correction.ONE) for sn in data],
+        y=[sn.lum_distance(correction=Correction.ONE) for sn in data],
     )
     plt.axline(
         (0, coefficients.intercept),
@@ -386,11 +389,11 @@ def all_mu_distance_vs_redshift_graph(data, save=True):
         linestyle="--",
     )
 
-    ys = [sn.mu_distance(correction=Correction.NONE) for sn in reduced_data]
+    ys = [sn.lum_distance(correction=Correction.NONE) for sn in reduced_data]
     plt.scatter(xs, ys, s=15, marker="x", linewidths=0.7, color="red", label="k(z) = 1")
     coefficients = scipy.stats.siegelslopes(
         x=[sn.z for sn in data],
-        y=[sn.mu_distance(correction=Correction.NONE) for sn in data],
+        y=[sn.lum_distance(correction=Correction.NONE) for sn in data],
     )
     print(coefficients.slope)
     plt.axline(
@@ -401,7 +404,7 @@ def all_mu_distance_vs_redshift_graph(data, save=True):
         linestyle="--",
     )
 
-    # ys = [sn.mu_distance(correction=Correction.TWO) for sn in data]
+    # ys = [sn.lum_distance(correction=Correction.TWO) for sn in data]
     # plt.scatter(
     #    xs,
     #    ys,
@@ -414,7 +417,7 @@ def all_mu_distance_vs_redshift_graph(data, save=True):
     # )
     # coefficients = scipy.stats.siegelslopes(
     #    x=[sn.z for sn in old_data],
-    #    y=[sn.mu_distance(correction=Correction.TWO) for sn in old_data],
+    #    y=[sn.lum_distance(correction=Correction.TWO) for sn in old_data],
     # )
     # plt.axline(
     #    (0, coefficients.intercept),
@@ -430,7 +433,7 @@ def all_mu_distance_vs_redshift_graph(data, save=True):
     plt.title("Distance vs Redshift")
     plt.legend()  # ["uncorrected", "corrected", f"H0 = {Supernova.H0:.0f} km/s / Mpsc"])
     if save:
-        plt.savefig(GRAPHS_DIR / "mu_distance_vs_redshift.png", bbox_inches="tight")
+        plt.savefig(GRAPHS_DIR / "lum_distance_vs_redshift.png", bbox_inches="tight")
         plt.cla()
 
 
@@ -484,7 +487,7 @@ def recessional_velocity_vs_intercept_time_graph(
     plt.rcParams["figure.figsize"] = (8, 6)
 
     xs = [sn.velocity_kms for sn in data]
-    ys = [sn.mu_distance(correction) / sn.velocity_kms for sn in data]
+    ys = [sn.lum_distance(correction) / sn.velocity_kms for sn in data]
 
     coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
     dist_per_z = coefficients.slope
@@ -526,7 +529,7 @@ def velocity_vs_distance_graph(data, correction=Correction.ONE, save=True):
 
     mean_rate = np.mean([sn.rate for sn in data])
 
-    xs = [sn.mu_distance() for sn in data]
+    xs = [sn.lum_distance() for sn in data]
     ys = [sn.hubble for sn in data]
 
     coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
@@ -578,9 +581,9 @@ def delta_distance_graph(data, save=True):
 
     plt.rcParams["figure.figsize"] = (8, 6)
 
-    xs = [sn.mu_distance(correction=Correction.ONE) for sn in data]
+    xs = [sn.lum_distance(correction=Correction.ONE) for sn in data]
     ys = [
-        delta(sn.mu_distance(Correction.ONE), sn.mu_distance(Correction.NONE))
+        delta(sn.lum_distance(Correction.ONE), sn.lum_distance(Correction.NONE))
         for sn in data
     ]
 
@@ -614,7 +617,7 @@ def bootstrap_hubble_parameter_graph(data, save=False):
             sn.absolute_magnitude = abs_mag
         sample = random.choices(new_data, k=len(data))
         coefficients = scipy.stats.siegelslopes(
-            x=[sn.mu_distance() for sn in sample],
+            x=[sn.lum_distance() for sn in sample],
             y=[sn.hubble for sn in sample],
         )
         results.append(coefficients.slope)
@@ -641,7 +644,7 @@ def generate_all_graphs(data):
     plt.rcParams["figure.figsize"] = figsize
     plt.rcParams["text.usetex"] = True
     plt.rcParams["hatch.linewidth"] = linewidth
-    all_mu_distance_vs_redshift_graph(data, save=True)
+    all_lum_distance_vs_redshift_graph(data, save=True)
 
     plt.cla()
     plt.rcParams["figure.figsize"] = figsize
@@ -664,7 +667,7 @@ def generate_all_graphs(data):
 
 def my_model(data, save=True):
     xs = [sn.z for sn in data]
-    ys = [sn.mu_distance() for sn in data]
+    ys = [sn.lum_distance() for sn in data]
 
     xs = [math.log(x) for x in xs]
     ys = [math.log(y) for y in ys]
@@ -680,7 +683,7 @@ def my_model(data, save=True):
     data = [sn for sn, y in zip(data, ys) if q1 - 1.5 * iqr <= y <= q3 + 1.5 * iqr]
 
     xs = [sn.z for sn in data]
-    ys = [sn.mu_distance() for sn in data]
+    ys = [sn.lum_distance() for sn in data]
     coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
     b, m = coefficients.intercept, coefficients.slope
 
@@ -692,14 +695,14 @@ def my_model(data, save=True):
 
     _, sigma = scipy.stats.norm.fit(ys)
     xs = [sn.z for sn in data]
-    ys = [sn.mu_distance() for sn in data]
+    ys = [sn.lum_distance() for sn in data]
     m, b = scipy.stats.siegelslopes(x=xs, y=ys)
     return data, m, b, sigma
 
 
 def graph_model(data):
     xs = [sn.z for sn in data]
-    ys = [sn.mu_distance() for sn in data]
+    ys = [sn.lum_distance() for sn in data]
 
     xmin, xmax = min(xs), max(xs)
     plt.scatter(
@@ -809,14 +812,14 @@ if __name__ == "__main__":
 
     #generate_all_graphs(data)
 
-    all_mu_distance_vs_redshift_graph(data, save=False)
+    #all_lum_distance_vs_redshift_graph(data, save=False)
     # velocity_vs_distance_graph(data, correction=Correction.ONE, save=False)
     # energy_loss_vs_orig_distance(data, correction=Correction.ONE, save=False)
     # recessional_velocity_vs_intercept_time_graph(data, correction=Correction.ONE, save=False)
 
-    # graph_model(data)
+    graph_model(data)
 
     # graph(data)
 
     #bootstrap_hubble_parameter_graph(data)
-    #plt.show()
+    plt.show()
