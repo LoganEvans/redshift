@@ -17,6 +17,7 @@ REPO_DIR = pathlib.Path(os.environ["VIRTUAL_ENV"]).parent.resolve()
 DATA_DIR = REPO_DIR / "data"
 FILTERS_DIR = DATA_DIR / "filters" / "suprime-cam"
 
+FILT_NAMES = ["B", "I", "R", "V", "z"]
 
 # 2001fo,0.772,I,-3.4,20.419540229885058,21.72488510198318
 mc_name = "2001fo"
@@ -272,14 +273,13 @@ def redistribute_flux(wavelengths, fluxes, new_wavelengths):
 
 def frame_counts_deterministic(z, epoch, wave=None, flux=None, time_dilation=True):
     if wave is None:
-        wave, flux = snpy.getSED(epoch, "H3")
+        wave, flux = snpy.getSED(epoch)
 
-    filt_names = ["B", "I", "R", "V", "z"]
-    rest_frame_counts = {filt_name: 0 for filt_name in filt_names}
-    obs_frame_counts = {filt_name: 0 for filt_name in filt_names}
+    rest_frame_counts = {filt_name: 0 for filt_name in FILT_NAMES}
+    obs_frame_counts = {filt_name: 0 for filt_name in FILT_NAMES}
 
     all_filt_wavelengths = []
-    for filt_name in filt_names:
+    for filt_name in FILT_NAMES:
         filt = Filter.get(filt_name)
         all_filt_wavelengths += list(filt.wavelengths)
 
@@ -290,7 +290,7 @@ def frame_counts_deterministic(z, epoch, wave=None, flux=None, time_dilation=Tru
     assert abs(sum(flux) - sum(flxs)) < min(flux)
 
     # TODO(lpe): Factor this loop out into a function and reuse below.
-    for filt_name in filt_names:
+    for filt_name in FILT_NAMES:
         filt = Filter.get(filt_name)
 
         wls_idx = 0
@@ -310,7 +310,7 @@ def frame_counts_deterministic(z, epoch, wave=None, flux=None, time_dilation=Tru
     if time_dilation:
         red_flxs = [flx / (1 + z) for flx in red_flxs]
 
-    for filt_name in filt_names:
+    for filt_name in FILT_NAMES:
         filt = Filter.get(filt_name)
 
         wls_idx = 0
@@ -332,7 +332,7 @@ def frame_counts_monte_carlo(z, epoch, trials, time_dilation):
     if cache_key in _frame_counts_cache:
         return _frame_counts_cache[cache_key]
 
-    wave, flux = snpy.getSED(epoch, "H3")
+    wave, flux = snpy.getSED(epoch)
     if flux is None:
         return None
 
@@ -384,15 +384,15 @@ def frame_counts_monte_carlo(z, epoch, trials, time_dilation):
             timestamp = end + (photon[1] - start)
         return (wavelength, timestamp)
 
-    filt_names = ["B", "I", "R", "V", "z"]
-    rest_frame_counts = {name: 0 for name in filt_names}
-    obs_frame_counts = {name: 0 for name in filt_names}
+    FILT_NAMES = ["B", "I", "R", "V", "z"]
+    rest_frame_counts = {name: 0 for name in FILT_NAMES}
+    obs_frame_counts = {name: 0 for name in FILT_NAMES}
 
     for _ in range(trials):
         photon = gen_photon()
         red_photon = redshift(photon, z=z, time_dilation=True)
 
-        for filt_name in filt_names:
+        for filt_name in FILT_NAMES:
             filt = Filter.get(filt_name)
 
             if unif_dist.rvs() < filt.sensitivity(photon[0]):
@@ -416,7 +416,43 @@ def flux_to_magnitude(flux):
         raise
 
 
+def magnitude_to_flux(mag):
+    return 10**((mag - 25.0) / (-2.5))
+
+
 if __name__ == "__main__":
+    snpy_filts = {}
+    #for filt_name in FILT_NAMES:
+    #    file_name = FILTERS_DIR / f"{filt_name}.txt"
+    #    snpy_filts[filt_name] = snpy.filters.filter(filt_name, file=file_name, comment=file_name, zp=0)
+
+    for filt_name in "Bir":
+        snpy_filts[filt_name] = snpy.fset[filt_name]
+
+    epoch = 3
+    z = 0.8
+    rest_wave, rest_flux = snpy.getSED(epoch)
+    rest_flux = np.array([flx * 1e-9 for flx in rest_flux])
+    obs_wave = np.array([wl * (1 + z) for wl in rest_wave])
+    obs_flux = np.array([flx / (1 + z) for flx in rest_flux])
+
+    b_filt = snpy_filts["B"]
+    r_filt = snpy_filts["r"]
+
+    mag = r_filt.synth_mag(obs_wave, obs_flux)
+    k = snpy.kcorr.K(wave=obs_wave, spec=obs_flux, f1=b_filt, f2=r_filt, z=z)[0]
+
+    print("mag", mag)
+    print("k", k)
+    print("corrected mag:", mag - k)
+    print("my corrected mag:", (mag - k) - 2.5 * math.log(1 + z, 10))
+
+    counts = frame_counts_deterministic(z=z, epoch=epoch)
+
+    print("my mag:", flux_to_magnitude(magnitude_to_flux(mag) * counts[0]["B"] / counts[1]["R"]))
+
+    exit()
+
     print(f"name,z,filt,epoch,flux,mag,pub_mag,my_mag")
     for sn in Supernova.get_all():
         pub_mag = SnInfo.all_info()[sn.name].max_mag

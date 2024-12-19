@@ -732,8 +732,8 @@ def graph_model(data):
 
 
 def graph(data):
-    xs = [sn.z for sn in data]
-    ys = [sn.x1 for sn in data]
+    xs = [sn.comoving_distance() for sn in data]
+    ys = [sn.lum_distance() for sn in data]
 
     xmin, xmax = min(xs), max(xs)
     plt.scatter(
@@ -817,9 +817,9 @@ if __name__ == "__main__":
     # energy_loss_vs_orig_distance(data, correction=Correction.ONE, save=False)
     # recessional_velocity_vs_intercept_time_graph(data, correction=Correction.ONE, save=False)
 
-    graph_model(data)
+    # graph_model(data)
 
-    # graph(data)
+    graph(data)
 
     #bootstrap_hubble_parameter_graph(data)
     plt.show()
