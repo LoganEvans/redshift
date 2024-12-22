@@ -726,6 +726,7 @@ def graph_model(data):
     )
 
     data, m, b, sigma = my_model(data)
+    print(m, b, sigma)
     xs = [sn.z for sn in data]
     ys = [m * x * np.e ** (scipy.stats.norm(0, sigma).rvs()) + b for x in xs]
     plt.scatter(xs, ys, s=15, marker="x", linewidths=0.7, color="red")
@@ -817,9 +818,9 @@ if __name__ == "__main__":
     # energy_loss_vs_orig_distance(data, correction=Correction.ONE, save=False)
     # recessional_velocity_vs_intercept_time_graph(data, correction=Correction.ONE, save=False)
 
-    # graph_model(data)
+    graph_model(data)
 
-    graph(data)
+    #graph(data)
 
     #bootstrap_hubble_parameter_graph(data)
     plt.show()

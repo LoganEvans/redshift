@@ -37,25 +37,21 @@ def parse_jd_date(jd):
 @dataclass()
 class Filter:
     name: str
-    wavelengths: list[float] = field(init=False)
-    sensitivities: list[float] = field(init=False)
+    wave_data: list[float] = field(init=False)
+    resp_data: list[float] = field(init=False)
 
     def __post_init__(self):
         fpath = FILTERS_DIR / f"{self.name}.txt"
-        self.wavelengths = []
-        self.sensitivities = []
+        self.wave_data = []
+        self.resp_data = []
         with open(fpath, "r") as fin:
             for line in fin.readlines():
                 vals = line.split()
-                self.wavelengths.append(float(vals[0]))
-                self.sensitivities.append(float(vals[1]))
+                self.wave_data.append(float(vals[0]))
+                self.resp_data.append(float(vals[1]))
 
     def __repr__(self):
         return f"Filter({self.name})"
-
-    def sensitivity(self, wavelength):
-        idx = bisect.bisect_right(self.wavelengths, wavelength) - 1
-        return self.sensitivities[idx]
 
     _get_cache = {}
 
@@ -235,11 +231,11 @@ class Supernova:
         return _zs[self.name]
 
 
-def redistribute_flux(wavelengths, fluxes, new_wavelengths):
-    assert set(wavelengths).issubset(set(new_wavelengths))
+def redistribute_flux(wave_data, fluxes, new_wavelengths):
+    assert set(wave_data).issubset(set(new_wavelengths))
 
-    delta = wavelengths[-1] - wavelengths[-2]
-    wavelengths = list(wavelengths[:]) + [wavelengths[-1] + delta, wavelengths[-1] + 2 * delta]
+    delta = wave_data[-1] - wave_data[-2]
+    wave_data = list(wave_data[:]) + [wave_data[-1] + delta, wave_data[-1] + 2 * delta]
     fluxes = list(fluxes[:]) + [0.0, 0.0]
 
     wls_idx = 0
@@ -247,7 +243,7 @@ def redistribute_flux(wavelengths, fluxes, new_wavelengths):
     x = 0.0
     for flux_idx in range(len(fluxes) - 1):
         x += fluxes[flux_idx]
-        flux_width = wavelengths[flux_idx + 1] - wavelengths[flux_idx]
+        flux_width = wave_data[flux_idx + 1] - wave_data[flux_idx]
 
         flux_in_bucket = fluxes[flux_idx]
         flux_seen = 0.0
@@ -257,10 +253,10 @@ def redistribute_flux(wavelengths, fluxes, new_wavelengths):
 
         while wls_idx < len(new_wavelengths):
             if wls_idx + 1 == len(new_wavelengths):
-                bucket_end_wl = wavelengths[flux_idx + 1]
+                bucket_end_wl = wave_data[flux_idx + 1]
             else:
                 bucket_end_wl = new_wavelengths[wls_idx + 1]
-                if bucket_end_wl > wavelengths[flux_idx + 1]:
+                if bucket_end_wl > wave_data[flux_idx + 1]:
                     break
 
             new_flux_width = bucket_end_wl - new_wavelengths[wls_idx]
@@ -271,185 +267,261 @@ def redistribute_flux(wavelengths, fluxes, new_wavelengths):
     return new_fluxes
 
 
-def frame_counts_deterministic(z, epoch, wave=None, flux=None, time_dilation=True):
-    if wave is None:
-        wave, flux = snpy.getSED(epoch)
+def frame_counts_deterministic(
+    z,
+    epoch=None,
+    rest_photon_dens=None,
+    obs_photon_dens=None,
+    time_dilation=True,
+    filters=None,
+):
+    if not filters:
+        filters = {}
+        for filt_name in FILT_NAMES:
+            filters[filt_name] = Filter.get(filt_name)
 
-    rest_frame_counts = {filt_name: 0 for filt_name in FILT_NAMES}
-    obs_frame_counts = {filt_name: 0 for filt_name in FILT_NAMES}
-
-    all_filt_wavelengths = []
-    for filt_name in FILT_NAMES:
-        filt = Filter.get(filt_name)
-        all_filt_wavelengths += list(filt.wavelengths)
-
-    wls = sorted(set(wave).union(set(all_filt_wavelengths)))
-    flxs = redistribute_flux(wave, flux, wls)
-
-    # Make sure any loss is due to roundoff error and not because we missed a bucket.
-    assert abs(sum(flux) - sum(flxs)) < min(flux)
+    rest_frame_counts = {filt_name: 0 for filt_name in filters.keys()}
+    obs_frame_counts = {filt_name: 0 for filt_name in filters.keys()}
 
     # TODO(lpe): Factor this loop out into a function and reuse below.
-    for filt_name in FILT_NAMES:
-        filt = Filter.get(filt_name)
-
+    for filt_name, filt in filters.items():
         wls_idx = 0
-        # TODO(lpe): Does this miss the last bucket in each filter? If it does,
-        # it likely doesn't matter since the filter files seem to have a 0
-        # sensitivity in the last bucket anyway.
-        for filt_idx in range(len(filt.wavelengths) - 1):
-            sensitivity = filt.sensitivities[filt_idx]
+        for filt_idx in range(len(filt.wave_data) - 1):
+            resp = filt.resp_data[filt_idx]
 
-            while wls_idx + 1 < len(wls) and wls[wls_idx] < filt.wavelengths[filt_idx + 1]:
-                rest_frame_counts[filt_name] += sensitivity * flxs[wls_idx]
+            while wls_idx < filt.wave_data[filt_idx + 1]:
+                rest_frame_counts[filt_name] += resp * rest_photon_dens[wls_idx]
                 wls_idx += 1
 
-    red_wave = [wl * (1 + z) for wl in wave]
-    red_wls = sorted(set(red_wave).union(set(all_filt_wavelengths)))
-    red_flxs = redistribute_flux(red_wave, flux, red_wls)
-    if time_dilation:
-        red_flxs = [flx / (1 + z) for flx in red_flxs]
-
-    for filt_name in FILT_NAMES:
-        filt = Filter.get(filt_name)
-
+    for filt_name, filt in filters.items():
         wls_idx = 0
-        for filt_idx in range(len(filt.wavelengths) - 1):
-            sensitivity = filt.sensitivities[filt_idx]
+        for filt_idx in range(len(filt.wave_data) - 1):
+            resp = filt.resp_data[filt_idx]
 
-            while wls_idx + 1 < len(red_wls) and red_wls[wls_idx] < filt.wavelengths[filt_idx + 1]:
-                obs_frame_counts[filt_name] += sensitivity * red_flxs[wls_idx]
+            while wls_idx < filt.wave_data[filt_idx + 1]:
+                obs_frame_counts[filt_name] += resp * obs_photon_dens[wls_idx]
                 wls_idx += 1
 
     return rest_frame_counts, obs_frame_counts
 
 
-_frame_counts_cache = {}
+def frame_counts_monte_carlo(
+    z, trials, rest_photon_dens=None, obs_photon_dens=None, filters=None
+):
+    cdf = [0.0]
+    cumulative_dens = 0.0
+    total_dens = sum(rest_photon_dens)
+    for i, dens in enumerate(rest_photon_dens):
+        cumulative_dens += dens
+        cdf.append(cumulative_dens / total_dens)
 
-
-def frame_counts_monte_carlo(z, epoch, trials, time_dilation):
-    cache_key = (z, epoch, trials, time_dilation)
-    if cache_key in _frame_counts_cache:
-        return _frame_counts_cache[cache_key]
-
-    wave, flux = snpy.getSED(epoch)
-    if flux is None:
-        return None
-
-    flux_cdf = [0.0]
-    total_flux = 0.0
-    for i, f in enumerate(flux):
-        total_flux += f
-        flux_cdf.append(total_flux)
-    flux_cdf_dist = scipy.stats.uniform(0, total_flux)
     unif_dist = scipy.stats.uniform(0, 1)
 
-    def get_idx(cdf):
-        return bisect.bisect_right(flux_cdf, cdf) - 1
-
-    # Make sure get_idx is correct.
-    for i in range(len(flux_cdf) - 1):
-        left = flux_cdf[i]
-        right = flux_cdf[i + 1]
-        assert i == get_idx(left)
-        assert i == get_idx((left + right) / 2.0)
+    def get_idx(unif_rv):
+        return bisect.bisect_right(cdf, unif_rv) - 1
 
     start = datetime(year=1930, month=6, day=14)
 
     def gen_photon():
-        flux_cdf_rv = flux_cdf_dist.rvs()
+        cdf_rv = unif_dist.rvs()
 
-        idx = get_idx(flux_cdf_rv)
-        assert flux_cdf[idx] <= flux_cdf_rv < flux_cdf[idx + 1]
+        idx = get_idx(cdf_rv)
+        assert cdf[idx] <= cdf_rv < cdf[idx + 1]
 
-        remaining = flux_cdf_rv - flux_cdf[idx]
-        assert remaining <= flux[idx]
+        remaining = cdf_rv - cdf[idx]
+        assert remaining <= rest_photon_dens[idx]
 
         # frac should be a uniform(0, 1) variable.
-        frac = remaining / flux[idx]
+        frac = remaining / rest_photon_dens[idx]
         assert 0.0 <= frac <= 1.0
 
-        bucket_width = wave[1] - wave[0]
-        wavelength = wave[idx] + frac * bucket_width
+        wavelength = idx + frac
         timestamp = start + timedelta(minutes=unif_dist.rvs())
         return (wavelength, timestamp)
 
     end = datetime(year=2024, month=11, day=2)
 
-    def redshift(photon, z, time_dilation):
+    def redshift(photon, z):
         wavelength = photon[0] * (1 + z)
-        if time_dilation:
-            timestamp = end + (photon[1] - start) * (1 + z)
-        else:
-            timestamp = end + (photon[1] - start)
+        timestamp = end + (photon[1] - start) * (1 + z)
         return (wavelength, timestamp)
 
-    FILT_NAMES = ["B", "I", "R", "V", "z"]
-    rest_frame_counts = {name: 0 for name in FILT_NAMES}
-    obs_frame_counts = {name: 0 for name in FILT_NAMES}
+    def sensitivity(filt, wavelength):
+        idx = bisect.bisect_right(filt.wave_data, wavelength) - 1
+        if idx == -1 or idx + 1 == len(filt.wave_data):
+            return 0.0
+        return filt.resp_data[idx]
+
+    rest_frame_counts = {name: 0 for name in filters.keys()}
+    obs_frame_counts = {name: 0 for name in filters.keys()}
 
     for _ in range(trials):
         photon = gen_photon()
-        red_photon = redshift(photon, z=z, time_dilation=True)
+        red_photon = redshift(photon, z=z)
 
-        for filt_name in FILT_NAMES:
-            filt = Filter.get(filt_name)
-
-            if unif_dist.rvs() < filt.sensitivity(photon[0]):
+        for filt_name, filt in filters.items():
+            if unif_dist.rvs() < sensitivity(filt, photon[0]):
                 rest_frame_counts[filt_name] += 1
 
             if (red_photon[1] - end) <= timedelta(
                 minutes=1
-            ) and unif_dist.rvs() < filt.sensitivity(red_photon[0]):
+            ) and unif_dist.rvs() < sensitivity(filt, red_photon[0]):
                 obs_frame_counts[filt_name] += 1
 
-    result = rest_frame_counts, obs_frame_counts
-    _frame_counts_cache[cache_key] = result
-    return result
+    return rest_frame_counts, obs_frame_counts
 
 
-def flux_to_magnitude(flux):
+def photon_density_to_flux(wave, photon_dens, filt):
+    flux = 0.0
+    wl_idx = 0
+    for wl, resp in zip(filt.wave_data, filt.resp_data):
+        while wave[wl_idx] < wl:
+            flux += resp * photon_dens[wl_idx]
+            wl_idx += 1
+
+    return flux
+
+
+def flux_to_magnitude(flux, filt):
     try:
-        return -2.5 * math.log(flux, 10) + 25.0
+        return -2.5 * math.log(flux, 10) + filt.zp
     except ValueError:
         print(f"Error on flux: {flux}")
         raise
 
 
-def magnitude_to_flux(mag):
-    return 10**((mag - 25.0) / (-2.5))
+def magnitude_to_flux(mag, filt):
+    return 10 ** ((mag - filt.zp) / (-2.5))
 
 
 if __name__ == "__main__":
-    snpy_filts = {}
-    #for filt_name in FILT_NAMES:
-    #    file_name = FILTERS_DIR / f"{filt_name}.txt"
-    #    snpy_filts[filt_name] = snpy.filters.filter(filt_name, file=file_name, comment=file_name, zp=0)
-
-    for filt_name in "Bir":
-        snpy_filts[filt_name] = snpy.fset[filt_name]
+    from matplotlib import pyplot as plt
+    filters = {}
+    for filt_name in ["Ukait", "Bkait", "Vkait", "Rkait", "Ikait"]:
+        filters[filt_name] = snpy.fset[filt_name]
 
     epoch = 3
     z = 0.8
-    rest_wave, rest_flux = snpy.getSED(epoch)
-    rest_flux = np.array([flx * 1e-9 for flx in rest_flux])
-    obs_wave = np.array([wl * (1 + z) for wl in rest_wave])
-    obs_flux = np.array([flx / (1 + z) for flx in rest_flux])
+    raw_wave, raw_spec = snpy.getSED(epoch)
+    avg = np.mean(raw_spec)
+    raw_spec = np.array([avg for _ in raw_spec])
 
-    b_filt = snpy_filts["B"]
-    r_filt = snpy_filts["r"]
+    # Use angstroms starting at 0.
+    rest_wave = [float(val) for val in range(int(raw_wave[-1]))]
+    rest_photon_dens = [0.0 for _ in rest_wave]
+    rest_wave_idx = 0
+    while rest_wave[rest_wave_idx] < raw_wave[0]:
+        rest_wave_idx += 1
 
-    mag = r_filt.synth_mag(obs_wave, obs_flux)
-    k = snpy.kcorr.K(wave=obs_wave, spec=obs_flux, f1=b_filt, f2=r_filt, z=z)[0]
+    h_erg = 1.988e-16  # Planks constant in erg*s.
+    c_cm = 299792458 * 100  # c in cm/s
+    hc = h_erg * c_cm
 
-    print("mag", mag)
-    print("k", k)
-    print("corrected mag:", mag - k)
-    print("my corrected mag:", (mag - k) - 2.5 * math.log(1 + z, 10))
+    for idx in range(len(raw_wave) - 1):
+        # Solve:
+        # energy = photons * integral(hc / lambda)
+        # photons = energy / (hc * (log(wl_hi) - log(wl_lo)))
+        photons = raw_spec[idx] / (
+            hc * (math.log(raw_wave[idx + 1]) - math.log(raw_wave[idx]))
+        )
+        photons_per_ang = photons / (raw_wave[idx + 1] - raw_wave[idx])
+        while (
+            rest_wave_idx < len(rest_wave)
+            and rest_wave[rest_wave_idx] < raw_wave[idx + 1]
+        ):
+            rest_photon_dens[rest_wave_idx] = photons_per_ang
+            rest_wave_idx += 1
 
-    counts = frame_counts_deterministic(z=z, epoch=epoch)
+    obs_wave = [float(val) for val in range(2 + int(rest_wave[-1] * (1 + z)))]
+    obs_photon_dens = [0.0 for _ in obs_wave]
+    for idx, wl in enumerate(rest_wave):
+        lo_wl = wl * (1 + z)
+        hi_wl = (wl + 1) * (1 + z)
+        time_dilated_photon_dens = rest_photon_dens[idx] / (1 + z)
+        photons_per_ang = time_dilated_photon_dens / (hi_wl - lo_wl)
 
-    print("my mag:", flux_to_magnitude(magnitude_to_flux(mag) * counts[0]["B"] / counts[1]["R"]))
+        dist = 0.0
+
+        lo_wl_idx = int(lo_wl)
+        if lo_wl_idx < lo_wl:
+            obs_photon_dens[lo_wl_idx] += (lo_wl_idx + 1.0 - lo_wl) * photons_per_ang
+            dist += (lo_wl_idx + 1.0 - lo_wl) * photons_per_ang
+            lo_wl_idx += 1
+
+        while lo_wl_idx + 1 <= hi_wl:
+            dist += photons_per_ang
+            obs_photon_dens[lo_wl_idx] += photons_per_ang
+            lo_wl_idx += 1
+
+        if hi_wl != int(hi_wl):
+            dist += (hi_wl - int(hi_wl)) * photons_per_ang
+            obs_photon_dens[lo_wl_idx] += (hi_wl - int(hi_wl)) * photons_per_ang
+
+    rest_filt = filters["Bkait"]
+    obs_filt = filters["Rkait"]
+
+    real_mag = rest_filt.synth_mag(raw_wave, raw_spec)
+    obs_mag = obs_filt.synth_mag(raw_wave, raw_spec, z=z)
+    obs_mag_2 = obs_filt.synth_mag(
+            np.array([wl * (1 + z) for wl in raw_wave]),
+            np.array([spec / (1 + z) for spec in raw_spec]))
+    k = snpy.kcorr.K(wave=raw_wave, spec=raw_spec, f1=rest_filt, f2=obs_filt, z=z)[0]
+
+    print("z             :", z)
+    print("real_mag      :", real_mag)
+    print("obs_mag       :", obs_mag)
+    print("obs_mag 2     :", obs_mag_2)
+    print("k             :", k)
+    k_ext = k - 2.5 * math.log(1 + z, 10)
+    print("k ext         :", k - 2.5 * math.log(1 + z, 10))
+    print("k-cor mag     :", obs_mag - k)
+    # TODO(lpe): This seems to be the smoking gun -- k-cor mag ext produces the
+    # correct value, but k_ext uses my fix for k-corrections. Review this after
+    # some sleep.
+    print("k-cor mag ext :", obs_mag - k_ext) # !!!
+    print("k-cor mag2    :", obs_mag_2 - k)
+
+    exit()
+
+    snpy_rest_flux = rest_filt.response(raw_wave, raw_spec)
+    print("snpy rest flux:", snpy_rest_flux)
+    snpy_obs_flux = obs_filt.response(raw_wave, raw_spec, z=z)
+    print("snpy obs  flux:", snpy_obs_flux)
+    print("ratio:", snpy_rest_flux / snpy_obs_flux)
+    #plt.scatter(rest_filt.wave_data, rest_filt.resp_data, s=1)
+    #plt.scatter(obs_filt.wave_data, obs_filt.resp_data, s=1, color='red')
+    plt.scatter(rest_wave, rest_photon_dens, s=1)
+    plt.scatter(obs_wave, obs_photon_dens, s=1, color="red")
+    plt.show()
+
+    my_rest_flux = photon_density_to_flux(rest_wave, rest_photon_dens, rest_filt)
+    my_rest_mag = flux_to_magnitude(my_rest_flux, rest_filt)
+    my_obs_flux = photon_density_to_flux(obs_wave, obs_photon_dens, obs_filt)
+    my_obs_mag = flux_to_magnitude(my_obs_flux, obs_filt)
+
+    print("  my rest flux:", my_rest_flux)
+    print("  my rest mag :", my_rest_mag)
+    print("  my obs  flux:", my_obs_flux)
+    print("  my obs  mag :", my_obs_mag)
+    print(" my flux ratio:", my_rest_flux / my_obs_flux)
+    # print("corrected mag    :", my_obs_mag - k)
+    # print("my corrected mag :", (my_obs_mag - k) - 2.5 * math.log(1 + z, 10))
+
+    mc_counts = frame_counts_monte_carlo(
+        z=z, rest_photon_dens=rest_photon_dens, filters=filters, trials=10000
+    )
+    pprint(mc_counts)
+    print(" mc flux ratio:", mc_counts[0][rest_filt.name] / mc_counts[1][obs_filt.name])
+
+    print(
+        "my mag (mc):",
+        flux_to_magnitude(
+            magnitude_to_flux(my_obs_mag, obs_filt)
+            * mc_counts[0][rest_filt.name]
+            / mc_counts[1][obs_filt.name],
+            rest_filt,
+        ),
+    )
 
     exit()
 
@@ -473,7 +545,7 @@ if __name__ == "__main__":
             if obs_frame_counts[obs.filt.name] == 0:
                 continue
 
-            flux = obs.flux * rest_frame_counts["B"] / obs_frame_counts[obs.filt.name]
+            flux = obs.flux * rest_frame_counts["Bkait"] / obs_frame_counts[obs.filt.name]
 
             mag = flux_to_magnitude(flux)
             print(
