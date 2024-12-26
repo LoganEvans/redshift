@@ -10,9 +10,39 @@
 \usepackage{graphicx}
 \usepackage{natbib}
 \usepackage{csquotes}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fancyvrb}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstset{style=mystyle}
 
 
-\title{Dark energy is due to a math error from 1930}
+\title{Dark energy is based on a math error from 1930}
 
 \date{\today}
 
@@ -27,7 +57,7 @@
 \renewcommand{\shorttitle}{\textit{arXiv} Template}
 
 \hypersetup{
-pdftitle={Dark energy is due to a math error from 1930},
+pdftitle={Dark energy is based on a math error from 1930},
 pdfsubject={astro-ph.CO},
 pdfauthor={Logan P.~Evans},
 pdfkeywords={cosmological parameters, dark energy},
@@ -37,32 +67,86 @@ pdfkeywords={cosmological parameters, dark energy},
 \maketitle
 
 \begin{abstract}
-  Light from distant objects, such as supernovae and galaxies, is dimmed
-  due to three phenomena associated with redshift: energy levels per photon,
-  spectral bandwidth, and time dilation. Observed magnitudes are reported with
-  k-corrections that should correct for these dimming effects, but since 1930,
-  the equations used to perform these k-corrections have been missing the
-  correction factor for time dilation. When observations of Type Ia supernova
-  are corrected for this missing factor, the relationship between luminosity
-  distance and redshift for Type Ia supernova becomes linear. This indicates
-  that the expansion rate of the universe is not accelerating and there is no
-  need for dark energy to explain observational data.
+  We show that the magnitude of distant objects has been calculated incorrectly
+  since 1930. We describe how this math error has propagated for over nine
+  decades. Finally, we explore the consequences of correcting this flaw and
+  resolve two of the preeminent mysteries in cosmology: dark energy is not
+  supported by observations of Type Ia supernovae, and the Hubble tension is
+  due to a calculation error.
 \end{abstract}
 
 % keywords can be removed
-\keywords{Cosmological Parameters \and Dark Energy \and Luminosity Distance}
+\keywords{Cosmological Parameters \and Dark Energy \and Luminosity Distance \and Hubble tension}
 
 \section{Introduction}
 
-Observations of Type Ia supernova are fundamental to the study of cosmology.
-These measurements are necessary to calibrate models that measure redshift and
-estimate distance. This relationship, often called the Hubble-Lema\^{i}tre law,
-[TODO: find citation] describes how quickly the universe is expanding. However,
-\citet{riess1998} and \citet{perlmutter1999} presented evidence that there
-isn't a linear relationship between redshift and distance, but instead, distant
-objects are farther away than their redshift would predict (see Figure
-\ref{fig:mu_distance_vs_redshift}). This phenomenon is referred to as dark
-energy.
+The measurement of Type Ia supernovae is one of the primary sources of data for
+cosmological models. The measurements involve estimating the peak magnitude in
+the B filter \citet{riess1998} for the rest frame, meaning we want to know how
+bright the SnIa would be if its light didn't undergo redshift. Redshift causes
+the light that would be mesaured by the B filter in a rest frame to be shifted
+to another filter. In order to observe a SnIa in an arbitrary filter and report
+the magnitude in filter B, we use a technique called k-corrections.
+
+The first formal derivation of k-corrections was performed by
+\citet{tollman1930}, and it failed to account for bandwidth stretching, one of
+the dimming effects of redshift. This error was noted by \citet{desitter1934},
+but in \citet{hubble1935} the descrepancy was noted and ignored.
+\citet{oke1968} rederived k-corrections, but they failed to account time
+dilation, one of the other dimming effects of redshift. In \citet{kim1996},
+k-corrections were extended to handle additional cross-filter comparisons and
+address zero-point corrections, but they started their derivation by
+referencing the incorrect equation from \citet{oke1968}. \citet{hsiao2007}
+expanded on the work done by \citet{kim1996} by providing expected SnIa
+template spectra.  Finally, \citet{burns2010} implemented the popular software
+package Sn(OO)py which implemented the SnIa template spectra into
+k-corrections. This software package computes k-corrections differently from
+prior work, and in order to match prior values, the code adds an extra term.
+This history is explored in more depth in Section \ref{sec:history}.
+
+The effect of using an incorrect magnitude for SnIa is that we think objects
+are farther away than they really are, and the effect componds for greater
+distances. Up until \citet{riess1998}, we didn't have distant enough
+observations for this error to matter much for cosmology models, but in the
+late 1990s, it was clear that our measurements for distance and redshift were
+not linear. This observation led to a model that utilized a cosmological
+constant and dark energy in order to explain the non-linear distance-redshift
+graph. We will show in Section \ref{sec:correction} that correcting the flaw
+with k-corrections leads to a linear graph that does not need to rely on a
+cosmological constant.
+
+Since \citet{planck2020}, it has been evident that something was missing with
+our understanding of cosmology. This research used an alternative technique
+based on measurements of the cosmic microwave background to measure the Hubble
+constant, but as summarized in \citet{perivolaropoulos2022}, this measurement
+was incompatable with the Hubble constant measured from SnIa. As we will
+discuss in Section \ref{sec:tension}, fixing the error with k-corrections
+produces a measurement of the Hubble constant that is compatible with models
+based on the cosmic microwave background.
+
+\section{A brief history of k-corrections}
+\label{sec:history}
+
+Observations of Type Ia supernova are essential to calibrate models that
+measure redshift and estimate distance. This relationship, often called the
+Hubble-Lema\^{i}tre law, describes how quickly the universe is expanding.
+However, \citet{riess1998} and \citet{perlmutter1999} presented evidence that
+there isn't a linear relationship between redshift and distance, but instead,
+distant objects are farther away than their redshift would predict (see Figure
+\ref{fig:mu_distance_vs_redshift}). This phenomenon implies that the
+acceleration of the universe is faster today than it was for old observations.
+Previously the cause of this phenomenon was unknown and was referred to as
+dark energy.
+
+\begin{figure}[h]
+  \includegraphics[width=\linewidth]{mu_distance_vs_redshift.png}
+  \caption{The relationship between distance and redshift for two treatments of
+  magnitude data. The displayed points are roughly a third of the values in the
+  full DES dataset, selected evenly to aid visibility. The $k(z) = 1$ treatment
+  is clearly non-linear while the $k(z) = 1 + z$ treatment appears to be
+  linear.}
+  \label{fig:mu_distance_vs_redshift}
+\end{figure}
 
 Type Ia supernova are used to explore the relationship between distances and
 redshifts because these events always happen in similar ways, so the absolute
@@ -71,13 +155,12 @@ in the dark and lighting matches. As long as we know how brightly a match burns
 at a known distance, we can estimate the distance to any match by measuring the
 appearant brightness before applying some geometry.
 
-It turns out that measuring the apperant brightness of a Type Ia supernova is
-non-trivial. The aspect of the process that we will explore here concerns how
-redshift affects the light we observe. This problem is often referred to as
-k-corrections, and one of the first mathematical treatments of the problem was
-performed by \citet{tolman1930}. However, when Tolman made his derivation, he
-did not consider the effects of a spectra that is stretched out due to
-redshift.
+Measuring the apperant brightness of a Type Ia supernova is non-trivial. The
+aspect of the process that we will explore here concerns how redshift affects
+the light we observe. This problem is often referred to as k-corrections, and
+one of the first mathematical treatments of the problem was performed by
+\citet{tolman1930}. However, when Tolman made his derivation, he did not
+consider the effects of a spectra that is stretched out due to redshift.
 
 A few years later, \citet{desitter1934}, discussed all three issues that would
 reduce the observed magnitude of a distant observation. The correction for each
@@ -106,25 +189,26 @@ since.
 
 By \citet{oke1968}, the two factors of $(1 + z)$ were attributed to the change
 in energy and to the spectral bandwidth elongation, which leaves time dilation
-as the factor that was omitted.
+as the factor that was omitted. A graph that demonstrates why it's essential to
+correct for both the spectra bandwidth warping and time dilation is presented
+in Figure \ref{fit:k-example}.
 
-In 1935, the correction of $(1 + z)^2$ empirically lined up the data so that
-there seemed to be a linear relationship between redshift and distance. It
-wasn't until \citet{riess1998}, sixty-eight years later, that the omission of a
-third $(1 + z)$ correction factor resulted in faulty conclusions.
+\begin{figure}[h]
+  \includegraphics[width=\linewidth]{k-corrections_for_photon_counts.png}
+  \caption{An example of how k-corrections take an observed spectrum and
+  produce a rest-frame spectrum. [TODO]
+  }
+  \label{fig:k-example}
+\end{figure}
 
-Those faulty conclusions, however, have been the basis for a substantial amount
-of scientific interest. In 2011, three physicists received the Nobel Prize in
-Physics for discovering that the expansion rate of the universe is accelerating
-\citet{straumann2012}. The papers \citet{riess1998} and \citet{perlmutter1999}
-have each received over 20000 citations. It's not clear how much cosmology work
-will need to be revisited with corrected distance measurements, but it is a
-non-trivial amount.
+The modern treatment of k-corrections is based on the work of \citet{kim1996}.
 
-\begin{displayquote}
-\end{displayquote}
+\lstinputlisting[language=Python, caption=A demonstration that k-corrections
+calculated by snpy are off by \texttt{2.5*log10(1+z)}. The roundoff error is
+roughly \texttt{2e-16}.]{code_listing.py}
 
 \section{The dimming effects of redshift}
+\label{sec:redshift}
 
 The magnitude measurements for Type Ia supernova goes through a long chain of
 data processing. The data used here was collected by the Dark Energy Survey
@@ -197,6 +281,7 @@ supernova do experience time dilation. Based on this, we can reject the tired
 light hypothesis and assume the big bang model.
 
 \section{Correcting magnitude for time dilation}
+\label{sec:correction}
 
 Luminosity distance $D_L$, is the apparent distance of an object based on the
 observed luminosity, also known as the flux $F$. This does not take into
@@ -246,6 +331,7 @@ can then be calculated as
 \end{equation}
 
 \section{Linear distance vs redshift relationship}
+\label{hubblelaw}
 
 The theory of an accelerating expansion is based on there being a non-linear
 relationship between redshift and distance. More specifically, old objects (the
@@ -261,27 +347,13 @@ linear relationship between redshift and distance. A linear model rules out an
 accelerated expansion.
 
 \begin{figure}[ht]
-  \includegraphics[width=\linewidth]{mu_distance_vs_redshift.png}
-  \caption{The relationship between distance and redshift for two treatments of
-  magnitude data. The displayed points are roughly a third of the values in the
-  full DES dataset, selected evenly to aid visibility. The $k(z) = 1$ treatment
-  is clearly non-linear while the $k(z) = 1 + z$ treatment appears to be
-  linear.}
-  \label{fig:mu_distance_vs_redshift}
-\end{figure}
-
-\begin{figure}[ht]
-  \includegraphics[width=\linewidth]{k-corrections_for_photon_counts.png}
-  \caption{An example of how k-corrections take an observed spectrum and
-  produce a rest-frame spectrum. [TODO]
-  }
-\end{figure}
-
-\begin{figure}[ht]
   \includegraphics[width=\linewidth]{velocity_vs_distance.png}
   \caption{The relationship between expansion velocity and distance. The slope of this graph demonstrates the Hubble constant.
   }
 \end{figure}
+
+\section{Hubble tension}
+\label{sec:tension}
 
 \begin{figure}[ht]
   \includegraphics[width=\linewidth]{bootstrapped_H0.png}
@@ -294,8 +366,6 @@ accelerated expansion.
   \sim Norm(65.94, 1.29)$.
   }
 \end{figure}
-
-\section{Disagreement with existing research}
 
 Previous studies use $F$ instead of $F*$. To the best of our knowledge, no
 studies that depend on the distance of Type Ia supernova, reaching back at
