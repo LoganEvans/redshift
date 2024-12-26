@@ -53,7 +53,7 @@ class Supernova:
             return self.magnitude
         elif correction == Correction.TWO:
             return self.magnitude - 2 * np.log(1 + self.z) / np.log(100**0.2)
-        else:  # Tired light
+        else:
             return self.magnitude - np.log(1 + self.z) / np.log(100**0.2)
 
     @property
