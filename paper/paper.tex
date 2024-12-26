@@ -86,19 +86,19 @@ the B filter \citet{riess1998} for the rest frame, meaning we want to know how
 bright the SnIa would be if its light didn't undergo redshift. Redshift causes
 the light that would be mesaured by the B filter in a rest frame to be shifted
 to another filter. In order to observe a SnIa in an arbitrary filter and report
-the magnitude in filter B, we use a technique called k-corrections.
+the magnitude in the B filter we use a technique called k-corrections.
 
 The first formal derivation of k-corrections was performed by
 \citet{tollman1930}, and it failed to account for bandwidth stretching, one of
 the dimming effects of redshift. This error was noted by \citet{desitter1934},
 but in \citet{hubble1935} the descrepancy was noted and ignored.
-\citet{oke1968} rederived k-corrections, but they failed to account time
+\citet{oke1968} rederived k-corrections, but they failed to account for time
 dilation, one of the other dimming effects of redshift. In \citet{kim1996},
 k-corrections were extended to handle additional cross-filter comparisons and
 address zero-point corrections, but they started their derivation by
 referencing the incorrect equation from \citet{oke1968}. \citet{hsiao2007}
 expanded on the work done by \citet{kim1996} by providing expected SnIa
-template spectra.  Finally, \citet{burns2010} implemented the popular software
+template spectra. Finally, \citet{burns2010} implemented the popular software
 package Sn(OO)py which implemented the SnIa template spectra into
 k-corrections. This software package computes k-corrections differently from
 prior work, and in order to match prior values, the code adds an extra term.
@@ -162,10 +162,10 @@ one of the first mathematical treatments of the problem was performed by
 \citet{tolman1930}. However, when Tolman made his derivation, he did not
 consider the effects of a spectra that is stretched out due to redshift.
 
-A few years later, \citet{desitter1934}, discussed all three issues that would
-reduce the observed magnitude of a distant observation. The correction for each
-of these issues is identical: take a measurement for luminosity and multiply it
-by the factor $1 + z$.
+A few years later, \citet{desitter1934}, discussed all three issues that reduce
+the observed magnitude of a distant observation. The correction for each of
+these issues is identical: take a measurement for luminosity and multiply it by
+the factor $1 + z$.
 
 A year later, \citet{hubble1935} published a similar set of calculations for
 k-corrections, but these equations used $(1 + z)^2$ instead of the $(1 + z)^3$
@@ -195,17 +195,46 @@ in Figure \ref{fit:k-example}.
 
 \begin{figure}[h]
   \includegraphics[width=\linewidth]{k-corrections_for_photon_counts.png}
-  \caption{An example of how k-corrections take an observed spectrum and
-  produce a rest-frame spectrum. [TODO]
+  \caption{An example of how k-corrections take an observed magnitude and
+  produce a rest frame magnitude. In this example, $z=1$. The observation
+  filter measures magnitude, which is equivalent to measuring the number of
+  photons per nanometer. In the bottom left panel, a correction of $1+z$ is
+  applied which doubles the photons per nanometer. The top right panel shows
+  the effect of correcting for the bandwidth spectrum warping effect --
+  correcting all wavelengths for the rest frame means that the measured
+  wavelengths have blueshifted, ideally into the cross band B filter. Applying
+  both effects, shown in the bottom right panel, requires applying two
+  correction factors of $1+z$. This example omits the correction for a similar
+  effect related to lower energy due to the Planck relation because CCD cameras
+  obviate the need to correct for this effect.
   }
   \label{fig:k-example}
 \end{figure}
 
 The modern treatment of k-corrections is based on the work of \citet{kim1996}.
+This work extended the calculations of k-corrections to extend to filters
+beyond B and V. It also introduced a term that deals with the zero-point for the
+actual filters. Equation 2 from this paper is the form of the k-corrections
+used in the modern day:
 
+\begin{equation}
+  K_{xy} = -2.5\text{log} \left(\frac{\int \mathcal{Z}(\lambda)S_x(\lambda)d\lambda}{\int \mathcal{Z}(\lambda)S_y(\lambda)d\lambda}\right) + 2.5\text{log}(1+z) + 2.5\text{log}\left(\frac{F(\lambda)S_x(\lambda)d\lambda}{F(1/(1+z))S_y(\lambda))d\lambda}\right).
+\end{equation}
+
+The first term of this equation deals with zero-points, which is a magnitude
+added to individual filters to correct for the light gathering abilities of the
+telescope. The third term measures the flux in the observation filter and divides it by  the flux that would be measured 
+
+
+The next major advance in k-corrections was
+
+\citet{snpy}
+
+\begin{minipage}[c]{0.95\textwidth}
 \lstinputlisting[language=Python, caption=A demonstration that k-corrections
 calculated by snpy are off by \texttt{2.5*log10(1+z)}. The roundoff error is
 roughly \texttt{2e-16}.]{code_listing.py}
+\end{minipage}
 
 \section{The dimming effects of redshift}
 \label{sec:redshift}

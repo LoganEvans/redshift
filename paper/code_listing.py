@@ -17,6 +17,10 @@ m_b = rest_filter.synth_mag(wave, flux)
 # Compute the observed magnitude after redshift effects.
 m_r = obs_filter.synth_mag(wave, flux, z=z)
 
+# TODO(lpe): Wait, why is m_r brighter than m_b? Shouldn't the fix term have
+# the opposite sign?
+# Huh... m_r is brighter than m_b even if SED is forced to be flat.
+
 got_k = snpy.kcorr.K(wave, flux, rest_filter, obs_filter, z=z)[0]
 
 # From the definition of k-corrections:
