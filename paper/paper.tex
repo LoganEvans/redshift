@@ -86,21 +86,21 @@ the B filter \citet{riess1998} for the rest frame, meaning we want to know how
 bright the SnIa would be if its light didn't undergo redshift. Redshift causes
 the light that would be mesaured by the B filter in a rest frame to be shifted
 to another filter. In order to observe a SnIa in an arbitrary filter and report
-the magnitude in the B filter we use a technique called k-corrections.
+the magnitude in the B filter we use a technique called K-corrections.
 
-The first formal derivation of k-corrections was performed by
-\citet{tollman1930}, and it failed to account for bandwidth stretching, one of
+The first formal derivation of K-corrections was performed by
+\citet{tolman1930}, and it failed to account for bandwidth stretching, one of
 the dimming effects of redshift. This error was noted by \citet{desitter1934},
 but in \citet{hubble1935} the descrepancy was noted and ignored.
-\citet{oke1968} rederived k-corrections, but they failed to account for time
+\citet{oke1968} rederived K-corrections, but they failed to account for time
 dilation, one of the other dimming effects of redshift. In \citet{kim1996},
-k-corrections were extended to handle additional cross-filter comparisons and
+K-corrections were extended to handle additional cross-filter comparisons and
 address zero-point corrections, but they started their derivation by
 referencing the incorrect equation from \citet{oke1968}. \citet{hsiao2007}
 expanded on the work done by \citet{kim1996} by providing expected SnIa
 template spectra. Finally, \citet{burns2010} implemented the popular software
 package Sn(OO)py which implemented the SnIa template spectra into
-k-corrections. This software package computes k-corrections differently from
+K-corrections. This software package computes K-corrections differently from
 prior work, and in order to match prior values, the code adds an extra term.
 This history is explored in more depth in Section \ref{sec:history}.
 
@@ -112,7 +112,7 @@ late 1990s, it was clear that our measurements for distance and redshift were
 not linear. This observation led to a model that utilized a cosmological
 constant and dark energy in order to explain the non-linear distance-redshift
 graph. We will show in Section \ref{sec:correction} that correcting the flaw
-with k-corrections leads to a linear graph that does not need to rely on a
+with K-corrections leads to a linear graph that does not need to rely on a
 cosmological constant.
 
 Since \citet{planck2020}, it has been evident that something was missing with
@@ -120,11 +120,11 @@ our understanding of cosmology. This research used an alternative technique
 based on measurements of the cosmic microwave background to measure the Hubble
 constant, but as summarized in \citet{perivolaropoulos2022}, this measurement
 was incompatable with the Hubble constant measured from SnIa. As we will
-discuss in Section \ref{sec:tension}, fixing the error with k-corrections
+discuss in Section \ref{sec:tension}, fixing the error with K-corrections
 produces a measurement of the Hubble constant that is compatible with models
 based on the cosmic microwave background.
 
-\section{A brief history of k-corrections}
+\section{A brief history of K-corrections}
 \label{sec:history}
 
 Observations of Type Ia supernova are essential to calibrate models that
@@ -157,7 +157,7 @@ appearant brightness before applying some geometry.
 
 Measuring the apperant brightness of a Type Ia supernova is non-trivial. The
 aspect of the process that we will explore here concerns how redshift affects
-the light we observe. This problem is often referred to as k-corrections, and
+the light we observe. This problem is often referred to as K-corrections, and
 one of the first mathematical treatments of the problem was performed by
 \citet{tolman1930}. However, when Tolman made his derivation, he did not
 consider the effects of a spectra that is stretched out due to redshift.
@@ -168,7 +168,7 @@ these issues is identical: take a measurement for luminosity and multiply it by
 the factor $1 + z$.
 
 A year later, \citet{hubble1935} published a similar set of calculations for
-k-corrections, but these equations used $(1 + z)^2$ instead of the $(1 + z)^3$
+K-corrections, but these equations used $(1 + z)^2$ instead of the $(1 + z)^3$
 correction term used by de Sitter. They started their derivation by copying the
 incorrect equation from 1930. After their derivation, they noted,
 
@@ -184,18 +184,18 @@ distribution of the energy that does arrive will lead to changes in its
 photographic effectiveness.
 \end{quote}
 
-The Hubble k-corrections with the incorrect correction term have been used ever
+The Hubble K-corrections with the incorrect correction term have been used ever
 since.
 
 By \citet{oke1968}, the two factors of $(1 + z)$ were attributed to the change
 in energy and to the spectral bandwidth elongation, which leaves time dilation
 as the factor that was omitted. A graph that demonstrates why it's essential to
 correct for both the spectra bandwidth warping and time dilation is presented
-in Figure \ref{fit:k-example}.
+in Figure \ref{fig:k-example}.
 
 \begin{figure}[h]
-  \includegraphics[width=\linewidth]{k-corrections_for_photon_counts.png}
-  \caption{An example of how k-corrections take an observed magnitude and
+  \includegraphics[width=\linewidth]{K-corrections_for_photon_counts.png}
+  \caption{An example of how K-corrections take an observed magnitude and
   produce a rest frame magnitude. In this example, $z=1$. The observation
   filter measures magnitude, which is equivalent to measuring the number of
   photons per nanometer. In the bottom left panel, a correction of $1+z$ is
@@ -211,27 +211,144 @@ in Figure \ref{fit:k-example}.
   \label{fig:k-example}
 \end{figure}
 
-The modern treatment of k-corrections is based on the work of \citet{kim1996}.
-This work extended the calculations of k-corrections to extend to filters
+The modern treatment of K-corrections is based on the work of \citet{kim1996}.
+This work extended the calculations of K-corrections to extend to filters
 beyond B and V. It also introduced a term that deals with the zero-point for the
-actual filters. Equation 2 from this paper is the form of the k-corrections
+actual filters. Equation 2 from this paper is the form of the K-corrections
 used in the modern day:
 
 \begin{equation}
-  K_{xy} = -2.5\text{log} \left(\frac{\int \mathcal{Z}(\lambda)S_x(\lambda)d\lambda}{\int \mathcal{Z}(\lambda)S_y(\lambda)d\lambda}\right) + 2.5\text{log}(1+z) + 2.5\text{log}\left(\frac{F(\lambda)S_x(\lambda)d\lambda}{F(1/(1+z))S_y(\lambda))d\lambda}\right).
+\label{eq:kim2}
+  K_{xy} =
+    -2.5\text{log} \left(
+      \frac{\int \mathcal{Z}(\lambda)S_x(\lambda)d\lambda}
+           {\int \mathcal{Z}(\lambda)S_y(\lambda)d\lambda}\right)
+    + 2.5\text{log}(1+z)
+    + 2.5\text{log}\left(
+      \frac{\int F(\lambda)S_x(\lambda)d\lambda}
+           {\int F(\lambda/(1+z))S_y(\lambda))d\lambda}\right).
 \end{equation}
 
-The first term of this equation deals with zero-points, which is a magnitude
-added to individual filters to correct for the light gathering abilities of the
-telescope. The third term measures the flux in the observation filter and divides it by  the flux that would be measured 
+This equation has two problems with it, which we will explore in Section
+\ref{sec:derivation}.
+
+\section{Derivation of K-corrections}
+\label{sec:derivation}
+
+The definition of K-corrections is
+
+\begin{equation}
+\begin{aligned}
+\label{eq:definition}
+  m_x &= M_x + \mu + K_{xy} \\
+      &= M_x + m_y - M_y + K_{xy} \\
+      &= m_y + K_{xy}.
+\end{aligned}
+\end{equation}
+
+The second line of Equation \ref{eq:definition} expands the distance modulus
+$\mu$ using $\mu = m = M$ where $m$ is the observed magnitude and $M$ is the
+absolute magnitude. Since the absolute magnitude is an intrinsic property of a
+stellar object, we can use $M = M_x = M_y$, so the absolute magnitude terms
+cancel out in the third line.
+
+We will also need to use the flux to magnitude formula:
+
+\begin{equation}
+\begin{aligned}
+\label{eq:flux2mag}
+  m_x &= -2.5 \text{log}(\mathcal{F}_x) + C_x \\
+      &= -2.5 \text{log}(C'_x \mathcal{F}_x) .
+\end{aligned}
+\end{equation}
+
+Here, $C_x$ represents the zero-point for the filter $x$ on some particular
+telescope. In order to use consistend magnitude values across different
+telescopes that have different light gathering powers, we take the measured
+magnitude and multiply it by the ratio of the flux rate for the standard
+telescope and filter to the flux rate for this particular telescope and
+filter.
+
+Since the K-correction is a magnitude value, we can define
+
+\begin{equation}
+K_x = -2.5\text{log}(k_x C_x)
+\end{equation}
+
+and use Equation \ref{eq:flux2mag} to recombine the flux term $\mathcal{F}_y$
+with $m_y$ from Equation \ref{eq:definition}. This gives
+
+\begin{equation}
+\begin{aligned}
+            m_x &= -2.5 \text{log}(\mathcal{F}_y) + K_{xy} \\
+                &= -2.5 \left( \text{log}(\mathcal{F}_y) + \text{log}(k_x C_x) \right) \\
+                &= -2.5 \text{log}(\mathcal{F}_y \times k_{xy} \times C_x) \\
+  \mathcal{F}_x &= \mathcal{F}_y \times k_{xy} \times C_x .
+\end{aligned}
+\end{equation}
+
+The work up to this point has been to translate the K-corrections equation from
+a magnitude problem to a flux problem. This has intuitive benefits, at least
+for the authors. The goal is to make $k_{xy}$ equal the ratio of the flux rate
+that we want in filter $x$ to the flux rate that we observe in filter $y$.
 
 
-The next major advance in k-corrections was
+The first term of this equation deals with zero-points $C$, which is a
+magnitude added to individual filters to correct for the light gathering
+abilities of the filter together with the telescope. We are converting the
+magnitude from the $y$ filter to the $x$ filter by using $m_x = m_y - k_{xy}$,
+so $k_{xy}$ needs to include $C_y - C_x$.
+
+The numerator of the third term, $\int F(\lambda)S_x(\lambda)d\lambda$,
+measures what the flux would be if there was no redshift in the target filter.
+The denominator $\int F(\lambda/(1+z))S_y(\lambda))d\lambda$ takes the
+observation filter's sensitivity $S_y(\lambda)$ at each wavelength $\lambda$
+and multiples it by the rest frame spectral energy density $F(\lambda/(1+z))$
+that corresponds to the blueshifted wavelength $\lambda / (1+z)$.
+
+The effect of
+multiplying the filter sensitivity $S(\lambda)$ by the blueshifted spectral energy density $F(\lambda / (1+z))$ is the same as if we created a new
+spectral energy density $F'(\lambda) = F(\lambda / (1+z))$. The key thing to
+notice with $F'$ is that it artificially inflates the total amount of flux by a
+factor of $1 + z$. That is,
+
+\begin{equation}
+(1+z) \times \int_{a}^{b} S(\lambda) d\lambda = \int_{a(1+z)}^{b(1+z)} S'(\lambda) d\lambda .
+\end{equation}
+
+In order to discuss flux instead of magnitude, we can rewrite Equation \ref{eq:kim2} as
+
+\begin{equation}
+\begin{aligned}
+\label{eq:kim_flux}
+  K_{xy} &= -2.5 \text{log}(\mathcal{F}) + C_x - C_y \\
+         &= -2.5 \text{log}\left(
+              \frac{(1+z) \int F(\lambda)S_x(\lambda)d\lambda}
+                   {\int F(1/(1+z))S_y(\lambda))d\lambda}\right) + C_x - C_y \\
+  \mathcal{R} &= (1+z) \times \frac{\int F(\lambda)S_x(\lambda)d\lambda}
+                                   {\int F(\lambda/(1+z))S_y(\lambda))d\lambda}
+\end{aligned}
+\end{equation}
+
+where $C_x$ and $C_y$ represent the zero-point magnitudes for the target filter
+and the observation filter respectively.
+
+
+
+at a
+blueshifted wavelength given by $F(\lambda / (1+z))$. In other words, it calculates what the observation filter would measure if it was blue shifted.
+
+if the observation filter were blueshifted, similar to the top-right panel of Figure \ref{fig:k-example}, the denominator
+
+the flux that would be measured 
+
+
+The next major advance in K-corrections was
 
 \citet{snpy}
 
 \begin{minipage}[c]{0.95\textwidth}
-\lstinputlisting[language=Python, caption=A demonstration that k-corrections
+\lstinputlisting[language=Python, caption=A demonstration that K-corrections
 calculated by snpy are off by \texttt{2.5*log10(1+z)}. The roundoff error is
 roughly \texttt{2e-16}.]{code_listing.py}
 \end{minipage}
