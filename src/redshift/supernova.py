@@ -437,6 +437,34 @@ def all_lum_distance_vs_redshift_graph(data, save=True):
         plt.cla()
 
 
+def distance_residuals_graph(data, save=False):
+    other_data, m, b, sigma = my_model(data)
+
+    residuals = []
+    for sn in data:
+        actual = sn.lum_distance(correction=Correction.ONE)
+        prediction = m * sn.z + b
+        residuals.append((sn.z, actual - prediction))
+
+    xs = [d[0] for d in residuals]
+    ys = [d[1] for d in residuals]
+
+    plt.scatter(
+        xs,
+        ys,
+        s=15,
+        marker="^",
+        linewidths=0.7,
+        facecolors="none",
+        edgecolors="blue",
+        label="observed - predicted",
+    )
+
+    if save:
+        plt.savefig(GRAPHS_DIR / "distance_residuals.png", bbox_inches="tight")
+        plt.cla()
+
+
 def hubble_diagram_graph(data, save=True):
     plt.rcParams["figure.figsize"] = (8, 6)
     plt.xscale("log")
@@ -665,7 +693,7 @@ def generate_all_graphs(data):
     k_corrections_for_photon_counts_graph(save=True)
 
 
-def my_model(data, save=True):
+def my_model(data):
     xs = [sn.z for sn in data]
     ys = [sn.lum_distance() for sn in data]
 
@@ -818,9 +846,10 @@ if __name__ == "__main__":
     # energy_loss_vs_orig_distance(data, correction=Correction.ONE, save=False)
     # recessional_velocity_vs_intercept_time_graph(data, correction=Correction.ONE, save=False)
 
-    graph_model(data)
+    #graph_model(data)
+    #distance_residuals_graph(data)
 
     #graph(data)
 
-    #bootstrap_hubble_parameter_graph(data)
+    bootstrap_hubble_parameter_graph(data)
     plt.show()

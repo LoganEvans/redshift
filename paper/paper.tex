@@ -76,7 +76,7 @@ pdfkeywords={cosmological parameters, dark energy},
 \end{abstract}
 
 % keywords can be removed
-\keywords{Cosmological Parameters \and Dark Energy \and Luminosity Distance \and Hubble tension}
+\keywords{Cosmological Parameters \and K-corrections \and Dark Energy \and Luminosity Distance \and Hubble tension}
 
 \section{Introduction}
 
@@ -84,14 +84,14 @@ The measurement of Type Ia supernovae is one of the primary sources of data for
 cosmological models. The measurements involve estimating the peak magnitude in
 the B filter \citet{riess1998} for the rest frame, meaning we want to know how
 bright the SnIa would be if its light didn't undergo redshift. Redshift causes
-the light that would be mesaured by the B filter in a rest frame to be shifted
+the light that would be measured by the B filter in a rest frame to be shifted
 to another filter. In order to observe a SnIa in an arbitrary filter and report
 the magnitude in the B filter we use a technique called K-corrections.
 
 The first formal derivation of K-corrections was performed by
 \citet{tolman1930}, and it failed to account for bandwidth stretching, one of
 the dimming effects of redshift. This error was noted by \citet{desitter1934},
-but in \citet{hubble1935} the descrepancy was noted and ignored.
+but in \citet{hubble1935} the discrepancy was noted and ignored.
 \citet{oke1968} rederived K-corrections, but they failed to account for time
 dilation, one of the other dimming effects of redshift. In \citet{kim1996},
 K-corrections were extended to handle additional cross-filter comparisons and
@@ -105,7 +105,7 @@ prior work, and in order to match prior values, the code adds an extra term.
 This history is explored in more depth in Section \ref{sec:history}.
 
 The effect of using an incorrect magnitude for SnIa is that we think objects
-are farther away than they really are, and the effect componds for greater
+are farther away than they really are, and the effect compounds for greater
 distances. Up until \citet{riess1998}, we didn't have distant enough
 observations for this error to matter much for cosmology models, but in the
 late 1990s, it was clear that our measurements for distance and redshift were
@@ -119,7 +119,7 @@ Since \citet{planck2020}, it has been evident that something was missing with
 our understanding of cosmology. This research used an alternative technique
 based on measurements of the cosmic microwave background to measure the Hubble
 constant, but as summarized in \citet{perivolaropoulos2022}, this measurement
-was incompatable with the Hubble constant measured from SnIa. As we will
+was incompatible with the Hubble constant measured from SnIa. As we will
 discuss in Section \ref{sec:tension}, fixing the error with K-corrections
 produces a measurement of the Hubble constant that is compatible with models
 based on the cosmic microwave background.
@@ -153,9 +153,9 @@ redshifts because these events always happen in similar ways, so the absolute
 brightness is roughly always the same. An analogy is to imagine someone walking
 in the dark and lighting matches. As long as we know how brightly a match burns
 at a known distance, we can estimate the distance to any match by measuring the
-appearant brightness before applying some geometry.
+apparent brightness before applying some geometry.
 
-Measuring the apperant brightness of a Type Ia supernova is non-trivial. The
+Measuring the apparent brightness of a Type Ia supernova is non-trivial. The
 aspect of the process that we will explore here concerns how redshift affects
 the light we observe. This problem is often referred to as K-corrections, and
 one of the first mathematical treatments of the problem was performed by
@@ -215,13 +215,13 @@ The modern treatment of K-corrections is based on the work of \citet{kim1996}.
 This work extended the calculations of K-corrections to extend to filters
 beyond B and V. It also introduced a term that deals with the zero-point for
 the actual filters. In the modern day, filters measure the photon flux as
-upposed to the energy flux. Historically, bolometric devices would measure the
+opposed to the energy flux. Historically, bolometric devices would measure the
 energy flux, but modern CCD cameras effectively measure the photon flux.
 
 Quoting \citet{kim1996}:
 
 \begin{quote}
-  Therefore, the correct K correction caluculation to be used with measured
+  Therefore, the correct K correction calculation to be used with measured
   photometric magnitudes is the integral photon counts:
 
   \begin{equation}
@@ -243,7 +243,7 @@ This equation has three errors, which we will explore in Section
 \section{Derivation of K-corrections}
 \label{sec:derivation}
 
-With modern CCD cameras, a telescope observaion consists of a single value
+With modern CCD cameras, a telescope observation consists of a single value
 $\mathcal{F}_x$ erg/s, which represents the energy collected in filter $x$ per
 second. A summary of how this works is provided by \citet{lesser2015}. The
 measured energy is produced by electrons not photons, so the measured number is
@@ -310,7 +310,7 @@ spectral energy density $R$ using
 
 In order to calculate the amount of flux $\mathcal{F}_x$ measured in filter
 $x$, we need to compute the photon density $F'(\lambda)$ and multiply it by
-sensity $S_x(\lambda)$, which represents the proportion of photons filter $x$
+sensitivity $S_x(\lambda)$, which represents the proportion of photons filter $x$
 will measure at wavelength $\lambda$. We then need to sum over all wavelengths,
 which is expressed with the equation
 
@@ -322,7 +322,7 @@ which is expressed with the equation
 \end{aligned}
 \end{equation}
 
-The limits of integration are techinically from 0 to $\infty$, but these are
+The limits of integration are technically from 0 to $\infty$, but these are
 usually not written because the sensitivity $S(\lambda)$ is 0 for wavelengths
 outside of a filter's bandpass.
 
@@ -337,7 +337,7 @@ We will also use the energy flux $\mathcal{F}$ to magnitude $m$ formula:
 \end{equation}
 
 $P_x$ represents the zero-point for the filter $x$ on some particular
-telescope. In order to use consistant magnitude values across telescopes that
+telescope. In order to use consistent magnitude values across telescopes that
 have different light gathering abilities, we take the measured magnitude and
 multiply it by the ratio of the standard flux rate to the flux rate for this
 particular telescope and filter. For convenience, we use $P_x = -2.5
@@ -486,7 +486,7 @@ In order to fully compare our derivation against Equation \ref{eq:kim}, we need
 to use the identity
 
 \begin{equation}
-  P = -2.5 \text{log} \left( \int \mathcal{Z}(\lambda) S_x(\lambda) d\lambda \right)
+  P = -2.5 \text{log} \left( \int \frac{\lambda}{hc} \mathcal{Z}(\lambda) S_x(\lambda) d\lambda \right)
 \end{equation}
 
 where, according to \citet{kim1996}, "$\mathcal{Z}(\lambda)$ is an idealized
@@ -504,11 +504,11 @@ the photometric system being used." Combining this with Equation \ref{eq:K2k}, w
             + 2.5 \text{log} \left(
               \frac{\int \lambda F(\lambda) S_x d\lambda}
                    {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda} \right)
-            + 2.5 \text{log} \left( \int \mathcal{Z}(\lambda) S_x(\lambda) d\lambda \right)
-            - 2.5 \text{log} \left( \int \mathcal{Z}(\lambda) S_y(\lambda) d\lambda \right) \\
+            + 2.5 \text{log} \left( \int \frac{\lambda}{hc} \mathcal{Z}(\lambda) S_x(\lambda) d\lambda \right)
+            - 2.5 \text{log} \left( \int \frac{\lambda}{hc} \mathcal{Z}(\lambda) S_y(\lambda) d\lambda \right) \\
          &= 2.5 \text{log} \left(
-              \frac{\int \mathcal{Z}(\lambda) S_x(\lambda) d\lambda}
-                   {\int \mathcal{Z}(\lambda) S_y(\lambda) d\lambda}
+              \frac{\int \lambda \mathcal{Z}(\lambda) S_x(\lambda) d\lambda}
+                   {\int \lambda \mathcal{Z}(\lambda) S_y(\lambda) d\lambda}
              \right)
             + 5 \text{log} (1 + z)
             + 2.5 \text{log} \left(
@@ -517,159 +517,60 @@ the photometric system being used." Combining this with Equation \ref{eq:K2k}, w
 \end{aligned}
 \end{equation}
 
-\begin{minipage}[c]{0.95\textwidth}
-\lstinputlisting[language=Python, caption=A demonstration that K-corrections
-calculated by snpy are off by \texttt{2.5*log10(1+z)}. The roundoff error is
-roughly \texttt{2e-16}.]{code_listing.py}
-\end{minipage}
+Three differences with Equation \ref{eq:kim} stand out:
 
-\section{The dimming effects of redshift}
-\label{sec:redshift}
+\begin{itemize}
+  \item The sign is different for the first term. This will have a subtle but
+  frustrating effect for real values. Typically the zero-point values are
+  similar, so this term is close to 0. However, the term isn't always zero. As
+  we observe more distant supernovae, it is useful to switch our observational
+  filter to a filter that is sensitive to longer wavelengths. Each time we make
+  this switch we introduce a small but consistent bias.
 
-The magnitude measurements for Type Ia supernova goes through a long chain of
-data processing. The data used here was collected by the Dark Energy Survey
-Collaboration, as summarized in \citet{abbott2024} and described in more detail
-by \citet{vincenzi2024}. However, the data processing does not explicitly
-correct for either redshift or time dilation.
+  This effect by itself can alter estimates of $H_0$ by several km/s / Mpc.
+  While we present an estimate of the Hubble constant in Figure
+  \ref{fig:H0bootstrap}, we aren't terribly confident in the numbers because we
+  were unable to correct for the zero-point errors.
 
-In the big bang model, there are multiple phenomena associated with redshift that we
-might expect to reduce the apparent magnitude of a Type Ia supernova.
+  \item The second term is multiplied by a $2.5$ in \citet{kim1996} but is
+  multiplied by a $5$ here. This is the manifestation of the error in
+  \citet{tolman1930}.
 
-\subsection{Recessional velocity redshift}
+  \item In our derivation, the third term is has an extra $1 + z$ expression.
+  Based on an inspection of the SN(oo)py software package presented by
+  \citet{snpy}, this error is ignored and software package authors implement it
+  as the expression is intended, not precisely as the expression is written.
+\end{itemize}
 
-The energy carried by a photon is inversely proportional to wavelength, given
-by the Planck relation
+\section{Dark energy and the Hubble tension}
+\label{sec:tension}
 
-\begin{equation}
-  E = \frac{hc}{\lambda}
-\end{equation}
+As shown in Figure \ref{fig:mu_distance_vs_redshift}, when reported magnitudes
+are corrected by adding $-2.5\text{log}(1+z)$, there is a linear relationship
+between redshift and luminosity distance. This is in accordance with the
+Hubble-Lema\^{i}tre law. As opposed to the uncorrected values, there is no
+visual acceleration.
 
-where $E$ is energy, $h$ is the Planck constant, $c$ is the speed of light, and
-$\lambda$ is the wavelength.
+Since the corrected values are approximately linear, we can use them to
+estimate the Hubble constant $H0$. This is demonstrated in Figure
+\ref{fig:expansion}. Furthermore, we performed a bootstrap calculation to
+estimate the distribution of $H0$ estimates in Figure \ref{fig:H0bootstrap}.
 
-As redshift increases the wavelength of a photon, the energy decreases.
-
-The supernova data collected by the DES Collaboration used a CCD camera, a
-photon counting device, as described by \citet{flaugher2015}.  \citet{kim1996}
-noted that photometric measurements that depend on bolometers will need to be
-corrected for the reduced energy level of redshifted light, but with a photon
-counting device, this correction is not necessary.
-
-While the redshift phenomenon should impact the light detected from distant
-supernova, it should not impact the magnitude measurements so it does not need
-to be explicitly corrected.
-
-\subsection{Time dilation}
-
-The second phenomenon is that time dilation for objects moving quickly relative
-to our observational rest frame will reduce the rate at which photons are being
-emitted. Instead of changing the properties of individual photons, time
-dilation reduces the count of photons by a factor of $\frac{1}{1+z}$ where $z$
-is the redshift.
-
-This phenomenon will not be addressed by the nuances of any measuring device,
-so it must be explicitly corrected.
-
-\subsection{Stretching of space}
-
-If space itself is stretching, it will both increase the wavelength of photons
-and also reduce the density of those photons. If space is stretching at a
-constant rate, the effect would be indistinguishable from the redshift and time
-dilation created by high relative recessional velocities. However, an
-accelerating expansion of the universe may indicate a non-constant rate of
-stretching. This would manifest by distant objects having a greater distance
-per redshift than nearby objects.
-
-This non-linear streching-of-space model would be indistinguishable from a
-scenario where a constant force is pushing all objects away from each other.
-
-\subsection{Tired light}
-
-An alternative to the big bang theory is the tired light hypothesis, as
-described by \citet{zwicky1929} and \citet{shao2013}. The idea is that distant
-objects are mostly stationary relative to us, but the energy of light is lost
-as it travels through space. A feature of the tired light hypothesis is that
-since distant objects do not have a high relative velocity to us, they should
-not show time dilation.
-
-However, as shown by \citet{blondin2008} and \citet{white2024}, distant
-supernova do experience time dilation. Based on this, we can reject the tired
-light hypothesis and assume the big bang model.
-
-\section{Correcting magnitude for time dilation}
-\label{sec:correction}
-
-Luminosity distance $D_L$, is the apparent distance of an object based on the
-observed luminosity, also known as the flux $F$. This does not take into
-account any movement of the observed object between the time when the light was
-emitted and the light is observed.
-
-To derive the luminosity distance from these measurements, we start
-by computing the flux $F$. Magnitude $m$ is defined on a logarithmic scale
-where magnitude 1 has 100 times the brightness of magnitude 6, leading to
-
-\begin{equation}
-  F = \frac{1}{\sqrt[5]{100}^{m - 1}}.
-\end{equation}
-
-This is proportional to the number of photons detected by a telescope. We can
-find the corrected flux $F^*$ by multiplying by $k(z)$, the redshift correction
-factor. Time dilation of quickly moving objects reduces the number of photons
-by a factor of $\frac{1}{1 + z}$, so we have
-
-\begin{equation}
-\begin{aligned}
-  F^* &= F \times k(z) \\
-      &= F (1 + z).
-\end{aligned}
-\end{equation}
-
-To compute the corrected magnitude $m^*$, we can solve
-
-\begin{equation}
-\begin{aligned}
-   F^* &= \frac{1}{\sqrt[5]{100}^{m^* - 1}} \\
-   m^* &= m - \frac{\ln{(z + 1)}}{\ln{(\sqrt[5]{100})}}.
-\end{aligned}
-\end{equation}
-
-From here, we can use the standard distance modules $\mu$ defined as
-
-\begin{equation}
-  \mu = m^* - M
-\end{equation}
-
-where $M$ is the absolute magnitude. The luminosity distance $D_L$ in parsecs
-can then be calculated as
-
-\begin{equation}
-  D_L = 10^{1 + \frac{\mu}{5}}.
-\end{equation}
-
-\section{Linear distance vs redshift relationship}
-\label{hubblelaw}
-
-The theory of an accelerating expansion is based on there being a non-linear
-relationship between redshift and distance. More specifically, old objects (the
-ones that are more distant) should have more distance per redshift than newer
-objects.
-
-As shown in Figure \ref{fig:mu_distance_vs_redshift}, this non-linear
-relationship is only observed when $k(z) = 1$, meaning that magnitude is not
-corrected for time dilation.
-
-In contrast, when $k(z) = 1 + z$, time dilation is accounted for and there is a
-linear relationship between redshift and distance. A linear model rules out an
-accelerated expansion.
+The value estimated here, $H0 \sim 65.94 \pm 1.29$ is highly suspicious because of the
+flipped zero-point corrections, but it is consistent with estimates of $H0$
+that are based on the CMB. \citet{planck2020} published the CMB value of $H0
+\sim 67.27 \pm 0.6$, and the one sigma error bars overlap. It is interesting to
+note that if the DES observations are restricted to only those with $z < 0.1$,
+which presumably is a small enough redshift that the K-corrections will use the
+same filter for both the target and observation filter and thus the zero-point
+corrections will cancel out, gives the estimate $H0 \sim 67.8 \pm 1.86$.
 
 \begin{figure}[ht]
   \includegraphics[width=\linewidth]{velocity_vs_distance.png}
   \caption{The relationship between expansion velocity and distance. The slope of this graph demonstrates the Hubble constant.
   }
+\label{fig:expansion}
 \end{figure}
-
-\section{Hubble tension}
-\label{sec:tension}
 
 \begin{figure}[ht]
   \includegraphics[width=\linewidth]{bootstrapped_H0.png}
@@ -679,14 +580,14 @@ accelerated expansion.
   with replacement, a population of supernovae from the dataset published by
   \citet{abbott2024}. Finally, it uses the non-parametric linear regression
   technique described by \citet{siegel1982}. The result of the bootstrap is $H0
-  \sim Norm(65.94, 1.29)$.
+  \sim Norm(65.94, 1.29^2)$.
   }
+\label{fig:H0bootstrap}
 \end{figure}
 
-Previous studies use $F$ instead of $F*$. To the best of our knowledge, no
-studies that depend on the distance of Type Ia supernova, reaching back at
-least to \citet{kim1996}, \citet{riess1998}, and \citet{perlmutter1999}, have
-accounted for time dilation.
+\section{Conclusions}
+
+A lot of data is going to have to be reanalyzed. 
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}
