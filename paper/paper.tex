@@ -68,40 +68,34 @@ pdfkeywords={cosmological parameters, dark energy},
 
 \begin{abstract}
   We show that the magnitude of distant objects has been calculated incorrectly
-  since 1930. We describe how this math error has propagated for over nine
-  decades. Finally, we explore the consequences of correcting this flaw and
+  since 1930. We describe how this math error in the formula for K-corrections
+  has propagated for over nine decades before re-deriving the K-corrections
+  equation. Finally, we explore the consequences of correcting this flaw and
   resolve two of the preeminent mysteries in cosmology: dark energy is not
   supported by observations of Type Ia supernovae, and the Hubble tension is
   due to a calculation error.
 \end{abstract}
-
-% keywords can be removed
-\keywords{Cosmological Parameters \and K-corrections \and Dark Energy \and Luminosity Distance \and Hubble tension}
 
 \section{Introduction}
 
 The measurement of Type Ia supernovae is one of the primary sources of data for
 cosmological models. The measurements involve estimating the peak magnitude in
 the B filter \citet{riess1998} for the rest frame, meaning we want to know how
-bright the SnIa would be if its light didn't undergo redshift. Redshift causes
+bright the SnIa would be if its light did not undergo redshift. Redshift causes
 the light that would be measured by the B filter in a rest frame to be shifted
 to another filter. In order to observe a SnIa in an arbitrary filter and report
 the magnitude in the B filter we use a technique called K-corrections.
 
 The first formal derivation of K-corrections was performed by
-\citet{tolman1930}, and it failed to account for bandwidth stretching, one of
+\citet{tolman1930} and it failed to account for bandwidth stretching, one of
 the dimming effects of redshift. This error was noted by \citet{desitter1934},
 but in \citet{hubble1935} the discrepancy was noted and ignored.
 \citet{oke1968} rederived K-corrections, but they failed to account for time
 dilation, one of the other dimming effects of redshift. In \citet{kim1996},
 K-corrections were extended to handle additional cross-filter comparisons and
 address zero-point corrections, but they started their derivation by
-referencing the incorrect equation from \citet{oke1968}. \citet{hsiao2007}
-expanded on the work done by \citet{kim1996} by providing expected SnIa
-template spectra. Finally, \citet{burns2010} implemented the popular software
-package Sn(OO)py which implemented the SnIa template spectra into
-K-corrections. This software package computes K-corrections differently from
-prior work, and in order to match prior values, the code adds an extra term.
+referencing the incorrect equation from \citet{oke1968}. The derivation in
+\citet{kim1996} forms the basis for modern implementations of K-corrections.
 This history is explored in more depth in Section \ref{sec:history}.
 
 The effect of using an incorrect magnitude for SnIa is that we think objects
@@ -111,13 +105,13 @@ observations for this error to matter much for cosmology models, but in the
 late 1990s, it was clear that our measurements for distance and redshift were
 not linear. This observation led to a model that utilized a cosmological
 constant and dark energy in order to explain the non-linear distance-redshift
-graph. We will show in Section \ref{sec:correction} that correcting the flaw
+graph. We will show in Section \ref{sec:tension} that correcting the flaw
 with K-corrections leads to a linear graph that does not need to rely on a
 cosmological constant.
 
 Since \citet{planck2020}, it has been evident that something was missing with
 our understanding of cosmology. This research used an alternative technique
-based on measurements of the cosmic microwave background to measure the Hubble
+based on measurements of the cosmic microwave background to compute the Hubble
 constant, but as summarized in \citet{perivolaropoulos2022}, this measurement
 was incompatible with the Hubble constant measured from SnIa. As we will
 discuss in Section \ref{sec:tension}, fixing the error with K-corrections
@@ -267,7 +261,7 @@ It's important to note that for the blueshifted wavelength $\lambda / (1+z)$,
 this equation produces
 
 \begin{equation}
- F'\left(\frac{\lambda}{1+z}\right) = \frac{\left(\frac{\lambda}{1 + z}\right) F\left(\frac{\lambda}{1+z}\right)}{hc}.
+ F'\left(\frac{\lambda}{1+z}\right) = \frac{\lambda}{(1+z)hc} F\left(\frac{\lambda}{1+z}\right).
 \end{equation}
 
 However, this equation is misleading and error prone. We will want to use it to
@@ -303,10 +297,13 @@ spectral energy density $R$ using
 \begin{equation}
 \begin{aligned}
 \label{eq:redshifted_density}
-  R'(\lambda) &= F'(\lambda / (1+z)) \times \frac{1}{(1 + z)^2} \\
-  R(\lambda) &= \frac{F(\lambda / (1+z))}{(1+z)hc} \times \frac{1}{(1 + z)^2} .
+  R'(\lambda) &= F'\left(\frac{\lambda}{1+z}\right) \times \frac{1}{(1 + z)^2} \\
+  R(\lambda) &= \frac{\lambda}{(1+z)hc} \times F\left(\frac{\lambda}{1+z}\right) \times \frac{1}{(1 + z)^2} .
 \end{aligned}
 \end{equation}
+
+We deliberately do not combine all of the factors of $1+z$ together because
+this form is more natural to implement in code.
 
 In order to calculate the amount of flux $\mathcal{F}_x$ measured in filter
 $x$, we need to compute the photon density $F'(\lambda)$ and multiply it by
@@ -435,17 +432,17 @@ spectral energy density $R(\lambda)$:
 \begin{equation}
 \begin{aligned}
   K'_{xy} &= \frac{\mathcal{F}_x P'_x}{\mathcal{F}_y P'_y} \\
-         &= \frac{P'_x \int F'(\lambda) S_x d\lambda}
-                 {P'_y \int R'(\lambda) S_y d\lambda} \\
+         &= \frac{P'_x \int F'(\lambda) S_x(\lambda) d\lambda}
+                 {P'_y \int R'(\lambda) S_y(\lambda) d\lambda} \\
          &= \frac{P'_x}{P'_y} \times
-              \frac{\int F'(\lambda) S_x d\lambda}
-                   {\int F'(\lambda / (1+z)) \times \frac{1}{(1 + z)^2} d\lambda} \\
+              \frac{\int F'(\lambda) S_x(\lambda) d\lambda}
+                   {\int F'(\frac{\lambda}{1+z}) \times \frac{1}{(1 + z)^2} S_y(\lambda) d\lambda} \\
          &= \frac{P'_x}{P'_y} \times (1+z)^2 \times
-              \frac{\int \frac{\lambda F(\lambda)}{hc} S_x d\lambda}
-                   {\int \frac{F(\lambda / (1+z))}{(1+z)hc} S_y d\lambda} \\
+              \frac{\int \frac{\lambda}{hc} F(\lambda) S_x(\lambda) d\lambda}
+                   {\int \frac{\lambda}{(1+z)hc} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} \\
          &= \frac{P'_x}{P'_y} \times (1 + z)^2 \times
-              \frac{\int \lambda F(\lambda) S_x d\lambda}
-                   {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda} .
+              \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
+                   {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} .
 \end{aligned}
 \end{equation}
 
@@ -458,23 +455,23 @@ into the magnitude $K_{xy}$:
   K_{xy} &= 2.5\text{log}(K'_{xy}) \\
          &= 2.5\text{log}\left(
             \frac{P'_x}{P'_y} \times (1 + z)^2 \times
-            \frac{\int \lambda F(\lambda) S_x d\lambda}
-                 {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda}\right) \\
+            \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
+                 {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda}\right) \\
          &= 2.5 \left(
             \text{log} \left( \frac{P'_x}{P'_y} \right)
             + \text{log}( {(1 + z)^2})
-            + \text{log}\left( \frac{\int \lambda F(\lambda) S_x d\lambda}
-                   {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda}
+            + \text{log}\left( \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
+                   {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda}
             \right) \right) \\
          &= 2.5 \text{log} \left( \frac{P'_x}{P'_y} \right)
             + 5 \text{log} (1 + z)
             + 2.5 \text{log} \left(
-              \frac{\int \lambda F(\lambda) S_x d\lambda}
-                   {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda} \right) \\
+              \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
+                   {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} \right) \\
          &= 5 \text{log} (1 + z)
             + 2.5 \text{log} \left(
-              \frac{\int \lambda F(\lambda) S_x d\lambda}
-                   {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda} \right)
+              \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
+                   {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} \right)
             - P_x + P_y .
 \end{aligned}
 \end{equation}
@@ -497,13 +494,13 @@ the photometric system being used." Combining this with Equation \ref{eq:K2k}, w
 \begin{aligned}
   K_{xy} &= 5 \text{log} (1 + z)
             + 2.5 \text{log} \left(
-              \frac{\int \lambda F(\lambda) S_x d\lambda}
-                   {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda} \right)
+              \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
+                   {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} \right)
             - P_x + P_y \\
          &= 5 \text{log} (1 + z)
             + 2.5 \text{log} \left(
-              \frac{\int \lambda F(\lambda) S_x d\lambda}
-                   {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda} \right)
+              \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
+                   {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} \right)
             + 2.5 \text{log} \left( \int \frac{\lambda}{hc} \mathcal{Z}(\lambda) S_x(\lambda) d\lambda \right)
             - 2.5 \text{log} \left( \int \frac{\lambda}{hc} \mathcal{Z}(\lambda) S_y(\lambda) d\lambda \right) \\
          &= 2.5 \text{log} \left(
@@ -512,8 +509,8 @@ the photometric system being used." Combining this with Equation \ref{eq:K2k}, w
              \right)
             + 5 \text{log} (1 + z)
             + 2.5 \text{log} \left(
-              \frac{\int \lambda F(\lambda) S_x d\lambda}
-                   {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda} \right) .
+              \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
+                   {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} \right) .
 \end{aligned}
 \end{equation}
 
@@ -521,16 +518,17 @@ Three differences with Equation \ref{eq:kim} stand out:
 
 \begin{itemize}
   \item The sign is different for the first term. This will have a subtle but
-  frustrating effect for real values. Typically the zero-point values are
+  frustrating effect for real measurements. Typically the zero-point values are
   similar, so this term is close to 0. However, the term isn't always zero. As
   we observe more distant supernovae, it is useful to switch our observational
-  filter to a filter that is sensitive to longer wavelengths. Each time we make
-  this switch we introduce a small but consistent bias.
+  filter to a filter that is sensitive to longer wavelengths. Each observation
+  filter will have its own small bias.
 
   This effect by itself can alter estimates of $H_0$ by several km/s / Mpc.
   While we present an estimate of the Hubble constant in Figure
   \ref{fig:H0bootstrap}, we aren't terribly confident in the numbers because we
-  were unable to correct for the zero-point errors.
+  were unable to correct for the zero-point correction errors or verify that
+  these errors don't exist.
 
   \item The second term is multiplied by a $2.5$ in \citet{kim1996} but is
   multiplied by a $5$ here. This is the manifestation of the error in
