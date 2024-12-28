@@ -193,8 +193,8 @@ as the factor that was omitted. A graph that demonstrates why it's essential to
 correct for both the spectra bandwidth warping and time dilation is presented
 in Figure \ref{fig:k-example}.
 
-\begin{figure}[h]
-  \includegraphics[width=\linewidth]{K-corrections_for_photon_counts.png}
+\begin{figure}[H]
+  \includegraphics[width=.75\linewidth]{K-corrections_for_photon_counts.png}
   \caption{An example of how K-corrections take an observed magnitude and
   produce a rest frame magnitude. In this example, $z=1$. The observation
   filter measures magnitude, which is equivalent to measuring the number of
@@ -213,139 +213,309 @@ in Figure \ref{fig:k-example}.
 
 The modern treatment of K-corrections is based on the work of \citet{kim1996}.
 This work extended the calculations of K-corrections to extend to filters
-beyond B and V. It also introduced a term that deals with the zero-point for the
-actual filters. Equation 2 from this paper is the form of the K-corrections
-used in the modern day:
+beyond B and V. It also introduced a term that deals with the zero-point for
+the actual filters. In the modern day, filters measure the photon flux as
+upposed to the energy flux. Historically, bolometric devices would measure the
+energy flux, but modern CCD cameras effectively measure the photon flux.
 
-\begin{equation}
-\label{eq:kim2}
-  K_{xy} =
-    -2.5\text{log} \left(
-      \frac{\int \mathcal{Z}(\lambda)S_x(\lambda)d\lambda}
-           {\int \mathcal{Z}(\lambda)S_y(\lambda)d\lambda}\right)
-    + 2.5\text{log}(1+z)
-    + 2.5\text{log}\left(
-      \frac{\int F(\lambda)S_x(\lambda)d\lambda}
-           {\int F(\lambda/(1+z))S_y(\lambda))d\lambda}\right).
-\end{equation}
+Quoting \citet{kim1996}:
 
-This equation has two problems with it, which we will explore in Section
-\ref{sec:derivation}.
+\begin{quote}
+  Therefore, the correct K correction caluculation to be used with measured
+  photometric magnitudes is the integral photon counts:
+
+  \begin{equation}
+  \label{eq:kim}
+    K_{xy} =
+      -2.5\text{log} \left(
+        \frac{\int \lambda \mathcal{Z}(\lambda)S_x(\lambda)d\lambda}
+             {\int \lambda \mathcal{Z}(\lambda)S_y(\lambda)d\lambda}\right)
+      + 2.5\text{log}(1+z)
+      + 2.5\text{log}\left(
+        \frac{\int \lambda F(\lambda)S_x(\lambda)d\lambda}
+             {\int \lambda F(\lambda/(1+z))S_y(\lambda))d\lambda}\right).
+  \end{equation}
+\end{quote}
+
+This equation has three errors, which we will explore in Section
+\ref{sec:consequences}.
 
 \section{Derivation of K-corrections}
 \label{sec:derivation}
 
-The definition of K-corrections is
+With modern CCD cameras, a telescope observaion consists of a single value
+$\mathcal{F}_x$ erg/s, which represents the energy collected in filter $x$ per
+second. A summary of how this works is provided by \citet{lesser2015}. The
+measured energy is produced by electrons not photons, so the measured number is
+proportional to the number of photons. However, we need to calculate the
+expected number of photons collected by using a spectral energy density
+function $F$. The value $F(\lambda)$ gives the amount of energy collected by a
+bolometric device for the wavelength $\lambda$.
+
+To convert the spectral energy density $F$ to the photon density $F'$, we need
+to use the Plank relation $E = \frac{hc}{\lambda}$ where $E$ is the energy, $h$
+is Planck's constant, and $c$ is the speed of light. This gives us
 
 \begin{equation}
 \begin{aligned}
-\label{eq:definition}
-  m_x &= M_x + \mu + K_{xy} \\
-      &= M_x + m_y - M_y + K_{xy} \\
-      &= m_y + K_{xy}.
+   F(\lambda) &= F'(\lambda) \times \frac{hc}{\lambda} \\
+  F'(\lambda) &= \frac{\lambda F(\lambda)}{hc}.
 \end{aligned}
 \end{equation}
 
-The second line of Equation \ref{eq:definition} expands the distance modulus
-$\mu$ using $\mu = m = M$ where $m$ is the observed magnitude and $M$ is the
-absolute magnitude. Since the absolute magnitude is an intrinsic property of a
-stellar object, we can use $M = M_x = M_y$, so the absolute magnitude terms
-cancel out in the third line.
+It's important to note that for the blueshifted wavelength $\lambda / (1+z)$,
+this equation produces
 
-We will also need to use the flux to magnitude formula:
+\begin{equation}
+ F'\left(\frac{\lambda}{1+z}\right) = \frac{\left(\frac{\lambda}{1 + z}\right) F\left(\frac{\lambda}{1+z}\right)}{hc}.
+\end{equation}
+
+However, this equation is misleading and error prone. We will want to use it to
+help calculate the amount of flux in an observation filter at the redshifted
+wavelength $\lambda \times (1 + z)$. In other words, we want to produce the
+photon density function $R'$ that is the redshifted version of $F'$.
+Redshifting does two things:
+
+\begin{itemize}
+  \item The stretching of space increases the distance between photons while
+  they are traveling. This phenomenon appears to an observer like time
+  dilation, although cosmological time dilation is due to a different mechanism
+  than relativistic time dilation. This effect reduces the photon arrival rate
+  by a factor of $1/(1+z)$.
+
+  In order to account for cosmological time dilation, we will need to multiply
+  $F'$ by $1/(1+z)$.
+
+  \item All wavelengths are changed by a factor of $1 + z$. When we integrate
+  $R'$ from wavelength $\lambda_a$ to wavelength $\lambda_b$, the values
+  correspond to the wavelengths $\lambda_a / (1+z)$ to $\lambda_b / (1+z)$ in
+  $F'$. We will integrate over a width of $\lambda_b - \lambda_a$, but
+  $F'(\lambda / (1+z))$ will refer to values in a width of
+  $(\lambda_b - \lambda_a) / (1+z)$.
+
+  In order to account for this bandwidth spectral warping effect, we will need
+  to multiply $F'$ by a second factor of $1/(1+z)$.
+\end{itemize}
+
+Combining these two phenomena together, we can calculated the redshifted
+spectral energy density $R$ using
+
+\begin{equation}
+\begin{aligned}
+\label{eq:redshifted_density}
+  R'(\lambda) &= F'(\lambda / (1+z)) \times \frac{1}{(1 + z)^2} \\
+  R(\lambda) &= \frac{F(\lambda / (1+z))}{(1+z)hc} \times \frac{1}{(1 + z)^2} .
+\end{aligned}
+\end{equation}
+
+In order to calculate the amount of flux $\mathcal{F}_x$ measured in filter
+$x$, we need to compute the photon density $F'(\lambda)$ and multiply it by
+sensity $S_x(\lambda)$, which represents the proportion of photons filter $x$
+will measure at wavelength $\lambda$. We then need to sum over all wavelengths,
+which is expressed with the equation
+
+\begin{equation}
+\begin{aligned}
+\label{eq:flux_definition}
+  \mathcal{F}_x &= \int F'(\lambda) S_x(\lambda) d\lambda \\
+                &= \int \lambda F(\lambda) S_x(\lambda) d\lambda.
+\end{aligned}
+\end{equation}
+
+The limits of integration are techinically from 0 to $\infty$, but these are
+usually not written because the sensitivity $S(\lambda)$ is 0 for wavelengths
+outside of a filter's bandpass.
+
+We will also use the energy flux $\mathcal{F}$ to magnitude $m$ formula:
 
 \begin{equation}
 \begin{aligned}
 \label{eq:flux2mag}
-  m_x &= -2.5 \text{log}(\mathcal{F}_x) + C_x \\
-      &= -2.5 \text{log}(C'_x \mathcal{F}_x) .
+                             m_x &= -2.5 \text{log}(\mathcal{F}_x) + P_x \\
+  -2.5 \text{log}(\mathcal{F}_x) &= m_x - P_x .
 \end{aligned}
 \end{equation}
 
-Here, $C_x$ represents the zero-point for the filter $x$ on some particular
-telescope. In order to use consistend magnitude values across different
-telescopes that have different light gathering powers, we take the measured
-magnitude and multiply it by the ratio of the flux rate for the standard
-telescope and filter to the flux rate for this particular telescope and
-filter.
+$P_x$ represents the zero-point for the filter $x$ on some particular
+telescope. In order to use consistant magnitude values across telescopes that
+have different light gathering abilities, we take the measured magnitude and
+multiply it by the ratio of the standard flux rate to the flux rate for this
+particular telescope and filter. For convenience, we use $P_x = -2.5
+\text{log}(P'_x)$ so that we can work with flux instead of with magnitude.
 
-Since the K-correction is a magnitude value, we can define
-
-\begin{equation}
-K_x = -2.5\text{log}(k_x C_x)
-\end{equation}
-
-and use Equation \ref{eq:flux2mag} to recombine the flux term $\mathcal{F}_y$
-with $m_y$ from Equation \ref{eq:definition}. This gives
+Now that we have the identities in Equations \ref{eq:flux_definition} and
+\ref{eq:flux2mag} we will change directions and look at the definition of
+K-corrections $K_{xy}$. This value allows us to make an observation in filter
+$y$ and report what the magnitude would have been in filter $x$ if no redshift
+occured:
 
 \begin{equation}
 \begin{aligned}
-            m_x &= -2.5 \text{log}(\mathcal{F}_y) + K_{xy} \\
-                &= -2.5 \left( \text{log}(\mathcal{F}_y) + \text{log}(k_x C_x) \right) \\
-                &= -2.5 \text{log}(\mathcal{F}_y \times k_{xy} \times C_x) \\
-  \mathcal{F}_x &= \mathcal{F}_y \times k_{xy} \times C_x .
+\label{eq:definition}
+  m_y &= M_x + \mu + K_{xy} \\
+      &= M_x + m_x - M_x + K_{xy} \\
+      &= m_x + K_{xy} \\
+  m_x &= m_y - K_{xy} .
 \end{aligned}
 \end{equation}
 
-The work up to this point has been to translate the K-corrections equation from
-a magnitude problem to a flux problem. This has intuitive benefits, at least
-for the authors. The goal is to make $k_{xy}$ equal the ratio of the flux rate
-that we want in filter $x$ to the flux rate that we observe in filter $y$.
+The second line of Equation \ref{eq:definition} expands the distance modulus
+$\mu$ using $\mu = m - M$ where $m$ is the observed magnitude and $M$ is the
+absolute magnitude.
 
-
-The first term of this equation deals with zero-points $C$, which is a
-magnitude added to individual filters to correct for the light gathering
-abilities of the filter together with the telescope. We are converting the
-magnitude from the $y$ filter to the $x$ filter by using $m_x = m_y - k_{xy}$,
-so $k_{xy}$ needs to include $C_y - C_x$.
-
-The numerator of the third term, $\int F(\lambda)S_x(\lambda)d\lambda$,
-measures what the flux would be if there was no redshift in the target filter.
-The denominator $\int F(\lambda/(1+z))S_y(\lambda))d\lambda$ takes the
-observation filter's sensitivity $S_y(\lambda)$ at each wavelength $\lambda$
-and multiples it by the rest frame spectral energy density $F(\lambda/(1+z))$
-that corresponds to the blueshifted wavelength $\lambda / (1+z)$.
-
-The effect of
-multiplying the filter sensitivity $S(\lambda)$ by the blueshifted spectral energy density $F(\lambda / (1+z))$ is the same as if we created a new
-spectral energy density $F'(\lambda) = F(\lambda / (1+z))$. The key thing to
-notice with $F'$ is that it artificially inflates the total amount of flux by a
-factor of $1 + z$. That is,
+Since the K-correction is a magnitude value and we wish to work on flux values,
+it is convenient to define the following substitution:
 
 \begin{equation}
-(1+z) \times \int_{a}^{b} S(\lambda) d\lambda = \int_{a(1+z)}^{b(1+z)} S'(\lambda) d\lambda .
+\label{eq:k_substitution}
+  K_{xy} = 2.5\text{log}(K'_{xy}) .
 \end{equation}
 
-In order to discuss flux instead of magnitude, we can rewrite Equation \ref{eq:kim2} as
+Note that this substitution omits the minus ($-$) sign.
+
+Starting with Equation \ref{eq:flux2mag} and then
+recombining the flux term $\mathcal{F}_y$ with $m_y$ from Equation
+\ref{eq:definition}, we have
 
 \begin{equation}
 \begin{aligned}
-\label{eq:kim_flux}
-  K_{xy} &= -2.5 \text{log}(\mathcal{F}) + C_x - C_y \\
-         &= -2.5 \text{log}\left(
-              \frac{(1+z) \int F(\lambda)S_x(\lambda)d\lambda}
-                   {\int F(1/(1+z))S_y(\lambda))d\lambda}\right) + C_x - C_y \\
-  \mathcal{R} &= (1+z) \times \frac{\int F(\lambda)S_x(\lambda)d\lambda}
-                                   {\int F(\lambda/(1+z))S_y(\lambda))d\lambda}
+\label{eq:as_flux}
+  -2.5 \text{log}(\mathcal{F}_x)
+      &= m_x - P_x \\
+      &= m_y - K_{xy} - P_x \\
+      &= -2.5 \text{log}(\mathcal{F}_y) + P_y - K_{xy} - P_x \\
+      &= -2.5 \text{log}(\mathcal{F}_y)
+         - 2.5 \text{log}(P'_y)
+         - 2.5 \text{log}(K'_{xy})
+         + 2.5 \text{log}(P_x) \\
+      &= -2.5 \left(
+         \text{log}(\mathcal{F}_y)
+         + \text{log}(K'_{xy})
+         + \text{log}(P'_y)
+         - \text{log}(P'_x)
+        \right) \\
+      &= -2.5 \text{log}\left(
+        \mathcal{F}_y
+        \times K'_{xy}
+        \times \frac{P'_y}{P'_x}\right) \\
+  \mathcal{F}_x &= \mathcal{F}_y \times K'_{xy} \times \frac{P'_y}{P'_x}.
 \end{aligned}
 \end{equation}
 
-where $C_x$ and $C_y$ represent the zero-point magnitudes for the target filter
-and the observation filter respectively.
+It's useful to inspect this equation to consider whether the term
+$\frac{P'_y}{P'_x}$ is correct, or if it might be flipped to the inverse of
+what it should be. However, if we rewrite Equation \ref{eq:as_flux} as
 
+\begin{equation}
+  \mathcal{F}_x \times P'_x = \mathcal{F}_y \times P'_y \times K'_{xy}
+\end{equation}
 
+then the meaning is a bit more clear. The left hand side
+$\mathcal{F}_x \times P'_x$ is the rate of photon collection for an idealized
+telescope in filter $x$ while $\mathcal{F}_y \times P'_y$ is the rate of photon
+collection for an idealized telescope in filter $y$. We are able to observe the
+value $\mathcal{F}_y \times P'_y$ and want to use the fudge factor $K'_{xy}$ to
+produce the value $\mathcal{F}_x \times P'_x$.
 
-at a
-blueshifted wavelength given by $F(\lambda / (1+z))$. In other words, it calculates what the observation filter would measure if it was blue shifted.
+We can isolate $K'_{xy}$ and then use Equation \ref{eq:flux_definition} to expand
 
-if the observation filter were blueshifted, similar to the top-right panel of Figure \ref{fig:k-example}, the denominator
+\begin{equation}
+\begin{aligned}
+  \mathcal{F}_x &= \mathcal{F}_y \times K'_{xy} \times \frac{P'_y}{P'_x} \\
+        K'_{xy} &= \frac{\mathcal{F}_x P'_x}{\mathcal{F}_y P'_y} .
+\end{aligned}
+\end{equation}
 
-the flux that would be measured 
+Now we use Equations \ref{eq:redshifted_density} and \ref{eq:flux_definition}
+to calculate the fluxes $\mathcal{F}_x$ and $\mathcal{F}_y$ in terms of the
+spectral energy density function $F$. Note that $\mathcal{F}_x$ uses the rest
+frame spectral energy density $F$ while $\mathcal{F}_y$ uses the redshifted
+spectral energy density $R(\lambda)$:
 
+\begin{equation}
+\begin{aligned}
+  K'_{xy} &= \frac{\mathcal{F}_x P'_x}{\mathcal{F}_y P'_y} \\
+         &= \frac{P'_x \int F'(\lambda) S_x d\lambda}
+                 {P'_y \int R'(\lambda) S_y d\lambda} \\
+         &= \frac{P'_x}{P'_y} \times
+              \frac{\int F'(\lambda) S_x d\lambda}
+                   {\int F'(\lambda / (1+z)) \times \frac{1}{(1 + z)^2} d\lambda} \\
+         &= \frac{P'_x}{P'_y} \times (1+z)^2 \times
+              \frac{\int \frac{\lambda F(\lambda)}{hc} S_x d\lambda}
+                   {\int \frac{F(\lambda / (1+z))}{(1+z)hc} S_y d\lambda} \\
+         &= \frac{P'_x}{P'_y} \times (1 + z)^2 \times
+              \frac{\int \lambda F(\lambda) S_x d\lambda}
+                   {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda} .
+\end{aligned}
+\end{equation}
 
-The next major advance in K-corrections was
+Finally, we can use Equation \ref{eq:k_substitution} to convert the flux $K'_{xy}$ back
+into the magnitude $K_{xy}$:
 
-\citet{snpy}
+\begin{equation}
+\begin{aligned}
+\label{eq:K2k}
+  K_{xy} &= 2.5\text{log}(K'_{xy}) \\
+         &= 2.5\text{log}\left(
+            \frac{P'_x}{P'_y} \times (1 + z)^2 \times
+            \frac{\int \lambda F(\lambda) S_x d\lambda}
+                 {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda}\right) \\
+         &= 2.5 \left(
+            \text{log} \left( \frac{P'_x}{P'_y} \right)
+            + \text{log}( {(1 + z)^2})
+            + \text{log}\left( \frac{\int \lambda F(\lambda) S_x d\lambda}
+                   {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda}
+            \right) \right) \\
+         &= 2.5 \text{log} \left( \frac{P'_x}{P'_y} \right)
+            + 5 \text{log} (1 + z)
+            + 2.5 \text{log} \left(
+              \frac{\int \lambda F(\lambda) S_x d\lambda}
+                   {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda} \right) \\
+         &= 5 \text{log} (1 + z)
+            + 2.5 \text{log} \left(
+              \frac{\int \lambda F(\lambda) S_x d\lambda}
+                   {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda} \right)
+            - P_x + P_y .
+\end{aligned}
+\end{equation}
+
+\section{Consequences}
+\label{sec:consequences}
+
+In order to fully compare our derivation against Equation \ref{eq:kim}, we need
+to use the identity
+
+\begin{equation}
+  P = -2.5 \text{log} \left( \int \mathcal{Z}(\lambda) S_x(\lambda) d\lambda \right)
+\end{equation}
+
+where, according to \citet{kim1996}, "$\mathcal{Z}(\lambda)$ is an idealized
+spectral energy distribution at $z = 0$ for which $U = B = V = R = I = 0$ in
+the photometric system being used." Combining this with Equation \ref{eq:K2k}, we have
+
+\begin{equation}
+\begin{aligned}
+  K_{xy} &= 5 \text{log} (1 + z)
+            + 2.5 \text{log} \left(
+              \frac{\int \lambda F(\lambda) S_x d\lambda}
+                   {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda} \right)
+            - P_x + P_y \\
+         &= 5 \text{log} (1 + z)
+            + 2.5 \text{log} \left(
+              \frac{\int \lambda F(\lambda) S_x d\lambda}
+                   {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda} \right)
+            + 2.5 \text{log} \left( \int \mathcal{Z}(\lambda) S_x(\lambda) d\lambda \right)
+            - 2.5 \text{log} \left( \int \mathcal{Z}(\lambda) S_y(\lambda) d\lambda \right) \\
+         &= 2.5 \text{log} \left(
+              \frac{\int \mathcal{Z}(\lambda) S_x(\lambda) d\lambda}
+                   {\int \mathcal{Z}(\lambda) S_y(\lambda) d\lambda}
+             \right)
+            + 5 \text{log} (1 + z)
+            + 2.5 \text{log} \left(
+              \frac{\int \lambda F(\lambda) S_x d\lambda}
+                   {\int \frac{\lambda}{1+z} F(\lambda / (1+z)) S_y d\lambda} \right) .
+\end{aligned}
+\end{equation}
 
 \begin{minipage}[c]{0.95\textwidth}
 \lstinputlisting[language=Python, caption=A demonstration that K-corrections
