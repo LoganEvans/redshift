@@ -3,8 +3,8 @@ redshift.egg-info/
 build/
 *.swp
 *.swo
-paper/paper.aux
-paper/paper.log
-paper/paper.out
-paper/paper.bbl
-paper/paper.blg
+paper/dark_energy_corrections.aux
+paper/dark_energy_corrections.log
+paper/dark_energy_corrections.out
+paper/dark_energy_corrections.bbl
+paper/dark_energy_corrections.blg
