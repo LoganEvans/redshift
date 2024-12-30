@@ -216,7 +216,7 @@ def k_corrections_for_photon_counts_graph(save=False):
     pdf = scipy.stats.norm(500, 100)
     fig, axs = plt.subplots(2, 2)
 
-    fig.suptitle("k-corrections for photon counts")
+    fig.suptitle("K-corrections for photon counts")
 
     z = 1
 
@@ -334,7 +334,7 @@ def k_corrections_for_photon_counts_graph(save=False):
 
     if save:
         plt.savefig(
-            GRAPHS_DIR / f"k-corrections_for_photon_counts.png",
+            GRAPHS_DIR / f"K-corrections_for_photon_counts.png",
             bbox_inches="tight",
         )
         plt.cla()
@@ -839,7 +839,7 @@ if __name__ == "__main__":
 
     data = Supernova.from_abbott()
 
-    #generate_all_graphs(data)
+    generate_all_graphs(data)
 
     #all_lum_distance_vs_redshift_graph(data, save=False)
     # velocity_vs_distance_graph(data, correction=Correction.ONE, save=False)
@@ -851,5 +851,5 @@ if __name__ == "__main__":
 
     #graph(data)
 
-    bootstrap_hubble_parameter_graph(data)
-    plt.show()
+    #bootstrap_hubble_parameter_graph(data)
+    #plt.show()

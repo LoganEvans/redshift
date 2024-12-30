@@ -1,8 +1,8 @@
 all:
-	pdflatex paper.tex
-	bibtex paper
-	pdflatex paper.tex
-	pdflatex paper.tex
+	pdflatex dark_energy_corrections.tex
+	bibtex dark_energy_corrections
+	pdflatex dark_energy_corrections.tex
+	pdflatex dark_energy_corrections.tex
 
 clean:
 	$(RM) *.log
