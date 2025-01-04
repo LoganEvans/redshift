@@ -169,7 +169,7 @@ class Supernova:
                     MU=float(row[idx["MU"]]),
                     # see perivolaropoulos2022 for the Camerena and Marra references
                     # absolute_magnitude=-19.105, # ~70km/s / Mpc
-                    absolute_magnitude=-19.2334, # Camarena and Marra 2020b
+                    absolute_magnitude=-19.2334,  # Camarena and Marra 2020b
                     # absolute_magnitude=-19.3232,  # Abbott
                     # absolute_magnitude=-19.401, # Camarena and Marra 2020a
                     color=float(row[idx["c"]]),
@@ -680,11 +680,11 @@ def generate_all_graphs(data):
     plt.rcParams["hatch.linewidth"] = linewidth
     velocity_vs_distance_graph(data, save=True)
 
-    #plt.cla()
-    #plt.rcParams["figure.figsize"] = figsize
-    #plt.rcParams["text.usetex"] = True
-    #plt.rcParams["hatch.linewidth"] = linewidth
-    #bootstrap_hubble_parameter_graph(data, save=True)
+    # plt.cla()
+    # plt.rcParams["figure.figsize"] = figsize
+    # plt.rcParams["text.usetex"] = True
+    # plt.rcParams["hatch.linewidth"] = linewidth
+    # bootstrap_hubble_parameter_graph(data, save=True)
 
     plt.cla()
     plt.rcParams["figure.figsize"] = figsize
@@ -841,15 +841,15 @@ if __name__ == "__main__":
 
     generate_all_graphs(data)
 
-    #all_lum_distance_vs_redshift_graph(data, save=False)
+    # all_lum_distance_vs_redshift_graph(data, save=False)
     # velocity_vs_distance_graph(data, correction=Correction.ONE, save=False)
     # energy_loss_vs_orig_distance(data, correction=Correction.ONE, save=False)
     # recessional_velocity_vs_intercept_time_graph(data, correction=Correction.ONE, save=False)
 
-    #graph_model(data)
-    #distance_residuals_graph(data)
+    # graph_model(data)
+    # distance_residuals_graph(data)
 
-    #graph(data)
+    # graph(data)
 
-    #bootstrap_hubble_parameter_graph(data)
-    #plt.show()
+    # bootstrap_hubble_parameter_graph(data)
+    # plt.show()
