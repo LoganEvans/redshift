@@ -13,6 +13,7 @@
 \email{loganpevans@gmail.com}
 
 \author[0000-0001-6450-3262]{Logan P. Evans}
+\noaffiliation
 
 \begin{abstract}
 We rederive the K-correction equation and discover that the version of the
@@ -91,13 +92,13 @@ Previously the cause of this phenomenon was unknown and was referred to as dark
 energy.
 
 \begin{figure}
-  \includegraphics[width=\linewidth]{mu_distance_vs_redshift.png}
-  \caption{The relationship between distance and redshift for two treatments of
-  magnitude data. The displayed points are roughly a third of the values in the
-  full SnIa dataset published in \citet{abbott2024}, selected evenly to aid
-  visibility. The $k(z) = 1$ treatment, which represents the uncorrected
-  values, is clearly non-linear while the $k(z) = 1 + z$ treatment which fixes
-  the K-correction redshift error, appears to be linear.}
+  \plotone{lum_distance_vs_redshift.pdf}
+  \caption{The relationship between luminosity distance and redshift for two
+  treatments of magnitude data. The displayed points are roughly a third of the
+  values in the full SnIa dataset published in \citet{abbott2024}, selected
+  evenly to aid visibility. The $k(z) = 1$ treatment, which represents the
+  uncorrected values, is clearly non-linear while the $k(z) = 1 + z$ treatment
+  which fixes the K-correction redshift error, appears to be linear.}
   \label{fig:mu_distance_vs_redshift}
 \end{figure}
 
@@ -167,30 +168,6 @@ as the factor that was omitted. A graph that demonstrates why it is essential to
 correct for both the spectra bandwidth stretching and time dilation is presented
 in Figure \ref{fig:k-example}.
 
-\begin{figure}
-  \includegraphics[width=.75\linewidth, height=0.75\vsize]{k_equation_flow.png}
-  \caption{The ratio $K'_{xy}$ is the crux of the K-correction algorithm. We
-  are able to observe a SnIa in the redshifted observation frame, but we want
-  to compute the magnitude in the rest frame as if no redshift has occurred.
-  This computation starts with $F(\lambda$, the spectral energy density that
-  describes the expected luminosity in the rest frame. Using the SED, we can
-  compute the photon density $F'(\lambda)$ for the rest frame. We show the
-  process of computing $R'(\lambda$, the photon density in the observation
-  frame, in three phases starting at the top right of the figure. First we
-  stretch the photon density, but this step inflates counts. In the second
-  step, we correct for the inflated counts by multiplying by $1/(1+z)$;
-  at this point, the total count equals the total count of $F'(\lambda)$.
-  Finally, in the third step we finish calculating the observation frame photon
-  density $R'(\lambda)$ by accounting for time dilation, which also reduces
-  photon counts by a factor of $1/(1+z)$.  Given the rest frame and
-  observation frame photon densities, we can compute the expected ratio of
-  photons by totalling the area under the curves in the two panels at the
-  bottom of the graph. This example does not show the process of converting
-  photon flux to magnitude, nor does it address the zero-point correction.
-  }
-  \label{fig:k-example}
-\end{figure}
-
 The modern treatment of K-correction is based on the work of \citet{kim1996}.
 This work extended the calculations of K-correction to extend to filters beyond
 the blue $B$ and visible $V$ bands. It also introduced a term that deals with
@@ -232,6 +209,28 @@ measured energy is proportional to the number of photons. However, we need to
 calculate the expected number of photons collected by using a spectral energy
 density function $F$. The value $F(\lambda)$ gives the amount of energy
 collected by a bolometric device for the wavelength $\lambda$.
+
+\begin{figure}
+  \plotone{k_equation_flow.pdf}
+  \caption{The ratio $K'_{xy}$ is the crux of the K-correction algorithm. We
+  are able to observe a SnIa in the redshifted observation frame, but we want
+  to compute the magnitude in the rest frame as if no redshift has occurred.
+  This computation starts with $F(\lambda$, the spectral energy density, which
+  we then convert to $F'(\lambda)$, the photon density for the rest frame. We
+  show the process of computing $R'(\lambda$, the photon density in the
+  observation frame, in three phases starting at the top right of the figure.
+  First we stretch the photon density, but this step inflates counts. In the
+  second step, we correct for the inflated counts by multiplying by $1/(1+z)$;
+  at this point, the total count equals the total count of $F'(\lambda)$.
+  Finally, in the third step we finish calculating the observation frame photon
+  density $R'(\lambda)$ by accounting for time dilation, which also reduces
+  photon counts by a factor of $1/(1+z)$. We can compute the expected ratio of
+  photons by totalling the area under the curves in the bottom two panels. This
+  example does not show the process of converting photon flux to magnitude, nor
+  does it address the zero-point correction.
+  }
+  \label{fig:k-example}
+\end{figure}
 
 To convert the spectral energy density $F$ to the photon density $F'$, we need
 to use the Plank relation $E = hc / \lambda$ where $E$ is the energy, $h$
@@ -537,12 +536,36 @@ relationship between redshift and luminosity distance. This is in accordance
 with the Hubble-Lema\^{i}tre law. As opposed to the uncorrected values, there
 is no visual acceleration.
 
+\begin{figure}
+  \plotone{velocity_vs_distance.pdf}
+  \caption{The relationship between expansion velocity and distance. The slope
+  of this graph demonstrates the Hubble constant. The data for these SnIa
+  observations comes from the Dark Energy Spectroscopic Instrument
+  \citep{vincenzi2024}, but the magnitudes are corrected to account for time
+  dilation by adding $-2.5 log(1 + z)$.
+  }
+\label{fig:expansion}
+\end{figure}
+
 Since the corrected values are approximately linear, we can use them to
 estimate the Hubble constant $H_0$. This is demonstrated in Figure
 \ref{fig:expansion}. Furthermore, we performed a bootstrap calculation to
 estimate the distribution of $H_0$ estimates in Figure \ref{fig:H0bootstrap}.
 
-The value estimated here, $H_0 \sim 65.94 \pm 1.29$ is highly suspicious
+\begin{figure}
+  \plotone{bootstrapped_H0.pdf}
+  \caption{A histogram of $10{,}000$ bootstrap trials measuring the Hubble constant
+  $H_0$. Each trial samples an absolute magnitude $M \sim Norm(-19.2334,
+  0.0404)$ for SnIa based on data published by \citet{camarena2020}. It then samples,
+  with replacement, a population of supernovae from the dataset published by
+  \citet{abbott2024}. Finally, it uses the non-parametric linear regression
+  technique described by \citet{siegel1982}. The result of the bootstrap is $H_0
+  \sim Norm(65.94, 1.30^2)$.
+  }
+\label{fig:H0bootstrap}
+\end{figure}
+
+The value estimated here, $H_0 \sim 65.94 \pm 1.30$ is highly suspicious
 because of the flipped zero-point corrections, but it is consistent with
 estimates of $H_0$ that are based on the CMB. \citet{planck2020} published the
 CMB value of $H_0 \sim 67.27 \pm 0.6$, and the one sigma error bars overlap. It
@@ -550,26 +573,6 @@ is interesting to note that restricting the Dark Energy Survey observations of
 SnIa \citep{vincenzi2024} to only those with $z < 0.1$, which presumably is a
 small enough redshift that all observations will have been made with the same
 filter, gives the estimate $H_0 \sim 67.8 \pm 1.86$.
-
-\begin{figure}
-  \includegraphics[width=\linewidth]{velocity_vs_distance.png}
-  \caption{The relationship between expansion velocity and distance. The slope of this graph demonstrates the Hubble constant.
-  }
-\label{fig:expansion}
-\end{figure}
-
-\begin{figure}
-  \includegraphics[width=\linewidth]{bootstrapped_H0.png}
-  \caption{A histogram of $100{\small,}000$ bootstrap trials measuring the Hubble constant
-  $H_0$. Each trial samples an absolute magnitude $M \sim Norm(-19.2334,
-  0.0404)$ for SnIa based on data published by \citet{camarena2020}. It then samples,
-  with replacement, a population of supernovae from the dataset published by
-  \citet{abbott2024}. Finally, it uses the non-parametric linear regression
-  technique described by \citet{siegel1982}. The result of the bootstrap is $H_0
-  \sim Norm(65.94, 1.29^2)$.
-  }
-\label{fig:H0bootstrap}
-\end{figure}
 
 \section{Conclusions}
 
