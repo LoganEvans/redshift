@@ -7,7 +7,7 @@
 
 \begin{document}
 
-\title{Correcting K-correction: fixing the time dilation and zero-point terms resolves the Hubble tension and removes evidence for accelerating expansion}
+\title{Correcting K-correction: dark energy is based on a math error from 1930}
 
 \correspondingauthor{Logan P. Evans}
 \email{loganpevans@gmail.com}
@@ -168,19 +168,25 @@ correct for both the spectra bandwidth stretching and time dilation is presented
 in Figure \ref{fig:k-example}.
 
 \begin{figure}
-  \includegraphics[width=.75\linewidth]{K-corrections_for_photon_counts.png}
-  \caption{An example of how K-correction takes an observed magnitude and
-  produce a rest frame magnitude. In this example, $z=1$. The observation
-  filter measures magnitude, which is equivalent to measuring the number of
-  photons per nanometer. In the bottom left panel, a correction of $1+z$ is
-  applied which doubles the photons per nanometer. The top right panel shows
-  the effect of correcting for the spectral bandwidth stretching effect --
-  correcting all wavelengths for the rest frame means that the measured
-  wavelengths have blueshifted, ideally into the cross band $B$ filter. Applying
-  both effects, shown in the bottom right panel, requires applying two
-  correction factors of $1+z$. This example omits the correction for a similar
-  effect related to lower energy due to the Planck relation because CCD cameras
-  obviate the need to correct for this effect.
+  \includegraphics[width=.75\linewidth, height=0.75\vsize]{k_equation_flow.png}
+  \caption{The ratio $K'_{xy}$ is the crux of the K-correction algorithm. We
+  are able to observe a SnIa in the redshifted observation frame, but we want
+  to compute the magnitude in the rest frame as if no redshift has occurred.
+  This computation starts with $F(\lambda$, the spectral energy density that
+  describes the expected luminosity in the rest frame. Using the SED, we can
+  compute the photon density $F'(\lambda)$ for the rest frame. We show the
+  process of computing $R'(\lambda$, the photon density in the observation
+  frame, in three phases starting at the top right of the figure. First we
+  stretch the photon density, but this step inflates counts. In the second
+  step, we correct for the inflated counts by multiplying by $\frac{1}{1+z}$;
+  at this point, the total count equals the total count of $F'(\lambda)$.
+  Finally, in the third step we finish calculating the observation frame photon
+  density $R'(\lambda)$ by accounting for time dilation, which also reduces
+  photon counts by a factor of $\frac{1}{1+z}$.  Given the rest frame and
+  observation frame photon densities, we can compute the expected ratio of
+  photons by totalling the area under the curves in the two panels at the
+  bottom of the graph. This example does not show the process of converting
+  photon flux to magnitude, nor does it address the zero-point correction.
   }
   \label{fig:k-example}
 \end{figure}

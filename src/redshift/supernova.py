@@ -4,6 +4,7 @@ import dataclasses
 from dataclasses import dataclass, field, asdict
 from datetime import date
 from matplotlib import pyplot as plt
+from matplotlib.patches import FancyArrowPatch
 from numpy.polynomial.polynomial import Polynomial
 from pprint import pprint
 from typing import ClassVar
@@ -337,6 +338,343 @@ def k_corrections_for_photon_counts_graph(save=False):
             GRAPHS_DIR / f"K-corrections_for_photon_counts.png",
             bbox_inches="tight",
         )
+        plt.cla()
+
+def k_equation_flow_graph(save=False):
+    z = 0.5
+
+    lo = 100
+    hi = 2000
+    xs = np.linspace(lo, hi, hi - lo)
+
+    fig = plt.figure(figsize=[8.0, 10.0])
+    fig.suptitle(r"Calculating $K'_{xy}$, the ratio of rest frame to observation frame counts for $z = 0.5$")
+
+    def F():
+        ax = fig.add_axes([0.1, 9/11, 0.3, 0.075])
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_title(r"$F(\lambda)$: rest frame spectral energy density")
+        ax.set_xlabel(r"$\lambda$")
+        ax.set_ylabel(r"spectral energy density")
+
+        norm = scipy.stats.norm(450, 100)
+        unif = scipy.stats.uniform(1000, 250)
+
+        ys = [(norm.pdf(x) + unif.pdf(x) / 2.0) / 1e6 for x in xs]
+
+        ax.plot(xs, ys)
+        return ys
+    ys_F = F()
+
+    def arrow_to_counts():
+        ax = fig.add_axes([0.15, 8.1/11, 0.1, 0.04])
+        ax.spines["top"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_xticks([])
+        ax.set_xticks([], minor=True)
+        ax.set_yticks([])
+        ax.set_yticks([], minor=True)
+        arrow = FancyArrowPatch(
+            (0.5, 1.0),  # Starting point in axes coordinates (x, y)
+            (0.5, 0.0),  # Ending point in axes coordinates (x, y)
+            arrowstyle="->",  # Arrow style 
+            mutation_scale=20,  # Arrow size
+        )
+
+        # Add the arrow to the first axes
+        ax.add_patch(arrow)
+        ax.text(.7, .5, r"$F'(\lambda) = \frac{\lambda F(\lambda)}{hc}$")
+
+    arrow_to_counts()
+
+    def F_counts():
+        ax = fig.add_axes([0.1, 7/11, 0.3, 0.075])
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+        ax.set_title(r"$F'(\lambda)$: rest frame photon density")
+        ax.set_xlabel(r"$\lambda$")
+        ax.set_ylabel(r"photon density")
+        ax.set_ylim(0, 130)
+        ax.set_yticks([0, 50, 100])
+        h = 6.626068e-27 # erg s
+        c = 2.997925e18 # Angstrom / s
+        ys = [xs[i] * ys_F[i] / (h * c) for i in range(len(xs))]
+
+        ax.plot(xs, ys)
+        return ys
+    ys_counts = F_counts()
+
+    def arrow_to_stretched():
+        ax = fig.add_axes([0.4, 7.5/11, 0.1, 0.1])
+        ax.spines["top"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_xticks([])
+        ax.set_xticks([], minor=True)
+        ax.set_yticks([])
+        ax.set_yticks([], minor=True)
+        arrow = FancyArrowPatch(
+            (0.0, 0.0),  # Starting point in axes coordinates (x, y)
+            (1.0, 1.0),  # Ending point in axes coordinates (x, y)
+            arrowstyle="->",  # Arrow style 
+            mutation_scale=20,  # Arrow size
+        )
+
+        # Add the arrow to the first axes
+        ax.add_patch(arrow)
+        ax.text(.7, .5, r"$F'(\frac{\lambda}{1 + z})$")
+
+    arrow_to_stretched()
+
+    def G_stretched():
+        ax = fig.add_axes([0.6, 9/11, 0.3, 0.075])
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+        ax.set_title(r"stretched")
+        ax.set_xlabel(r"$\lambda$")
+        ax.set_ylabel(r"photon density")
+        ax.set_ylim(0, 130)
+        ax.set_yticks([0, 50, 100])
+        ys = [ys_counts[int(xs[i] / (1 + z))] for i in range(len(xs))]
+
+        ax.plot(xs, ys, color="red")
+        return ys
+    ys_stretched = G_stretched()
+
+    def arrow_to_stretch_corrected():
+        ax = fig.add_axes([0.65, 8.1/11, 0.1, 0.04])
+        ax.spines["top"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_xticks([])
+        ax.set_xticks([], minor=True)
+        ax.set_yticks([])
+        ax.set_yticks([], minor=True)
+        arrow = FancyArrowPatch(
+            (0.5, 1.0),  # Starting point in axes coordinates (x, y)
+            (0.5, 0.0),  # Ending point in axes coordinates (x, y)
+            arrowstyle="->",  # Arrow style 
+            mutation_scale=20,  # Arrow size
+        )
+
+        # Add the arrow to the first axes
+        ax.add_patch(arrow)
+        ax.text(.7, .5, r"$\frac{1}{1 + z} \times F'(\frac{\lambda}{1 + z})$")
+    arrow_to_stretch_corrected()
+
+    def G_stretch_corrected():
+        ax = fig.add_axes([0.6, 7/11, 0.3, 0.075])
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+        ax.set_title(r"corrected for stretching")
+        ax.set_xlabel(r"$\lambda$")
+        ax.set_ylabel(r"photon density")
+        ax.set_ylim(0, 130)
+        ax.set_yticks([0, 50, 100])
+        ys = [y / (1 + z) for y in ys_stretched]
+
+        ax.plot(xs, ys, color="red")
+        return ys
+    ys_stretch_corrected = G_stretch_corrected()
+
+    def arrow_to_time_dilated():
+        ax = fig.add_axes([0.65, 6.1/11, 0.1, 0.04])
+        ax.spines["top"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_xticks([])
+        ax.set_xticks([], minor=True)
+        ax.set_yticks([])
+        ax.set_yticks([], minor=True)
+        arrow = FancyArrowPatch(
+            (0.5, 1.0),  # Starting point in axes coordinates (x, y)
+            (0.5, 0.0),  # Ending point in axes coordinates (x, y)
+            arrowstyle="->",  # Arrow style 
+            mutation_scale=20,  # Arrow size
+        )
+
+        # Add the arrow to the first axes
+        ax.add_patch(arrow)
+        ax.text(.7, .5, r"$R'(\lambda) = \frac{1}{(1 + z)^2} \times F'(\frac{\lambda}{1 + z})$")
+    arrow_to_time_dilated()
+
+    def G_time_dilated():
+        ax = fig.add_axes([0.6, 5/11, 0.3, 0.075])
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+        ax.set_title(r"$R'(\lambda)$: corrected for time dilation")
+        ax.set_xlabel(r"$\lambda$")
+        ax.set_ylabel(r"photon density")
+        ax.set_ylim(0, 130)
+        ax.set_yticks([0, 50, 100])
+        ys = [y / (1 + z) for y in ys_stretch_corrected]
+
+        ax.plot(xs, ys, color="red")
+        return ys
+    rs_counts = G_time_dilated()
+
+    def filters():
+        ax = fig.add_axes([0.35, 3/11, 0.3, 0.075])
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_title(r"$S_x$ and $S_y$: filters")
+        ax.set_xlabel(r"$\lambda$")
+        ax.set_ylabel("sensitivity")
+        ax.set_ylim(0.0, 1.0)
+
+        B_dist = scipy.stats.uniform(445 - 94/2, 445 + 94/2)
+        S_x = [B_dist.pdf(x) * 400 for x in xs]
+        ax.plot(xs, S_x, color="blue")
+
+        R_dist = scipy.stats.uniform(806 - 149/2, 806 + 149/2)
+        S_y = [R_dist.pdf(x) * 600 for x in xs]
+        ax.plot(xs, S_y, color="red")
+        return S_x, S_y
+    S_x, S_y = filters()
+
+    def arrow_to_val_x():
+        ax = fig.add_axes([0.15, 2.1/11, 0.1, 0.39])
+        ax.spines["top"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_xticks([])
+        ax.set_xticks([], minor=True)
+        ax.set_yticks([])
+        ax.set_yticks([], minor=True)
+        arrow = FancyArrowPatch(
+            (0.5, 1.0),  # Starting point in axes coordinates (x, y)
+            (0.5, 0.0),  # Ending point in axes coordinates (x, y)
+            arrowstyle="->",  # Arrow style 
+            mutation_scale=20,  # Arrow size
+        )
+
+        # Add the arrow to the first axes
+        ax.add_patch(arrow)
+
+    arrow_to_val_x()
+
+    def measurement_x():
+        ax = fig.add_axes([0.1, 1/11, 0.3, 0.075])
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_title(r"$F'(\lambda) S_x(\lambda)$")
+        ax.set_ylim(0, 130)
+        ax.set_yticks([0, 50, 100])
+
+        #ax.set_title(r"$F'(\lambda)$: rest frame photon density")
+
+        ys = [ys_counts[i] * S_x[i] for i in range(len(ys_counts))]
+        ax.plot(xs, ys)
+
+        return sum(ys)
+
+    val_x = measurement_x()
+
+    def arrow_filt_to_val_x():
+        ax = fig.add_axes([0.235, 2.1/11, 0.07, 0.08])
+        ax.spines["top"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_xticks([])
+        ax.set_xticks([], minor=True)
+        ax.set_yticks([])
+        ax.set_yticks([], minor=True)
+        arrow = FancyArrowPatch(
+            (1.0, 1.0),  # Starting point in axes coordinates (x, y)
+            (0.0, 0.0),  # Ending point in axes coordinates (x, y)
+            arrowstyle="->",  # Arrow style 
+            mutation_scale=20,  # Arrow size
+        )
+
+        # Add the arrow to the first axes
+        ax.add_patch(arrow)
+
+    arrow_filt_to_val_x()
+
+    def arrow_to_val_y():
+        ax = fig.add_axes([0.725, 2.1/11, 0.1, 0.21])
+        ax.spines["top"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_xticks([])
+        ax.set_xticks([], minor=True)
+        ax.set_yticks([])
+        ax.set_yticks([], minor=True)
+        arrow = FancyArrowPatch(
+            (0.5, 1.0),  # Starting point in axes coordinates (x, y)
+            (0.5, 0.0),  # Ending point in axes coordinates (x, y)
+            arrowstyle="->",  # Arrow style 
+            mutation_scale=20,  # Arrow size
+        )
+
+        # Add the arrow to the first axes
+        ax.add_patch(arrow)
+
+    arrow_to_val_y()
+
+    def arrow_filt_to_val_y():
+        ax = fig.add_axes([0.675, 2.1/11, 0.07, 0.08])
+        ax.spines["top"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_xticks([])
+        ax.set_xticks([], minor=True)
+        ax.set_yticks([])
+        ax.set_yticks([], minor=True)
+        arrow = FancyArrowPatch(
+            (0.0, 1.0),  # Starting point in axes coordinates (x, y)
+            (1.0, 0.0),  # Ending point in axes coordinates (x, y)
+            arrowstyle="->",  # Arrow style 
+            mutation_scale=20,  # Arrow size
+        )
+
+        # Add the arrow to the first axes
+        ax.add_patch(arrow)
+
+    arrow_filt_to_val_y()
+
+    def measurement_y():
+        ax = fig.add_axes([0.6, 1/11, 0.3, 0.075])
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_title(r"$R'(\lambda) S_y(\lambda)$")
+        ax.set_ylim(0, 130)
+        ax.set_yticks([0, 50, 100])
+
+        ys = [rs_counts[i] * S_y[i] for i in range(len(rs_counts))]
+        ax.plot(xs, ys, color="red")
+
+        return sum(ys)
+
+    val_y = measurement_y()
+
+    def result():
+        ax = fig.add_axes([0.18, 0, 0.3, 0.07])
+        ax.spines["top"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.text(0.5, 0.5, r"$K'_{xy} = \frac{\int F'(\lambda) S_x(\lambda) d\lambda}{\int R'(\lambda) S_y(\lambda) d\lambda} = \frac{" + f"{val_x:.2f}" + r"}{" + f"{val_y:.2f}" + r"} = " + f"{val_x / val_y:.2f}" + r"$", fontsize=14)
+    result()
+
+    if save:
+        plt.savefig(GRAPHS_DIR / "k_equation_flow.png", bbox_inches="tight")
         plt.cla()
 
 
@@ -839,7 +1177,7 @@ if __name__ == "__main__":
 
     data = Supernova.from_abbott()
 
-    generate_all_graphs(data)
+    #generate_all_graphs(data)
 
     # all_lum_distance_vs_redshift_graph(data, save=False)
     # velocity_vs_distance_graph(data, correction=Correction.ONE, save=False)
@@ -852,4 +1190,5 @@ if __name__ == "__main__":
     # graph(data)
 
     # bootstrap_hubble_parameter_graph(data)
-    # plt.show()
+    k_equation_flow_graph(save=True)
+    #plt.show()
