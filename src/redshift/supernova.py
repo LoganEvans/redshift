@@ -261,7 +261,7 @@ def k_corrections_for_photon_counts_graph(save=False):
 
     axs[1, 0].sharex(axs[1, 1])
     axs[1, 0].sharey(axs[1, 1])
-    axs[1, 0].plot(xs, ps_10, "tab:red")
+    axs[1, 0].plot(xs, ps_10, g)
     axs[1, 0].set_title("Corrected for time dilation")
     axs[1, 0].set_xlabel(r"$\lambda$ (nm)")
     axs[1, 0].set_ylabel("photons")
@@ -273,7 +273,7 @@ def k_corrections_for_photon_counts_graph(save=False):
         ps_10,
         where=[True if 1000 <= x <= 1200 else False for x in xs],
         facecolor="darkred",
-        edgecolor="red",
+        edgecolor="tab:red",
         hatch=r"//",
         label=f"photons/nm = {photon_count:.0f}/200nm = {photon_count // 200:.0f}/nm",
     )
@@ -289,7 +289,7 @@ def k_corrections_for_photon_counts_graph(save=False):
 
     axs[0, 1].sharex(axs[1, 1])
     axs[0, 1].sharey(axs[1, 1])
-    axs[0, 1].plot(xs, ps_01, "tab:red")
+    axs[0, 1].plot(xs, ps_01, g)
     axs[0, 1].set_title("Corrected for redshift")
     axs[0, 1].set_xlabel(r"$\lambda$ (nm)")
     axs[0, 1].set_ylabel("photons")
@@ -301,7 +301,7 @@ def k_corrections_for_photon_counts_graph(save=False):
         ps_01,
         where=[True if 500 <= x <= 600 else False for x in xs],
         facecolor="darkred",
-        edgecolor="red",
+        edgecolor="tab:red",
         hatch=r"//",
         label=f"photons/nm = {photon_count:.0f}/100nm = {photon_count // 100:.0f}/nm",
     )
@@ -335,19 +335,23 @@ def k_corrections_for_photon_counts_graph(save=False):
 
     if save:
         plt.savefig(
-            GRAPHS_DIR / f"K-corrections_for_photon_counts.png",
+            GRAPHS_DIR / f"K-corrections_for_photon_counts.pdf",
             bbox_inches="tight",
         )
-        plt.cla()
+        plt.clf()
 
 def k_equation_flow_graph(save=False):
+    plt.clf()
+    plt.rcParams["text.usetex"] = True
+    #plt.rcParams["hatch.linewidth"] = 4
+
     z = 0.5
 
     lo = 100
     hi = 2000
     xs = np.linspace(lo, hi, hi - lo)
 
-    fig = plt.figure(figsize=[8.0, 10.0])
+    fig = plt.figure(figsize=[10.0, 8.0])
     fig.suptitle(r"Calculating $K'_{xy}$, the ratio of rest frame to observation frame counts for $z = 0.5$")
 
     def F():
@@ -362,6 +366,8 @@ def k_equation_flow_graph(save=False):
         unif = scipy.stats.uniform(1000, 250)
 
         ys = [(norm.pdf(x) + unif.pdf(x) / 2.0) / 1e6 for x in xs]
+        ax.set_ylim(0.0, 1.05 * max(ys))
+        ax.set_yticks([0.0, 2.5e-9, 5e-9])
 
         ax.plot(xs, ys)
         return ys
@@ -427,7 +433,7 @@ def k_equation_flow_graph(save=False):
 
         # Add the arrow to the first axes
         ax.add_patch(arrow)
-        ax.text(.7, .5, r"$F'(\frac{\lambda}{1 + z})$")
+        ax.text(.7, .5, r"$F'\left(\frac{\lambda}{1 + z}\right)$")
 
     arrow_to_stretched()
 
@@ -443,7 +449,7 @@ def k_equation_flow_graph(save=False):
         ax.set_yticks([0, 50, 100])
         ys = [ys_counts[int(xs[i] / (1 + z))] for i in range(len(xs))]
 
-        ax.plot(xs, ys, color="red")
+        ax.plot(xs, ys, color="tab:red")
         return ys
     ys_stretched = G_stretched()
 
@@ -466,7 +472,7 @@ def k_equation_flow_graph(save=False):
 
         # Add the arrow to the first axes
         ax.add_patch(arrow)
-        ax.text(.7, .5, r"$\frac{1}{1 + z} \times F'(\frac{\lambda}{1 + z})$")
+        ax.text(.7, .5, r"$\frac{1}{1 + z} \times F'\left(\frac{\lambda}{1 + z}\right)$")
     arrow_to_stretch_corrected()
 
     def G_stretch_corrected():
@@ -481,7 +487,7 @@ def k_equation_flow_graph(save=False):
         ax.set_yticks([0, 50, 100])
         ys = [y / (1 + z) for y in ys_stretched]
 
-        ax.plot(xs, ys, color="red")
+        ax.plot(xs, ys, color="tab:red")
         return ys
     ys_stretch_corrected = G_stretch_corrected()
 
@@ -504,7 +510,7 @@ def k_equation_flow_graph(save=False):
 
         # Add the arrow to the first axes
         ax.add_patch(arrow)
-        ax.text(.7, .5, r"$R'(\lambda) = \frac{1}{(1 + z)^2} \times F'(\frac{\lambda}{1 + z})$")
+        ax.text(.7, .5, r"$R'(\lambda) = \frac{1}{(1 + z)^2} \times F'\left(\frac{\lambda}{1 + z}\right)$")
     arrow_to_time_dilated()
 
     def G_time_dilated():
@@ -519,7 +525,7 @@ def k_equation_flow_graph(save=False):
         ax.set_yticks([0, 50, 100])
         ys = [y / (1 + z) for y in ys_stretch_corrected]
 
-        ax.plot(xs, ys, color="red")
+        ax.plot(xs, ys, color="tab:red")
         return ys
     rs_counts = G_time_dilated()
 
@@ -536,9 +542,9 @@ def k_equation_flow_graph(save=False):
         S_x = [B_dist.pdf(x) * 400 for x in xs]
         ax.plot(xs, S_x)
 
-        R_dist = scipy.stats.uniform(806 - 149/2, 806 + 149/2)
-        S_y = [R_dist.pdf(x) * 600 for x in xs]
-        ax.plot(xs, S_y, color="red")
+        R_dist = scipy.stats.uniform(750, 750)
+        S_y = [R_dist.pdf(x) * 500 for x in xs]
+        ax.plot(xs, S_y, color="tab:red")
         return S_x, S_y
     S_x, S_y = filters()
 
@@ -656,14 +662,14 @@ def k_equation_flow_graph(save=False):
         ax.set_yticks([0, 50, 100])
 
         ys = [rs_counts[i] * S_y[i] for i in range(len(rs_counts))]
-        ax.plot(xs, ys, color="red")
+        ax.plot(xs, ys, color="tab:red")
 
         return sum(ys)
 
     val_y = measurement_y()
 
     def result():
-        ax = fig.add_axes([0.18, 0, 0.3, 0.07])
+        ax = fig.add_axes([0.18, 0, 0.3, 0.05])
         ax.spines["top"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
         ax.spines["left"].set_visible(False)
@@ -674,8 +680,8 @@ def k_equation_flow_graph(save=False):
     result()
 
     if save:
-        plt.savefig(GRAPHS_DIR / "k_equation_flow.png", bbox_inches="tight")
-        plt.cla()
+        plt.savefig(GRAPHS_DIR / "k_equation_flow.pdf", bbox_inches="tight")
+        plt.clf()
 
 
 def reduce_data(data, step=0.002) -> list[Supernova]:
@@ -712,7 +718,7 @@ def all_lum_distance_vs_redshift_graph(data, save=True):
         marker="^",
         linewidths=0.7,
         facecolors="none",
-        edgecolors="blue",
+        edgecolors="tab:blue",
         label="k(z) = 1+z",
     )
     coefficients = scipy.stats.siegelslopes(
@@ -728,7 +734,7 @@ def all_lum_distance_vs_redshift_graph(data, save=True):
     )
 
     ys = [sn.lum_distance(correction=Correction.NONE) for sn in reduced_data]
-    plt.scatter(xs, ys, s=15, marker="x", linewidths=0.7, color="red", label="k(z) = 1")
+    plt.scatter(xs, ys, s=15, marker="x", linewidths=0.7, color="tab:red", label="k(z) = 1")
     coefficients = scipy.stats.siegelslopes(
         x=[sn.z for sn in data],
         y=[sn.lum_distance(correction=Correction.NONE) for sn in data],
@@ -766,13 +772,13 @@ def all_lum_distance_vs_redshift_graph(data, save=True):
     # )
 
     plt.xlabel("z")
-    plt.ylabel("distance (Mps)")
+    plt.ylabel("luminosity distance (Mps)")
 
     plt.title("Distance vs Redshift")
     plt.legend()  # ["uncorrected", "corrected", f"H0 = {Supernova.H0:.0f} km/s / Mpsc"])
     if save:
-        plt.savefig(GRAPHS_DIR / "lum_distance_vs_redshift.png", bbox_inches="tight")
-        plt.cla()
+        plt.savefig(GRAPHS_DIR / "lum_distance_vs_redshift.pdf", bbox_inches="tight")
+        plt.clf()
 
 
 def distance_residuals_graph(data, save=False):
@@ -794,13 +800,13 @@ def distance_residuals_graph(data, save=False):
         marker="^",
         linewidths=0.7,
         facecolors="none",
-        edgecolors="blue",
+        edgecolors="tab:blue",
         label="observed - predicted",
     )
 
     if save:
-        plt.savefig(GRAPHS_DIR / "distance_residuals.png", bbox_inches="tight")
-        plt.cla()
+        plt.savefig(GRAPHS_DIR / "distance_residuals.pdf", bbox_inches="tight")
+        plt.clf()
 
 
 def hubble_diagram_graph(data, save=True):
@@ -816,7 +822,7 @@ def hubble_diagram_graph(data, save=True):
         ys,
         s=15,
         marker="x",
-        color="red",
+        color="tab:red",
         linewidths=0.7,
         label="k(z) = 1",
     )
@@ -829,7 +835,7 @@ def hubble_diagram_graph(data, save=True):
         s=15,
         marker="^",
         facecolors="none",
-        edgecolors="blue",
+        edgecolors="tab:blue",
         linewidths=0.7,
         label="k(z) = 1+z",
     )
@@ -841,10 +847,10 @@ def hubble_diagram_graph(data, save=True):
 
     if save:
         plt.savefig(
-            GRAPHS_DIR / f"hubble_diagram.png",
+            GRAPHS_DIR / f"hubble_diagram.pdf",
             bbox_inches="tight",
         )
-        plt.cla()
+        plt.clf()
 
 
 def recessional_velocity_vs_intercept_time_graph(
@@ -868,7 +874,7 @@ def recessional_velocity_vs_intercept_time_graph(
         marker="^",
         linewidths=0.7,
         facecolors="none",
-        edgecolors="blue",
+        edgecolors="tab:blue",
         label="k(z) = 1+z",
     )
 
@@ -883,15 +889,17 @@ def recessional_velocity_vs_intercept_time_graph(
 
     if save:
         plt.savefig(
-            GRAPHS_DIR / f"recessional_velocity_vs_intercept_time.png",
+            GRAPHS_DIR / f"recessional_velocity_vs_intercept_time.pdf",
             bbox_inches="tight",
         )
-        plt.cla()
+        plt.clf()
 
 
 def velocity_vs_distance_graph(data, correction=Correction.ONE, save=True):
     c = 299792.458  # km/s
-    plt.rcParams["figure.figsize"] = (8, 6)
+
+    fig = plt.figure(figsize=[8.0, 6.0])
+    ax = fig.add_axes([0, 1, 1, 1])
 
     mean_rate = np.mean([sn.rate for sn in data])
 
@@ -904,38 +912,38 @@ def velocity_vs_distance_graph(data, correction=Correction.ONE, save=True):
     xmin = min(xs)
     xmax = max(xs)
 
-    plt.scatter(
+    ax.scatter(
         xs,
         ys,
         s=15,
         marker="^",
         linewidths=0.7,
         facecolors="none",
-        edgecolors="blue",
+        edgecolors="tab:blue",
         label="k(z) = 1+z",
     )
 
     coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
-    plt.axline(
+    ax.axline(
         (xmin, xmin * coefficients.slope + coefficients.intercept),
         (xmax, xmax * coefficients.slope + coefficients.intercept),
         color="black",
         linewidth=0.5,
         linestyle="--",
-        label=f"$v = {coefficients.slope:.2f} \\frac{{km/s}}{{Mpc}} \\times D_l + {coefficients.intercept:.0f} km/s$",
+        label=f"$v = {coefficients.slope:.2f} \\frac{{km/s}}{{Mpc}} \\times D_L + {coefficients.intercept:.0f} km/s$",
     )
 
-    plt.title("Linear Hubble constant")
-    plt.xlabel("distance (Mpc)")
-    plt.ylabel("velocity (km/s)")
-    plt.legend()
+    ax.set_title("Linear Hubble constant")
+    ax.set_xlabel("distance (Mpc)")
+    ax.set_ylabel("velocity (km/s)")
+    ax.legend()
 
     if save:
         plt.savefig(
-            GRAPHS_DIR / f"velocity_vs_distance.png",
+            GRAPHS_DIR / f"velocity_vs_distance.pdf",
             bbox_inches="tight",
         )
-        plt.cla()
+        plt.clf()
 
 
 def delta_distance_graph(data, save=True):
@@ -960,13 +968,16 @@ def delta_distance_graph(data, save=True):
         marker="^",
         linewidths=0.7,
         facecolors="none",
-        edgecolors="blue",
+        edgecolors="tab:blue",
         label="k(z) = 1",
     )
 
 
 def bootstrap_hubble_parameter_graph(data, save=False):
-    trials = 100000
+    trials = 10000
+
+    fig = plt.figure(figsize=[8.0, 6.0])
+    ax = fig.add_axes([0, 1, 1, 1])
 
     # From https://journals.aps.org/prresearch/pdf/10.1103/PhysRevResearch.2.013028
     # Local determination of the Hubble constant and the deceleration parameter,
@@ -991,44 +1002,46 @@ def bootstrap_hubble_parameter_graph(data, save=False):
     print("H0 normal distribution fit:")
     print(scipy.stats.norm.fit(results))
 
-    plt.hist([results], bins=200)
-    plt.title("Bootstrapped H0")
-    plt.xlabel(r"$\frac{km/s}{Mpc}$")
+    ax.hist([results], bins=200)
+    ax.set_title(r"Bootstrapped $H_0$")
+    ax.set_xlabel(r"km s$^{-1}$ Mpc$^{-1}$")
     if save:
         plt.savefig(
-            GRAPHS_DIR / f"bootstrapped_H0.png",
+            GRAPHS_DIR / f"bootstrapped_H0.pdf",
             bbox_inches="tight",
         )
-        plt.cla()
+        plt.clf()
 
 
 def generate_all_graphs(data):
-    figsize = (12, 9)
+    figsize = (16, 12)
     linewidth = 4
 
-    plt.cla()
+    k_equation_flow_graph(save=True)
+
+    plt.clf()
     plt.rcParams["figure.figsize"] = figsize
     plt.rcParams["text.usetex"] = True
     plt.rcParams["hatch.linewidth"] = linewidth
     all_lum_distance_vs_redshift_graph(data, save=True)
 
-    plt.cla()
+    plt.clf()
     plt.rcParams["figure.figsize"] = figsize
     plt.rcParams["text.usetex"] = True
     plt.rcParams["hatch.linewidth"] = linewidth
     velocity_vs_distance_graph(data, save=True)
 
-    # plt.cla()
-    # plt.rcParams["figure.figsize"] = figsize
-    # plt.rcParams["text.usetex"] = True
-    # plt.rcParams["hatch.linewidth"] = linewidth
-    # bootstrap_hubble_parameter_graph(data, save=True)
-
-    plt.cla()
+    plt.clf()
     plt.rcParams["figure.figsize"] = figsize
     plt.rcParams["text.usetex"] = True
     plt.rcParams["hatch.linewidth"] = linewidth
-    k_corrections_for_photon_counts_graph(save=True)
+    bootstrap_hubble_parameter_graph(data, save=True)
+
+    #plt.clf()
+    #plt.rcParams["figure.figsize"] = figsize
+    #plt.rcParams["text.usetex"] = True
+    #plt.rcParams["hatch.linewidth"] = linewidth
+    #k_corrections_for_photon_counts_graph(save=True)
 
 
 def my_model(data):
@@ -1078,7 +1091,7 @@ def graph_model(data):
         marker="^",
         linewidths=0.7,
         facecolors="none",
-        edgecolors="blue",
+        edgecolors="tab:blue",
         label="k(z) = 1",
     )
 
@@ -1095,7 +1108,7 @@ def graph_model(data):
     print(m, b, sigma)
     xs = [sn.z for sn in data]
     ys = [m * x * np.e ** (scipy.stats.norm(0, sigma).rvs()) + b for x in xs]
-    plt.scatter(xs, ys, s=15, marker="x", linewidths=0.7, color="red")
+    plt.scatter(xs, ys, s=15, marker="x", linewidths=0.7, color="tab:red")
 
 
 def graph(data):
@@ -1110,7 +1123,7 @@ def graph(data):
         marker="^",
         linewidths=0.7,
         facecolors="none",
-        edgecolors="blue",
+        edgecolors="tab:blue",
         label="k(z) = 1",
     )
 
@@ -1142,7 +1155,7 @@ def energy_loss_vs_orig_distance(data, correction=Correction.ONE, save=True):
         marker="^",
         linewidths=0.7,
         facecolors="none",
-        edgecolors="blue",
+        edgecolors="tab:blue",
     )
 
     coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
@@ -1164,10 +1177,10 @@ def energy_loss_vs_orig_distance(data, correction=Correction.ONE, save=True):
 
     if save:
         plt.savefig(
-            GRAPHS_DIR / f"energy_loss_vs_orig_distance.png",
+            GRAPHS_DIR / f"energy_loss_vs_orig_distance.pdf",
             bbox_inches="tight",
         )
-        plt.cla()
+        plt.clf()
 
 
 if __name__ == "__main__":
@@ -1176,8 +1189,10 @@ if __name__ == "__main__":
     plt.rcParams["hatch.linewidth"] = 4
 
     data = Supernova.from_abbott()
+    #velocity_vs_distance_graph(data, save=True)
+    #k_equation_flow_graph(save=True)
 
-    #generate_all_graphs(data)
+    generate_all_graphs(data)
 
     # all_lum_distance_vs_redshift_graph(data, save=False)
     # velocity_vs_distance_graph(data, correction=Correction.ONE, save=False)
@@ -1190,5 +1205,4 @@ if __name__ == "__main__":
     # graph(data)
 
     # bootstrap_hubble_parameter_graph(data)
-    k_equation_flow_graph(save=True)
     #plt.show()
