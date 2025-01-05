@@ -534,7 +534,7 @@ def k_equation_flow_graph(save=False):
 
         B_dist = scipy.stats.uniform(445 - 94/2, 445 + 94/2)
         S_x = [B_dist.pdf(x) * 400 for x in xs]
-        ax.plot(xs, S_x, color="blue")
+        ax.plot(xs, S_x)
 
         R_dist = scipy.stats.uniform(806 - 149/2, 806 + 149/2)
         S_y = [R_dist.pdf(x) * 600 for x in xs]
