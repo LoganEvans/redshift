@@ -113,7 +113,7 @@ However, redshifting light dims an observation in three ways:
 \begin{itemize}
   \item The energy of a wave is inversely proportional to its wavelength; thus a
   redshift of $z$ means the amount of energy per photon is reduced by a factor
-  of $\frac{1}{1+z}$.
+  of $1 / (1+z)$.
 
   \item The bandwidth stretches. If a rest frame observes photons
   between the wavelengths of 400nm and 401nm, then a redshift of $z = 1$
@@ -178,11 +178,11 @@ in Figure \ref{fig:k-example}.
   process of computing $R'(\lambda$, the photon density in the observation
   frame, in three phases starting at the top right of the figure. First we
   stretch the photon density, but this step inflates counts. In the second
-  step, we correct for the inflated counts by multiplying by $\frac{1}{1+z}$;
+  step, we correct for the inflated counts by multiplying by $1/(1+z)$;
   at this point, the total count equals the total count of $F'(\lambda)$.
   Finally, in the third step we finish calculating the observation frame photon
   density $R'(\lambda)$ by accounting for time dilation, which also reduces
-  photon counts by a factor of $\frac{1}{1+z}$.  Given the rest frame and
+  photon counts by a factor of $1/(1+z)$.  Given the rest frame and
   observation frame photon densities, we can compute the expected ratio of
   photons by totalling the area under the curves in the two panels at the
   bottom of the graph. This example does not show the process of converting
@@ -234,7 +234,7 @@ density function $F$. The value $F(\lambda)$ gives the amount of energy
 collected by a bolometric device for the wavelength $\lambda$.
 
 To convert the spectral energy density $F$ to the photon density $F'$, we need
-to use the Plank relation $E = \frac{hc}{\lambda}$ where $E$ is the energy, $h$
+to use the Plank relation $E = hc / \lambda$ where $E$ is the energy, $h$
 is Planck's constant, and $c$ is the speed of light. This gives us
 
 \begin{equation}
@@ -387,7 +387,7 @@ recombining the flux term $\mathcal{F}_y$ with $m_y$ from Equation
 \end{aligned}
 \end{equation}
 
-It is useful to consider whether the term $\frac{P'_y}{P'_x}$ is correct or if
+It is useful to consider whether the term $P'_y / P'_x$ is correct or if
 it should be inverted, but if we rewrite Equation \ref{eq:as_flux} as
 
 \begin{equation}
@@ -424,13 +424,13 @@ spectral energy density $R(\lambda)$:
                    {\int R'(\lambda) S_y(\lambda) d\lambda} \\
          &= \frac{P'_x}{P'_y} \times
               \frac{\int F'(\lambda) S_x(\lambda) d\lambda}
-                   {\int F'(\frac{\lambda}{1+z}) \times \frac{1}{(1 + z)^2} S_y(\lambda) d\lambda} \\
+                   {\int F'(\lambda / (1+z)) \times (1 / (1 + z)^2) S_y(\lambda) d\lambda} \\
          &= \frac{P'_x}{P'_y} \times (1+z)^2 \times
-              \frac{\int \frac{\lambda}{hc} F(\lambda) S_x(\lambda) d\lambda}
-                   {\int \frac{\lambda}{(1+z)hc} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} \\
+              \frac{\int (\lambda / hc) F(\lambda) S_x(\lambda) d\lambda}
+                   {\int (\lambda / ((1+z)hc)) F(\lambda / (1+z)) S_y(\lambda) d\lambda} \\
          &= \frac{P'_x}{P'_y} \times (1 + z)^2 \times
               \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
-                   {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} .
+                   {\int (\lambda / (1+z) F(\lambda / (1+z)) S_y(\lambda) d\lambda} .
 \end{aligned}
 \end{equation}
 
@@ -444,22 +444,22 @@ into the magnitude $K_{xy}$:
          &= 2.5\text{log}\left(
             \frac{P'_x}{P'_y} \times (1 + z)^2 \times
             \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
-                 {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda}\right) \\
+                 {\int (\lambda / (1+z)) F(\lambda / (1+z)) S_y(\lambda) d\lambda}\right) \\
          &= 2.5 \left(
             \text{log} \left( \frac{P'_x}{P'_y} \right)
             + \text{log}( {(1 + z)^2})
             + \text{log}\left( \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
-                   {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda}
+                                    {\int (\lambda / (1+z)) F((\lambda)/ (1+z)) S_y(\lambda) d\lambda}
             \right) \right) \\
          &= 2.5 \text{log} \left( \frac{P'_x}{P'_y} \right)
             + 5 \text{log} (1 + z)
             + 2.5 \text{log} \left(
               \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
-                   {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} \right) \\
+                   {\int (\lambda / (1+z)) F(\lambda / (1+z)) S_y(\lambda) d\lambda} \right) \\
          &= 5 \text{log} (1 + z)
             + 2.5 \text{log} \left(
               \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
-                   {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} \right)
+                   {\int (\lambda / (1+z)) F(\lambda / (1+z)) S_y(\lambda) d\lambda} \right)
             - P_x + P_y .
 \end{aligned}
 \end{equation}
@@ -484,14 +484,14 @@ with Equation \ref{eq:K2k}, we have
   K_{xy} &= 5 \text{log} (1 + z)
             + 2.5 \text{log} \left(
               \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
-                   {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} \right)
+                   {\int (\lambda / (1+z)) F(\lambda / (1+z)) S_y(\lambda) d\lambda} \right)
             - P_x + P_y \\
          &= 5 \text{log} (1 + z)
             + 2.5 \text{log} \left(
               \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
-                   {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} \right)
-            + 2.5 \text{log} \left( \int \frac{\lambda}{hc} \mathcal{Z}(\lambda) S_x(\lambda) d\lambda \right)
-            - 2.5 \text{log} \left( \int \frac{\lambda}{hc} \mathcal{Z}(\lambda) S_y(\lambda) d\lambda \right) \\
+                   {\int (\lambda / (1+z)) F(\lambda / (1+z)) S_y(\lambda) d\lambda} \right) \\ &\ 
+            + 2.5 \text{log} \left( \int (\lambda / hc) \mathcal{Z}(\lambda) S_x(\lambda) d\lambda \right)
+            - 2.5 \text{log} \left( \int (\lambda / hc) \mathcal{Z}(\lambda) S_y(\lambda) d\lambda \right) \\
          &= 2.5 \text{log} \left(
               \frac{\int \lambda \mathcal{Z}(\lambda) S_x(\lambda) d\lambda}
                    {\int \lambda \mathcal{Z}(\lambda) S_y(\lambda) d\lambda}
@@ -499,7 +499,7 @@ with Equation \ref{eq:K2k}, we have
             + 5 \text{log} (1 + z)
             + 2.5 \text{log} \left(
               \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
-                   {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} \right) .
+                   {\int (\lambda / (1+z)) F(\lambda / (1+z)) S_y(\lambda) d\lambda} \right) .
 \end{aligned}
 \end{equation}
 
