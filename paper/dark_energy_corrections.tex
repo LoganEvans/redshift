@@ -17,11 +17,11 @@
 
 \begin{abstract}
 We rederive the K-correction equation and discover that the version of the
-equation used to compute magnitudes contains three errors. The oldest of these
-errors traces back nine decades; in 1930 the equation did not correct for
-spectral bandwidth stretching, followed by a rederivation in 1968 that
-accounted for spectral bandwidth stretching but did not correct for time
-dilation. Two new errors were introduced in 1996, one of which causes
+equation that is commonly used to calculate magnitudes contains three errors.
+The oldest of these errors traces back nine decades; in 1930 the equation did
+not correct for spectral bandwidth stretching, followed by a rederivation in
+1968 that accounted for spectral bandwidth stretching but did not correct for
+time dilation. Two new errors were introduced in 1996, one of which causes
 systematic distance biases by inverting the zero-point correction term. We
 conclude that properly correcting apparent magnitudes for redshift resolves two
 of the preeminent mysteries in cosmology: first, dark energy is not supported
@@ -43,17 +43,17 @@ blue light, regardless of the filter used to take measurements in the
 observation frame. The equation that converts from an observation frame
 magnitude to a rest frame magnitude in the $B$ filter is called K-correction.
 
-The first formal derivation of K-correction was performed by
-\citet{tolman1930}, but it did not account for spectral bandwidth stretching,
-one of the dimming effects of redshift. An alternative K-correction was
-correctly derived by \citet{desitter1934}. However, in \citet{hubble1935}, the
-discrepancy was noted yet dismissed. \citet{oke1968} rederived the K-correction
-equation.  They accounted for spectral bandwidth stretching, but they did not
-account for time dilation, one of the other dimming effects of redshift. The
-paper by \citet{kim1996}, which is the basis for modern implementations of
-K-correction, extended the work of \citet{oke1968} to handle additional
-cross-filter comparisons and added a term that was intended to address
-zero-point corrections. This history is explored in more depth in Section
+\citet{tolman1930} published the first formal derivation of K-correction, but
+he did not account for spectral bandwidth stretching, one of the dimming
+effects of redshift. An alternative K-correction was correctly derived by
+\citet{desitter1934}. However, in \citet{hubble1935}, the discrepancy was noted
+yet dismissed. \citet{oke1968} rederived the K-correction equation where they
+accounted for spectral bandwidth stretching, but they did not account for time
+dilation, one of the other dimming effects of redshift. The paper by
+\citet{kim1996}, which is the basis for modern implementations of K-correction,
+extended the work of \citet{oke1968} to handle additional cross-filter
+comparisons and added a term that was intended to address zero-point
+corrections. This history is explored in more depth in Section
 \ref{sec:history}.
 
 The effect of using an incorrect magnitude for SnIa is that we think objects
@@ -63,16 +63,16 @@ observations for this error to matter much for cosmological models, but by the
 late 1990s, it became clear that our measurements for distance and redshift were
 not linear. This realization led to a model that utilized a cosmological
 constant $\Lambda$ and dark energy in order to explain the non-linear
-distance-redshift graph. We will show in Section \ref{sec:tension} that
-correcting the flaw with K-correction leads to a linear graph that does not
+distance-redshift graph. We will show in Section \ref{sec:conclusions} that
+correcting the flaws with K-correction leads to a linear graph that does not
 need to rely on a cosmological constant.
 
 \citet{planck2015} used an alternative technique to compute the Hubble constant
 $H_0$ that is based on measurements of the cosmic microwave background (CMB).
-CMB-based computations of $H_0$ has made it evident that something was missing
+CMB-based computations of $H_0$ have made it evident that something is missing
 with our understanding of cosmology because this technique produces a
 significantly different value than when the constant is derived using SnIa.  As
-we will discuss in Section \ref{sec:tension}, fixing the error with
+we will discuss in Section \ref{sec:conclusions}, fixing the errors with
 K-correction produces a measurement of the Hubble constant that is compatible
 with models based on the CMB.
 
@@ -96,9 +96,9 @@ energy.
   \caption{The relationship between luminosity distance and redshift for two
   treatments of magnitude data. The displayed points are roughly a third of the
   values in the full SnIa dataset published in \citet{abbott2024}, selected
-  evenly to aid visibility. The $k(z) = 1$ treatment, which represents the
-  uncorrected values, is clearly non-linear while the $k(z) = 1 + z$ treatment
-  which fixes the K-correction redshift error, appears to be linear.}
+  evenly to aid visibility. The red $k(z) = 1$ treatment, which represents the
+  uncorrected values, is clearly non-linear while the blue $k(z) = 1 + z$
+  treatment, which fixes the K-correction redshift error, appears to be linear.}
   \label{fig:mu_distance_vs_redshift}
 \end{figure}
 
@@ -109,18 +109,20 @@ lighting matches. If we know how brightly a match burns at a known distance, we
 can estimate the distance to any match by measuring the apparent brightness
 before applying some geometry.
 
-However, redshifting light dims an observation in three ways:
+However, redshifting dims the luminosity of an observation in three ways:
 
 \begin{itemize}
   \item The energy of a wave is inversely proportional to its wavelength; thus a
   redshift of $z$ means the amount of energy per photon is reduced by a factor
   of $1 / (1+z)$.
 
-  \item The bandwidth stretches. If a rest frame observes photons
-  between the wavelengths of 400nm and 401nm, then a redshift of $z = 1$
-  stretches the wavelength from 800nm to 802nm.
+  \item The bandwidth stretches. If the rest frame observes photons in the
+  bandwidth from 400nm and 401nm, then a redshift of $z = 1$ stretches the
+  wavelengths to the bandwidth from 800nm to 802nm. The number of photons per
+  bandwidth is reduced by a factor of $1 / (1+z)$.
 
   \item Cosmological time dilation reduces the rate at which photons arrive.
+  The number of photons that arive per second is reduced by a factor of $1 / (1+z)$.
 \end{itemize}
 
 To complicate matters, we use the $B$ band magnitude to calculate luminosity
@@ -130,22 +132,18 @@ supernova with a filter that is sensitive to longer wavelengths, such as the
 $i$ band filter which is sensitive to wavelengths from 700nm-850nm
 \citep{flaugher2015}. The K-correction formula allows us to take a magnitude
 measured in an observation filter $y$ and compute the magnitude in the target
-filter $y$.
+filter $x$.
 
-The first mathematical treatments of K-correction was performed by
+The first mathematical treatment of K-correction was performed by
 \citet{tolman1930}. However, when Tolman made his derivation, he did not
-consider the effects of a spectrum that is stretched due to redshift. See
-the top two panels of Figure \ref{fig:k-example} for an example of this effect.
+consider the effects of a spectrum that is stretched due to redshift.
 
 A few years later, \citet{desitter1934}, discussed all three issues that reduce
 the observed magnitude of a distant observation. The correction for each of
 these issues is identical: take a measurement for luminosity and multiply it by
 the factor $1 + z$.
 
-A year later, \citet{hubble1935} published a similar set of calculations for
-K-correction, but these equations used $(1 + z)^2$ instead of the $(1 + z)^3$
-correction term used by de Sitter. They started their derivation by copying the
-incorrect equation from 1930. After their derivation, they noted:
+A year later, \citet{hubble1935} published a similar set of calculations where they noted:
 
 \begin{quote}
 It should be specially noted that this expression differs from the correction
@@ -159,21 +157,19 @@ distribution of the energy that does arrive will lead to changes in its
 photographic effectiveness.
 \end{quote}
 
-The Hubble K-correction with the incorrect correction term have been used ever
-since.
+\noindent However, even though they considered all three dimming effects of
+redshift, they started their derivation by copying the incorrect equation from
+1930. The incorrect correction term has been used ever since.
 
-By \citet{oke1968}, the two factors of $(1 + z)$ were attributed to the change
-in energy and to the spectral bandwidth elongation, which leaves time dilation
-as the factor that was omitted. A graph that demonstrates why it is essential to
-correct for both the spectra bandwidth stretching and time dilation is presented
-in Figure \ref{fig:k-example}.
+In a paper published by \citet{oke1968}, the two factors of $(1 + z)$ were
+attributed to the change in energy and to the spectral bandwidth elongation,
+which leaves time dilation as the factor that was omitted.
 
 The modern treatment of K-correction is based on the work of \citet{kim1996}.
 This work extended the calculations of K-correction to extend to filters beyond
 the blue $B$ and visible $V$ bands. It also introduced a term that deals with
-the zero-point for the actual filters. In the modern day, filters measure the
-photon flux as opposed to the energy flux. Historically, bolometric devices
-would measure the energy flux, but modern charge-coupled device (CCD) cameras
+the zero-point for the actual filters. Historically, bolometric devices would
+measure the energy flux, but modern charge-coupled device (CCD) cameras
 effectively measure the photon flux.
 
 Quoting \citet{kim1996}:
@@ -202,8 +198,8 @@ This equation has three errors that we will explore in Section
 \label{sec:derivation}
 
 With modern CCD cameras, a telescope observation consists of a single value
-$\mathcal{F}_x$ erg/s, which represents the energy collected in filter $x$ per
-second. A summary of how this works is provided by \citet{lesser2015}.
+$\mathcal{F}_y$ erg/s, which represents the energy collected per second in
+filter $y$. A summary of how this works is provided by \citet{lesser2015}.
 Photogenerated electrons are collected in potential wells, which means that the
 measured energy is proportional to the number of photons. However, we need to
 calculate the expected number of photons collected by using a spectral energy
@@ -250,23 +246,14 @@ this equation produces
  F'\left(\frac{\lambda}{1+z}\right) = \frac{\lambda}{(1+z)hc} F\left(\frac{\lambda}{1+z}\right).
 \end{equation}
 
-However, this equation is misleading and error prone. We will want to use it to
+\noindent However, this equation is misleading and error prone. We will want to use it to
 help calculate the amount of flux in an observation filter at the redshifted
 wavelength $\lambda \times (1 + z)$. In other words, we want to produce the
 photon density function $R'$ that is the redshifted version of $F'$.
 Redshifting the photon density does two things:
 
 \begin{itemize}
-  \item The stretching of space increases the distance between photons while
-  they are traveling. This phenomenon appears to an observer like time
-  dilation, although cosmological time dilation is due to a different mechanism
-  than relativistic time dilation. This effect reduces the photon arrival rate
-  by a factor of $1/(1+z)$.
-
-  In order to account for cosmological time dilation, we will need to multiply
-  $F'$ by $1/(1+z)$.
-
-  \item All wavelengths are changed by a factor of $1 + z$. When we integrate
+  \item All wavelengths are increased by a factor of $1 + z$. When we integrate
   $R'$ from wavelength $\lambda_a$ to wavelength $\lambda_b$, the values
   correspond to the wavelengths $\lambda_a / (1+z)$ to $\lambda_b / (1+z)$ in
   $F'$. We will integrate over a width of $\lambda_b - \lambda_a$, but
@@ -275,6 +262,14 @@ Redshifting the photon density does two things:
 
   In order to account for this spectral bandwidth stretching effect, we will need
   to multiply $F'$ by a second factor of $1/(1+z)$.
+  \item The stretching of space increases the distance between photons while
+  they are traveling. This phenomenon appears to an observer like time
+  dilation, although cosmological time dilation is due to a different mechanism
+  than relativistic time dilation. This effect reduces the photon arrival rate
+  by a factor of $1/(1+z)$.
+
+  In order to account for cosmological time dilation, we will need to multiply
+  $F'$ by $1/(1+z)$.
 \end{itemize}
 
 Combining these two phenomena, we can calculate the redshifted spectral energy
@@ -288,7 +283,7 @@ density $R$ using
 \end{aligned}
 \end{equation}
 
-We deliberately do not combine all of the factors of $1+z$ together because
+\noindent We deliberately do not combine all of the factors of $1+z$ together because
 this form is more natural to implement in code.
 
 In order to calculate the amount of flux $\mathcal{F}_x$ measured in filter
@@ -305,7 +300,7 @@ which is expressed with the equation
 \end{aligned}
 \end{equation}
 
-The limits of integration are technically from 0 to $\infty$, but these are
+\noindent The limits of integration are technically from 0 to $\infty$, but these are
 usually not written because the sensitivity $S(\lambda)$ is 0 for wavelengths
 outside of a filter's bandpass.
 
@@ -319,7 +314,7 @@ We will also use the energy flux $\mathcal{F}$ to magnitude $m$ formula:
 \end{aligned}
 \end{equation}
 
-$P_x$ represents the zero-point for the filter $x$ on some particular
+\noindent $P_x$ represents the zero-point for the filter $x$ on some particular
 telescope. In order to use consistent magnitude values across telescopes that
 have different light gathering abilities, we take the measured magnitude and
 multiply it by the ratio of the standard flux rate to the flux rate for this
@@ -327,7 +322,7 @@ particular telescope and filter. For convenience, we use $P_x = -2.5
 \text{log}(P'_x)$ so that we can work with flux instead of with magnitude.
 
 Now that we have the identities in Equations \ref{eq:flux_definition} and
-\ref{eq:flux2mag} we will change directions and look at the definition of
+\ref{eq:flux2mag}, we will change directions and look at the definition of
 K-correction $K_{xy}$. This value allows us to make an observation in filter
 $y$ and report what the magnitude would have been in filter $x$ if no redshift
 occurred:
@@ -354,7 +349,7 @@ it is convenient to define the following substitution:
   K_{xy} = 2.5\text{log}(K'_{xy}) .
 \end{equation}
 
-Note that this substitution omits the minus ($-$) sign that we used on a
+\noindent Note that this substitution omits the minus ($-$) sign that we used on a
 similar substitution for $P_x$.
 
 Starting with Equation \ref{eq:flux2mag} and then
@@ -433,7 +428,7 @@ spectral energy density $R(\lambda)$:
 \end{aligned}
 \end{equation}
 
-Finally, we can use Equation \ref{eq:k_substitution} to convert the flux $K'_{xy}$ back
+Finally, we can use Equation \ref{eq:k_substitution} to convert $K'_{xy}$ back
 into the magnitude $K_{xy}$:
 
 \begin{equation}
@@ -511,8 +506,8 @@ Three differences with Equation \ref{eq:kim} stand out:
   useful to switch our observational filter to a filter that is sensitive to
   longer wavelengths. Each observation filter will have its own small bias.
 
-  This effect by itself can alter estimates of $H_0$ by several km s$^{-1}$
-  Mpc$^{-1}$.  While we present an estimate of the Hubble constant in Figure
+  This effect by itself can alter estimates of $H_0$ by several percent. While
+  we present an estimate of the Hubble constant in Figure
   \ref{fig:H0bootstrap}, we are not terribly confident in the numbers because
   we were unable to correct for the zero-point errors, or verify that these
   errors may not exist.
@@ -527,14 +522,8 @@ Three differences with Equation \ref{eq:kim} stand out:
   as intended, not precisely as written.
 \end{itemize}
 
-\section{Dark energy and the Hubble tension}
-\label{sec:tension}
-
-As shown in Figure \ref{fig:mu_distance_vs_redshift}, when reported magnitudes
-are corrected by adding the magnitude $-2.5\text{log}(1+z)$, there is a linear
-relationship between redshift and luminosity distance. This is in accordance
-with the Hubble-Lema\^{i}tre law. As opposed to the uncorrected values, there
-is no visual acceleration.
+\section{Conclusions}
+\label{sec:conslusions}
 
 \begin{figure}
   \plotone{velocity_vs_distance.pdf}
@@ -547,10 +536,15 @@ is no visual acceleration.
 \label{fig:expansion}
 \end{figure}
 
-Since the corrected values are approximately linear, we can use them to
-estimate the Hubble constant $H_0$. This is demonstrated in Figure
-\ref{fig:expansion}. Furthermore, we performed a bootstrap calculation to
-estimate the distribution of $H_0$ estimates in Figure \ref{fig:H0bootstrap}.
+As shown in Figure \ref{fig:mu_distance_vs_redshift}, when reported magnitudes
+are corrected by adding the magnitude $-2.5\text{log}(1+z)$, there is a linear
+relationship between redshift and luminosity distance. This is in accordance
+with the Hubble-Lema\^{i}tre law. As opposed to the uncorrected values, there
+is no visual acceleration. Since the corrected values are approximately linear,
+we can use them to estimate the Hubble constant $H_0$. This is demonstrated in
+Figure \ref{fig:expansion}. Furthermore, we performed a bootstrap calculation
+to estimate the distribution of $H_0$ estimates in Figure
+\ref{fig:H0bootstrap}.
 
 \begin{figure}
   \plotone{bootstrapped_H0.pdf}
@@ -560,21 +554,19 @@ estimate the distribution of $H_0$ estimates in Figure \ref{fig:H0bootstrap}.
   with replacement, a population of supernovae from the dataset published by
   \citet{abbott2024}. Finally, it uses the non-parametric linear regression
   technique described by \citet{siegel1982}. The result of the bootstrap is $H_0
-  \sim Norm(65.94, 1.30^2)$.
+  \sim Norm(65.94, 1.3^2)$.
   }
 \label{fig:H0bootstrap}
 \end{figure}
 
-The value estimated here, $H_0 \sim 65.94 \pm 1.30$ is highly suspicious
+The value estimated here, $H_0 = 65.94 \pm 1.3$ is highly suspicious
 because of the flipped zero-point corrections, but it is consistent with
 estimates of $H_0$ that are based on the CMB. \citet{planck2020} published the
-CMB value of $H_0 \sim 67.27 \pm 0.6$, and the one sigma error bars overlap. It
+CMB value of $H_0 = 67.27 \pm 0.6$, and the one sigma error bars overlap. It
 is interesting to note that restricting the Dark Energy Survey observations of
 SnIa \citep{vincenzi2024} to only those with $z < 0.1$, which presumably is a
 small enough redshift that all observations will have been made with the same
-filter, gives the estimate $H_0 \sim 67.8 \pm 1.86$.
-
-\section{Conclusions}
+filter, gives the estimate $H_0 = 67.8 \pm 1.9$.
 
 Since the K-correction error has corrupted all astronomical measurements that
 depend on both magnitude and redshift, a lot of data needs to be reanalysed.
