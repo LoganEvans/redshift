@@ -375,7 +375,7 @@ def k_equation_flow_graph(save=False):
     ys_F = F()
 
     def arrow_to_counts():
-        ax = fig.add_axes([0.15, 8.1/11, 0.1, 0.04])
+        ax = fig.add_axes([0.15, 8.1/11, 0.1, 0.03])
         ax.spines["top"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
         ax.spines["left"].set_visible(False)
@@ -459,7 +459,7 @@ def k_equation_flow_graph(save=False):
     xs_stretched, ys_stretched = G_stretched()
 
     def arrow_to_stretch_corrected():
-        ax = fig.add_axes([0.65, 8.1/11, 0.1, 0.04])
+        ax = fig.add_axes([0.65, 8.1/11, 0.1, 0.03])
         ax.spines["top"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
         ax.spines["left"].set_visible(False)
@@ -498,7 +498,7 @@ def k_equation_flow_graph(save=False):
     ys_stretch_corrected = G_stretch_corrected()
 
     def arrow_to_time_dilated():
-        ax = fig.add_axes([0.65, 6.1/11, 0.1, 0.04])
+        ax = fig.add_axes([0.65, 6.1/11, 0.1, 0.03])
         ax.spines["top"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
         ax.spines["left"].set_visible(False)
@@ -583,6 +583,8 @@ def k_equation_flow_graph(save=False):
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.set_title(r"$F'(\lambda) S_x(\lambda)$")
+        ax.set_xlabel(r"$\lambda$")
+        ax.set_ylabel(r"photon density")
         ax.set_xlim(100, 2100)
         ax.set_ylim(0, 130)
         ax.set_yticks([0, 50, 100])
@@ -668,6 +670,8 @@ def k_equation_flow_graph(save=False):
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.set_title(r"$R'(\lambda) S_y(\lambda)$")
+        ax.set_xlabel(r"$\lambda$")
+        ax.set_ylabel(r"photon density")
         ax.set_xlim(100, 2100)
         ax.set_ylim(0, 130)
         ax.set_yticks([0, 50, 100])
@@ -681,7 +685,7 @@ def k_equation_flow_graph(save=False):
     val_y = measurement_y()
 
     def result():
-        ax = fig.add_axes([0.18, 0, 0.3, 0.05])
+        ax = fig.add_axes([0.18, 0, 0.3, 0.03])
         ax.spines["top"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
         ax.spines["left"].set_visible(False)
