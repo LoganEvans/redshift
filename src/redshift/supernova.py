@@ -361,8 +361,9 @@ def k_equation_flow_graph(save=False):
         ax.set_title(r"$F(\lambda)$: rest frame spectral energy density")
         ax.set_xlabel(r"$\lambda$")
         ax.set_ylabel(r"spectral energy density")
+        ax.set_xlim(100, 2100)
 
-        norm = scipy.stats.norm(450, 100)
+        norm = scipy.stats.norm(500, 100)
         unif = scipy.stats.uniform(1000, 250)
 
         ys = [(norm.pdf(x) + unif.pdf(x) / 2.0) / 1e6 for x in xs]
@@ -404,6 +405,7 @@ def k_equation_flow_graph(save=False):
         ax.set_title(r"$F'(\lambda)$: rest frame photon density")
         ax.set_xlabel(r"$\lambda$")
         ax.set_ylabel(r"photon density")
+        ax.set_xlim(100, 2100)
         ax.set_ylim(0, 130)
         ax.set_yticks([0, 50, 100])
         h = 6.626068e-27 # erg s
@@ -445,13 +447,16 @@ def k_equation_flow_graph(save=False):
         ax.set_title(r"stretched")
         ax.set_xlabel(r"$\lambda$")
         ax.set_ylabel(r"photon density")
+        ax.set_xlim(100, 2100)
         ax.set_ylim(0, 130)
         ax.set_yticks([0, 50, 100])
-        ys = [ys_counts[int(xs[i] / (1 + z))] for i in range(len(xs))]
 
-        ax.plot(xs, ys, color="tab:red")
-        return ys
-    ys_stretched = G_stretched()
+        xs_stretched = [x * (1 + z) for x in xs]
+        ys_stretched = ys_counts[:]
+
+        ax.plot(xs_stretched, ys_stretched, color="tab:red")
+        return xs_stretched, ys_stretched
+    xs_stretched, ys_stretched = G_stretched()
 
     def arrow_to_stretch_corrected():
         ax = fig.add_axes([0.65, 8.1/11, 0.1, 0.04])
@@ -483,11 +488,12 @@ def k_equation_flow_graph(save=False):
         ax.set_title(r"corrected for stretching")
         ax.set_xlabel(r"$\lambda$")
         ax.set_ylabel(r"photon density")
+        ax.set_xlim(100, 2100)
         ax.set_ylim(0, 130)
         ax.set_yticks([0, 50, 100])
         ys = [y / (1 + z) for y in ys_stretched]
 
-        ax.plot(xs, ys, color="tab:red")
+        ax.plot(xs_stretched, ys, color="tab:red")
         return ys
     ys_stretch_corrected = G_stretch_corrected()
 
@@ -521,11 +527,12 @@ def k_equation_flow_graph(save=False):
         ax.set_title(r"$R'(\lambda)$: corrected for time dilation")
         ax.set_xlabel(r"$\lambda$")
         ax.set_ylabel(r"photon density")
+        ax.set_xlim(100, 2100)
         ax.set_ylim(0, 130)
         ax.set_yticks([0, 50, 100])
         ys = [y / (1 + z) for y in ys_stretch_corrected]
 
-        ax.plot(xs, ys, color="tab:red")
+        ax.plot(xs_stretched, ys, color="tab:red")
         return ys
     rs_counts = G_time_dilated()
 
@@ -536,15 +543,16 @@ def k_equation_flow_graph(save=False):
         ax.set_title(r"$S_x$ and $S_y$: filters")
         ax.set_xlabel(r"$\lambda$")
         ax.set_ylabel("sensitivity")
+        ax.set_xlim(100, 2100)
         ax.set_ylim(0.0, 1.0)
 
-        B_dist = scipy.stats.uniform(445 - 94/2, 445 + 94/2)
+        B_dist = scipy.stats.uniform(400, 500)
         S_x = [B_dist.pdf(x) * 400 for x in xs]
         ax.plot(xs, S_x)
 
-        R_dist = scipy.stats.uniform(750, 750)
-        S_y = [R_dist.pdf(x) * 500 for x in xs]
-        ax.plot(xs, S_y, color="tab:red")
+        R_dist = scipy.stats.uniform(700, 1550 - 700)
+        S_y = [R_dist.pdf(x) * 500 for x in xs_stretched]
+        ax.plot(xs_stretched, S_y, color="tab:red")
         return S_x, S_y
     S_x, S_y = filters()
 
@@ -575,6 +583,7 @@ def k_equation_flow_graph(save=False):
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.set_title(r"$F'(\lambda) S_x(\lambda)$")
+        ax.set_xlim(100, 2100)
         ax.set_ylim(0, 130)
         ax.set_yticks([0, 50, 100])
 
@@ -583,7 +592,8 @@ def k_equation_flow_graph(save=False):
         ys = [ys_counts[i] * S_x[i] for i in range(len(ys_counts))]
         ax.plot(xs, ys)
 
-        return sum(ys)
+        width = xs[1] - xs[0]
+        return sum([y * width for y in ys])
 
     val_x = measurement_x()
 
@@ -658,13 +668,15 @@ def k_equation_flow_graph(save=False):
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.set_title(r"$R'(\lambda) S_y(\lambda)$")
+        ax.set_xlim(100, 2100)
         ax.set_ylim(0, 130)
         ax.set_yticks([0, 50, 100])
 
         ys = [rs_counts[i] * S_y[i] for i in range(len(rs_counts))]
-        ax.plot(xs, ys, color="tab:red")
+        ax.plot(xs_stretched, ys, color="tab:red")
 
-        return sum(ys)
+        width = xs_stretched[1] - xs_stretched[0]
+        return sum([y * width for y in ys])
 
     val_y = measurement_y()
 
@@ -1192,7 +1204,8 @@ if __name__ == "__main__":
     #velocity_vs_distance_graph(data, save=True)
     #k_equation_flow_graph(save=True)
 
-    generate_all_graphs(data)
+    #generate_all_graphs(data)
+    k_equation_flow_graph(save=True)
 
     # all_lum_distance_vs_redshift_graph(data, save=False)
     # velocity_vs_distance_graph(data, correction=Correction.ONE, save=False)
