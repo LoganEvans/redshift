@@ -1209,7 +1209,7 @@ if __name__ == "__main__":
     #k_equation_flow_graph(save=True)
 
     #generate_all_graphs(data)
-    k_equation_flow_graph(save=True)
+    #k_equation_flow_graph(save=True)
 
     # all_lum_distance_vs_redshift_graph(data, save=False)
     # velocity_vs_distance_graph(data, correction=Correction.ONE, save=False)
