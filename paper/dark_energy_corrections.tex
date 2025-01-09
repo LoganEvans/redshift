@@ -16,17 +16,15 @@
 \noaffiliation
 
 \begin{abstract}
-We rederive the K-correction equation and discover that the version of the
-equation that is commonly used to calculate magnitudes contains three errors.
-The oldest of these errors traces back nine decades; in 1930 the equation did
-not correct for spectral bandwidth stretching, followed by a rederivation in
-1968 that accounted for spectral bandwidth stretching but did not correct for
-time dilation. Two new errors were introduced in 1996, one of which causes
-systematic distance biases by inverting the zero-point correction term. We
-conclude that properly correcting apparent magnitudes for redshift resolves two
-of the preeminent mysteries in cosmology: first, dark energy is not supported
-by observations of Type Ia supernovae and second, the Hubble tension is due to
-the errors in the K-correction equation.
+We rederive the K-correction equation and discover that the version commonly
+used to calculate magnitudes contains three errors, and the oldest of these errors
+traces back nine decades. The 1930 the equation did not correct for spectral
+bandwidth stretching. Two new errors were introduced in 1996, one of which
+causes systematic distance biases by inverting the zero-point correction term.
+We conclude that properly correcting apparent magnitudes for redshift resolves
+two of the preeminent mysteries in cosmology: first, dark energy is not
+supported by observations of Type Ia supernovae and second, the Hubble tension
+is due to the errors in the K-correction equation.
 \end{abstract}
 
 %% https://astrothesaurus.org
@@ -56,12 +54,12 @@ comparisons and added a term that was intended to address zero-point
 corrections. This history is explored in more depth in Section
 \ref{sec:history}.
 
-The effect of using an incorrect magnitude for SnIa is that we think objects
-are farther away than they really are, and the effect compounds for greater
-distances. Up until \citet{riess1998}, we did not have distant enough
+The effect of using an incorrect redshift correction for SnIa is that we think
+objects are farther away than they really are; this effect compounds for
+greater distances. Up until \citet{riess1998}, we did not have distant enough
 observations for this error to matter much for cosmological models, but by the
-late 1990s, it became clear that our measurements for distance and redshift were
-not linear. This realization led to a model that utilized a cosmological
+late 1990s, it became clear that our measurements for distance and redshift
+were not linear. This realization led to a model that utilized a cosmological
 constant $\Lambda$ and dark energy in order to explain the non-linear
 distance-redshift graph. We will show in Section \ref{sec:conclusions} that
 correcting the flaws with K-correction leads to a linear graph that does not
@@ -83,22 +81,22 @@ Observational data from SnIa are essential for the calibration of models that
 use redshift to estimate distance. The approximately linear relationship
 between redshift and luminosity distance, often called the Hubble-Lema\^{i}tre law,
 describes how quickly the universe is expanding. However, \citet{riess1998}
-and \citet{perlmutter1999} presented evidence that there isn't a linear
+and \citet{perlmutter1999} presented evidence that there is not a linear
 relationship between redshift and distance, but instead, distant objects are
 farther away than their redshift would predict (see Figure
 \ref{fig:mu_distance_vs_redshift}). This phenomenon implies that the
 acceleration of the universe is faster today than it was for old observations.
-Previously the cause of this phenomenon was unknown and was referred to as dark
-energy.
+The cause of this phenomenon was unknown and was referred to as dark energy.
 
 \begin{figure}
   \plotone{lum_distance_vs_redshift.pdf}
   \caption{The relationship between luminosity distance and redshift for two
   treatments of magnitude data. The displayed points are roughly a third of the
   values in the full SnIa dataset published in \citet{abbott2024}, selected
-  evenly to aid visibility. The red $k(z) = 1$ treatment, which represents the
-  uncorrected values, is clearly non-linear while the blue $k(z) = 1 + z$
-  treatment, which fixes the K-correction redshift error, appears to be linear.}
+  with uniform redshift spacing to aid visibility. The red $k(z) = 1$ treatment,
+  which represents the uncorrected values, is clearly non-linear while the blue
+  $k(z) = 1 + z$ treatment, which fixes the K-correction redshift error,
+  appears to be linear.}
   \label{fig:mu_distance_vs_redshift}
 \end{figure}
 
@@ -208,22 +206,20 @@ collected by a bolometric device for the wavelength $\lambda$.
 
 \begin{figure}
   \plotone{k_equation_flow.pdf}
-  \caption{The ratio $K'_{xy}$ is the crux of the K-correction algorithm. We
-  are able to observe a SnIa in the redshifted observation frame, but we want
-  to compute the magnitude in the rest frame as if no redshift has occurred.
-  This computation starts with $F(\lambda)$, the spectral energy density, which
-  we then convert to $F'(\lambda)$, the photon density for the rest frame. We
-  show the process of computing $R'(\lambda)$, the photon density in the
-  observation frame, in three phases starting at the top right of the figure.
-  First we stretch the photon density, but this step inflates counts. In the
-  second step, we correct for the inflated counts by multiplying by $1/(1+z)$;
-  at this point, the total count equals the total count of $F'(\lambda)$.
-  Finally, in the third step we finish calculating the observation frame photon
-  density $R'(\lambda)$ by accounting for time dilation, which also reduces
-  photon counts by a factor of $1/(1+z)$. We can compute the expected ratio of
-  photons by totalling the area under the curves in the bottom two panels. This
-  example does not show the process of converting photon flux to magnitude, nor
-  does it address the zero-point correction.
+  \caption{The value $K'_{xy}$ is equal to the number of photons we want to
+  report in the target filter divided by the number of photons we measure in
+  the observation filter.  Deriving this value starts with $F(\lambda)$, the
+  spectral energy density, which we then convert to $F'(\lambda)$, the photon
+  density for the rest frame.  Starting at the top right corner of the figure,
+  we show the process of computing $R'(\lambda)$, the photon density in the
+  observation frame, in three phases. First we stretch the photon density, but
+  this step inflates counts. In the second step, we correct for the inflated
+  counts by multiplying by $1/(1+z)$; at this point, the total count equals the
+  total count of $F'(\lambda)$. Finally, in the third step we finish
+  calculating the observation frame photon density $R'(\lambda)$ by accounting
+  for time dilation, which also reduces photon counts by a factor of $1/(1+z)$.
+  We can compute the expected ratio of photons by totalling the area under the
+  curves in the bottom two panels.
   }
   \label{fig:k-example}
 \end{figure}
@@ -246,11 +242,11 @@ this equation produces
  F'\left(\frac{\lambda}{1+z}\right) = \frac{\lambda}{(1+z)hc} F\left(\frac{\lambda}{1+z}\right).
 \end{equation}
 
-\noindent However, this equation is misleading and error prone. We will want to use it to
-help calculate the amount of flux in an observation filter at the redshifted
-wavelength $\lambda \times (1 + z)$. In other words, we want to produce the
-photon density function $R'$ that is the redshifted version of $F'$.
-Redshifting the photon density does two things:
+\noindent However, this equation is misleading and error prone. We will want to
+use it to help calculate the amount of flux in an observation filter at the
+redshifted wavelength $\lambda \times (1 + z)$. In other words, we want to
+produce the photon density function $R'$ that is the redshifted version of
+$F'$. Redshifting the photon density does two things:
 
 \begin{itemize}
   \item All wavelengths are increased by a factor of $1 + z$. When we integrate
@@ -260,16 +256,17 @@ Redshifting the photon density does two things:
   $F'(\lambda / (1+z))$ will refer to values in a width of
   $(\lambda_b - \lambda_a) / (1+z)$.
 
-  In order to account for this spectral bandwidth stretching effect, we will need
-  to multiply $F'$ by a second factor of $1/(1+z)$.
+  In order to account for this spectral bandwidth stretching effect, we
+  multiply $F'$ by $1/(1+z)$.
+
   \item The stretching of space increases the distance between photons while
-  they are traveling. This phenomenon appears to an observer like time
+  they are traveling. To an observer, this phenomenon appears like time
   dilation, although cosmological time dilation is due to a different mechanism
   than relativistic time dilation. This effect reduces the photon arrival rate
   by a factor of $1/(1+z)$.
 
-  In order to account for cosmological time dilation, we will need to multiply
-  $F'$ by $1/(1+z)$.
+  In order to account for cosmological time dilation, we multiply $F'$ by a
+  second factor of $1/(1+z)$.
 \end{itemize}
 
 Combining these two phenomena, we can calculate the redshifted spectral energy
@@ -288,9 +285,9 @@ this form is more natural to implement in code.
 
 In order to calculate the amount of flux $\mathcal{F}_x$ measured in filter
 $x$, we need to compute the photon density $F'(\lambda)$ and multiply it by
-sensitivity $S_x(\lambda)$, which represents the proportion of photons filter $x$
-will measure at wavelength $\lambda$. We then need to sum over all wavelengths,
-which is expressed with the equation
+the sensitivity $S_x(\lambda)$, which represents the proportion of photons with
+wavelength $\lambda$ that filter $x$ will measure. We then need to sum over
+all wavelengths, which is expressed with the equation
 
 \begin{equation}
 \begin{aligned}
@@ -299,10 +296,6 @@ which is expressed with the equation
                 &= \int \lambda F(\lambda) S_x(\lambda) d\lambda.
 \end{aligned}
 \end{equation}
-
-\noindent The limits of integration are technically from 0 to $\infty$, but these are
-usually not written because the sensitivity $S(\lambda)$ is 0 for wavelengths
-outside of a filter's bandpass.
 
 We will also use the energy flux $\mathcal{F}$ to magnitude $m$ formula:
 
@@ -483,7 +476,7 @@ with Equation \ref{eq:K2k}, we have
          &= 5 \text{log} (1 + z)
             + 2.5 \text{log} \left(
               \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
-                   {\int (\lambda / (1+z)) F(\lambda / (1+z)) S_y(\lambda) d\lambda} \right) \\ &\ 
+                   {\int (\lambda / (1+z)) F(\lambda / (1+z)) S_y(\lambda) d\lambda} \right) \\ &\
             + 2.5 \text{log} \left( \int (\lambda / hc) \mathcal{Z}(\lambda) S_x(\lambda) d\lambda \right)
             - 2.5 \text{log} \left( \int (\lambda / hc) \mathcal{Z}(\lambda) S_y(\lambda) d\lambda \right) \\
          &= 2.5 \text{log} \left(
@@ -523,15 +516,15 @@ Three differences with Equation \ref{eq:kim} stand out:
 \end{itemize}
 
 \section{Conclusions}
-\label{sec:conslusions}
+\label{sec:conclusions}
 
 \begin{figure}
   \plotone{velocity_vs_distance.pdf}
   \caption{The relationship between expansion velocity and distance. The slope
   of this graph demonstrates the Hubble constant. The data for these SnIa
-  observations comes from the Dark Energy Spectroscopic Instrument
-  \citep{vincenzi2024}, but the magnitudes are corrected to account for time
-  dilation by adding $-2.5 log(1 + z)$.
+  observations comes from the Dark Energy Survey \citep{vincenzi2024}, but the
+  magnitudes are corrected to account for time dilation by adding
+  $-2.5 log(1 + z)$.
   }
 \label{fig:expansion}
 \end{figure}
