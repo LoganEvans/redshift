@@ -1,19 +1,16 @@
-\documentclass[linenumbers]{aastex631}
+\documentclass[aps,prl,reprint,amsmath]{revtex4-2}
 
-\usepackage{amsmath}
-
-\shorttitle{Correcting K-correction}
-\shortauthors{Evans}
+\usepackage{graphicx}
 
 \begin{document}
 
 \title{Correcting K-correction: dark energy is based on a math error from 1930}
 
-\correspondingauthor{Logan P. Evans}
-\email{loganpevans@gmail.com}
+\author{Logan P. Evans}
+ \email{loganpevans@gmail.com}
+ \noaffiliation
 
-\author[0000-0001-6450-3262]{Logan P. Evans}
-\noaffiliation
+\date{\today}
 
 \begin{abstract}
 We rederive the K-correction equation and discover that the version commonly
@@ -25,8 +22,7 @@ by observations of Type Ia supernovae and second, the Hubble tension is due to
 the errors in the K-correction equation.
 \end{abstract}
 
-%% https://astrothesaurus.org
-\keywords{Type Ia supernovae(1728) --- Apparent magnitude(59)}
+\maketitle
 
 \section{Introduction}
 
@@ -70,9 +66,7 @@ we will discuss in Section \ref{sec:conclusions}, fixing the errors with
 K-correction produces a measurement of the Hubble constant that is compatible
 with models based on the CMB.
 
-\section{
-  A brief history of K - correction
-}
+\section{A brief history of K-correction}
 \label{sec:history}
 
 Observational data from SnIa are essential for the calibration of models that
@@ -87,9 +81,9 @@ acceleration of the universe is faster today than it was for old observations.
 The cause of this phenomenon was unknown and was referred to as dark energy.
 
 \begin{figure}
-  \plotone{lum_distance_vs_redshift.pdf}
+  \includegraphics[width=\columnwidth]{lum_distance_vs_redshift.pdf}
   \caption{The relationship between luminosity distance and redshift for two
-  treatments of magnitude data. The red $k(z) = 1$ treatment, which represents
+  treatments of the magnitude data. The red $k(z) = 1$ treatment, which represents
   the uncorrected values, is clearly non-linear while the blue $k(z) = 1 + z$
   treatment, which fixes the K-correction redshift error, appears to be linear.
   The displayed points are roughly a third of the values in the full SnIa
@@ -176,15 +170,17 @@ Quoting \citet{kim1996}:
   photometric magnitudes is the integral photon counts:
 
   \begin{equation}
+  \begin{aligned}
   \label{eq:kim}
     K_{xy} =
-      -2.5\text{log} \left(
+      &-2.5\text{log} \left(
         \frac{\int \lambda \mathcal{Z}(\lambda)S_x(\lambda)d\lambda}
-             {\int \lambda \mathcal{Z}(\lambda)S_y(\lambda)d\lambda}\right)
-      + 2.5\text{log}(1+z)
-      + 2.5\text{log}\left(
+             {\int \lambda \mathcal{Z}(\lambda)S_y(\lambda)d\lambda}\right) \\
+      &+ 2.5\text{log}(1+z) \\
+      &+ 2.5\text{log}\left(
         \frac{\int \lambda F(\lambda)S_x(\lambda)d\lambda}
              {\int \lambda F(\lambda/(1+z))S_y(\lambda))d\lambda}\right).
+  \end{aligned}
   \end{equation}
 \end{quote}
 
@@ -206,7 +202,7 @@ photons \citep{lesser2015}. However, we need to calculate the expected number
 of photons collected by using a spectral energy density function $F$.
 
 \begin{figure}
-  \plotone{k_equation_flow.pdf}
+  \includegraphics[width=\columnwidth]{k_equation_flow.pdf}
   \caption{The value $K'_{xy}$ is equal to the number of photons we want to
   report in the target filter divided by the number of photons we measure in
   the observation filter. Deriving this value starts with $F(\lambda)$, the
@@ -357,16 +353,13 @@ recombining the flux term $\mathcal{F}_y$ with $m_y$ from Equation
       &= m_x - P_x \\
       &= m_y - K_{xy} - P_x \\
       &= -2.5 \text{log}(\mathcal{F}_y) + P_y - K_{xy} - P_x \\
-      &= -2.5 \text{log}(\mathcal{F}_y)
-         - 2.5 \text{log}(P'_y)
-         - 2.5 \text{log}(K'_{xy})
-         + 2.5 \text{log}(P_x) \\
-      &= -2.5 \left(
-         \text{log}(\mathcal{F}_y)
-         + \text{log}(K'_{xy})
-         + \text{log}(P'_y)
-         - \text{log}(P'_x)
-        \right) \\
+      &= -2.5 \text{log}(\mathcal{F}_y) \\
+         &\qquad - 2.5 \text{log}(P'_y) \\
+         &\qquad - 2.5 \text{log}(K'_{xy}) \\
+         &\qquad + 2.5 \text{log}(P'_x) \\
+      &= -2.5 \biggl(\text{log}(\mathcal{F}_y) + \text{log}(K'_{xy}) \\
+         &\qquad\qquad + \text{log}(P'_y) - \text{log}(P'_x)
+        \biggr) \\
       &= -2.5 \text{log}\left(
         \mathcal{F}_y
         \times K'_{xy}
@@ -398,13 +391,13 @@ spectral energy density $R(\lambda)$:
                    {\int R'(\lambda) S_y(\lambda) d\lambda} \\
          &= \frac{P'_x}{P'_y} \times
               \frac{\int F'(\lambda) S_x(\lambda) d\lambda}
-                   {\int F'(\lambda / (1+z)) \times (1 / (1 + z)^2) S_y(\lambda) d\lambda} \\
+                   {\int F'\left(\frac{\lambda}{1+z}\right) \times \left(\frac{1}{1 + z}\right)^2 S_y(\lambda) d\lambda} \\
          &= \frac{P'_x}{P'_y} \times (1+z)^2 \times
-              \frac{\int (\lambda / hc) F(\lambda) S_x(\lambda) d\lambda}
-                   {\int (\lambda / ((1+z)hc)) F(\lambda / (1+z)) S_y(\lambda) d\lambda} \\
+              \frac{\int \left(\frac{\lambda}{hc}\right) F(\lambda) S_x(\lambda) d\lambda}
+                   {\int \left(\frac{\lambda}{(1+z)hc}\right) F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} \\
          &= \frac{P'_x}{P'_y} \times (1 + z)^2 \times
               \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
-                   {\int (\lambda / (1+z)) F(\lambda / (1+z)) S_y(\lambda) d\lambda} .
+                   {\int \left(\frac{\lambda}{1+z}\right) F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} .
 \end{aligned}
 \end{equation}
 
@@ -487,12 +480,6 @@ Three differences with Equation \ref{eq:kim} stand out:
   filter that is sensitive to longer wavelengths, but each observation filter will
   have its own small bias.
 
-  This effect by itself can alter estimates of $H_0$ by several percent. While
-  we present an estimate of the Hubble constant in Figure
-  \ref{fig:H0bootstrap}, we are not terribly confident in the numbers because
-  we were unable to correct the zero-point errors, or verify that these errors
-  may not exist.
-
   \item The second term is multiplied by $2.5$ in \citet{kim1996}, but is
   multiplied by $5$ here. This is the manifestation of the error in
   \citet{tolman1930} and leads to the conclusion that the expansion of the
@@ -509,7 +496,7 @@ Three differences with Equation \ref{eq:kim} stand out:
 \label{sec:conclusions}
 
 \begin{figure}
-  \plotone{velocity_vs_distance.pdf}
+  \includegraphics[width=\columnwidth]{velocity_vs_distance.pdf}
   \caption{The relationship between expansion velocity and distance. The slope
   of this graph demonstrates the Hubble constant. The data for these SnIa
   observations comes from the Dark Energy Survey \citep{vincenzi2024}, but the
@@ -525,21 +512,7 @@ relationship between redshift and luminosity distance. This is in accordance
 with the Hubble-Lema\^{i}tre law. As opposed to the uncorrected values, there
 is no visual acceleration. Since the corrected values are approximately linear,
 we can use them to estimate the Hubble constant $H_0$ which is demonstrated in
-Figure \ref{fig:expansion}. Furthermore, we performed a bootstrap calculation
-to estimate the distribution of $H_0$ estimates in Figure
-\ref{fig:H0bootstrap}.
-
-\begin{figure}
-  \plotone{bootstrapped_H0.pdf}
-  \caption{A histogram of $10{,}000$ bootstrap trials measuring the Hubble constant
-  $H_0$. Each trial samples an absolute magnitude $M \sim Norm(-19.2334,
-  0.0404)$ \citep{camarena2020} before it samples, with replacement, a
-  population of supernovae from the dataset published by \citet{abbott2024}.
-  Finally, it uses the non-parametric linear regression technique described by
-  \citet{siegel1982}. The result of the bootstrap is $H_0 \sim Norm(65.94, 1.3^2)$.
-  }
-\label{fig:H0bootstrap}
-\end{figure}
+Figure \ref{fig:expansion}.
 
 The value estimated here, $H_0 = 65.94 \pm 1.3$ is highly suspicious
 because of the flipped zero-point corrections, but it is consistent with
