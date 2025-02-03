@@ -10,3 +10,4 @@ clean:
 	$(RM) *.blg
 	$(RM) *.out
 	$(RM) *.bbl
+	$(RM) *Notes.bib
