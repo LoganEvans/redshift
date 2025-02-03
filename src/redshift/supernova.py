@@ -344,6 +344,7 @@ def k_corrections_for_photon_counts_graph(save=False):
 
 def k_equation_flow_graph(save=False):
     plt.clf()
+    plt.rcParams["figure.figsize"] = (WIDTH, WIDTH)
     plt.rcParams["text.usetex"] = True
     #plt.rcParams["hatch.linewidth"] = 4
 
@@ -354,7 +355,7 @@ def k_equation_flow_graph(save=False):
     xs = np.linspace(lo, hi, hi - lo)
 
     fig = plt.figure(figsize=[1.5 * WIDTH, WIDTH])
-    fig.suptitle(r"Calculating $K'_{xy}$, the ratio of rest frame to observation frame counts for $z = 0.5$")
+    fig.suptitle(r"Calculating $\frac{\mathcal{F}_x}{\mathcal{F}_y}$, the ratio of rest frame to observation frame counts for $z = 0.5$")
 
     def F():
         ax = fig.add_axes([0.1, 8/11, 0.3, 0.075])
@@ -695,7 +696,7 @@ def k_equation_flow_graph(save=False):
         ax.spines["right"].set_visible(False)
         ax.set_xticks([])
         ax.set_yticks([])
-        ax.text(0.5, 0.5, r"$K'_{xy} = \frac{\int F'(\lambda) S_x(\lambda) d\lambda}{\int R'(\lambda) S_y(\lambda) d\lambda} = \frac{" + f"{val_x:.2f}" + r"}{" + f"{val_y:.2f}" + r"} = " + f"{val_x / val_y:.2f}" + r"$", fontsize=14)
+        ax.text(0.5, 0.5, r"$\frac{\mathcal{F}_x}{\mathcal{F}_y} = \frac{\int F'(\lambda) S_x(\lambda) d\lambda}{\int R'(\lambda) S_y(\lambda) d\lambda} = \frac{" + f"{val_x:.2f}" + r"}{" + f"{val_y:.2f}" + r"} = " + f"{val_x / val_y:.2f}" + r"$", fontsize=14)
     result()
 
     if save:
@@ -791,12 +792,12 @@ def all_lum_distance_vs_redshift_graph(data, save=True):
     # )
 
     ax.set_xlabel("z")
-    ax.set_ylabel("luminosity distance (Mps)")
+    ax.set_ylabel("light travel distance (Mps)")
 
     ax.set_title("Distance vs Redshift")
     ax.legend()  # ["uncorrected", "corrected", f"H0 = {Supernova.H0:.0f} km/s / Mpsc"])
     if save:
-        plt.savefig(GRAPHS_DIR / "lum_distance_vs_redshift.pdf", bbox_inches="tight")
+        plt.savefig(GRAPHS_DIR / "distance_vs_redshift.pdf", bbox_inches="tight")
         plt.clf()
 
 
