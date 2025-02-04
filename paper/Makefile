@@ -11,3 +11,5 @@ clean:
 	$(RM) *.out
 	$(RM) *.bbl
 	$(RM) *Notes.bib
+	$(RM) dark_energy_corrections.pdf
+	$(RM) references.bib

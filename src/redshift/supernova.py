@@ -1227,7 +1227,7 @@ if __name__ == "__main__":
     #velocity_vs_distance_graph(data, save=True)
     #k_equation_flow_graph(save=True)
 
-    #generate_all_graphs(data)
+    generate_all_graphs(data)
     #k_equation_flow_graph(save=True)
 
     #all_light_distance_vs_redshift_graph(data, save=False)
