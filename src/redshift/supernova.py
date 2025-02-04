@@ -70,20 +70,20 @@ class Supernova:
     def mu(self, correction=Correction.NONE):
         return self.corrected_magnitude(correction) - self.absolute_magnitude
 
-    def lum_distance(self, correction=Correction.ONE, use_mpc=True):
+    def light_distance(self, correction=Correction.ONE, use_mpc=True):
         d = 10 ** (1 + self.mu(correction) / 5)
         if use_mpc:
             d /= 1e6
         return d
 
     def orig_distance(self, correction=Correction.ONE):
-        return self.lum_distance(correction) / math.exp(self.z)
+        return self.light_distance(correction) / math.exp(self.z)
 
     def comoving_distance(self, correction=Correction.ONE):
         return self.orig_distance() * (1 + self.z)
 
     def delta_distance(self, correction=Correction.ONE):
-        return self.lum_distance(correction) - self.orig_distance(correction)
+        return self.light_distance(correction) - self.orig_distance(correction)
 
     def energy_loss(self):
         # E = hc / l
@@ -95,7 +95,7 @@ class Supernova:
 
     @property
     def t(self):
-        return self.lum_distance(correction=Correction.ONE, use_mpc=False) * 3.26156
+        return self.light_distance(correction=Correction.ONE, use_mpc=False) * 3.26156
 
     @property
     def rate(self):
@@ -105,7 +105,7 @@ class Supernova:
     def hubble(self):
         return (
             self.rate
-            * self.lum_distance(use_mpc=False)
+            * self.light_distance(use_mpc=False)
             * 3.086e13
             / (365 * 24 * 60 * 60)
         )
@@ -724,14 +724,14 @@ def reduce_data(data, step=0.002) -> list[Supernova]:
     return new_data
 
 
-def all_lum_distance_vs_redshift_graph(data, save=True):
+def all_light_distance_vs_redshift_graph(data, save=True):
     fig = plt.figure(figsize=[WIDTH, 0.9 * WIDTH])
     ax = fig.add_axes([0, 1, 1, 1])
 
     reduced_data = reduce_data(data)
     xs = [sn.z for sn in reduced_data]
 
-    ys = [sn.lum_distance(correction=Correction.ONE) for sn in reduced_data]
+    ys = [sn.light_distance(correction=Correction.ONE) for sn in reduced_data]
     ax.scatter(
         xs,
         ys,
@@ -744,7 +744,7 @@ def all_lum_distance_vs_redshift_graph(data, save=True):
     )
     coefficients = scipy.stats.siegelslopes(
         x=[sn.z for sn in data],
-        y=[sn.lum_distance(correction=Correction.ONE) for sn in data],
+        y=[sn.light_distance(correction=Correction.ONE) for sn in data],
     )
     ax.axline(
         (0, coefficients.intercept),
@@ -754,11 +754,11 @@ def all_lum_distance_vs_redshift_graph(data, save=True):
         linestyle="--",
     )
 
-    ys = [sn.lum_distance(correction=Correction.NONE) for sn in reduced_data]
+    ys = [sn.light_distance(correction=Correction.NONE) for sn in reduced_data]
     ax.scatter(xs, ys, s=5, marker="x", linewidths=0.7, color="tab:red", label="k(z) = 1")
     coefficients = scipy.stats.siegelslopes(
         x=[sn.z for sn in data],
-        y=[sn.lum_distance(correction=Correction.NONE) for sn in data],
+        y=[sn.light_distance(correction=Correction.NONE) for sn in data],
     )
     ax.axline(
         (0, coefficients.intercept),
@@ -768,7 +768,7 @@ def all_lum_distance_vs_redshift_graph(data, save=True):
         linestyle="--",
     )
 
-    # ys = [sn.lum_distance(correction=Correction.TWO) for sn in data]
+    # ys = [sn.light_distance(correction=Correction.TWO) for sn in data]
     # plt.scatter(
     #    xs,
     #    ys,
@@ -781,7 +781,7 @@ def all_lum_distance_vs_redshift_graph(data, save=True):
     # )
     # coefficients = scipy.stats.siegelslopes(
     #    x=[sn.z for sn in old_data],
-    #    y=[sn.lum_distance(correction=Correction.TWO) for sn in old_data],
+    #    y=[sn.light_distance(correction=Correction.TWO) for sn in old_data],
     # )
     # plt.axline(
     #    (0, coefficients.intercept),
@@ -806,7 +806,7 @@ def distance_residuals_graph(data, save=False):
 
     residuals = []
     for sn in data:
-        actual = sn.lum_distance(correction=Correction.ONE)
+        actual = sn.light_distance(correction=Correction.ONE)
         prediction = m * sn.z + b
         residuals.append((sn.z, actual - prediction))
 
@@ -888,7 +888,7 @@ def recessional_velocity_vs_intercept_time_graph(
     plt.rcParams["figure.figsize"] = (8, 6)
 
     xs = [sn.velocity_kms for sn in data]
-    ys = [sn.lum_distance(correction) / sn.velocity_kms for sn in data]
+    ys = [sn.light_distance(correction) / sn.velocity_kms for sn in data]
 
     coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
     dist_per_z = coefficients.slope
@@ -932,7 +932,7 @@ def velocity_vs_distance_graph(data, correction=Correction.ONE, save=True):
 
     mean_rate = np.mean([sn.rate for sn in data])
 
-    xs = [sn.lum_distance() for sn in data]
+    xs = [sn.light_distance() for sn in data]
     ys = [sn.hubble for sn in data]
 
     coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
@@ -984,9 +984,9 @@ def delta_distance_graph(data, save=True):
 
     plt.rcParams["figure.figsize"] = (8, 6)
 
-    xs = [sn.lum_distance(correction=Correction.ONE) for sn in data]
+    xs = [sn.light_distance(correction=Correction.ONE) for sn in data]
     ys = [
-        delta(sn.lum_distance(Correction.ONE), sn.lum_distance(Correction.NONE))
+        delta(sn.light_distance(Correction.ONE), sn.light_distance(Correction.NONE))
         for sn in data
     ]
 
@@ -1023,7 +1023,7 @@ def bootstrap_hubble_parameter_graph(data, save=False):
             sn.absolute_magnitude = abs_mag
         sample = random.choices(new_data, k=len(data))
         coefficients = scipy.stats.siegelslopes(
-            x=[sn.lum_distance() for sn in sample],
+            x=[sn.light_distance() for sn in sample],
             y=[sn.hubble for sn in sample],
         )
         results.append(coefficients.slope)
@@ -1053,7 +1053,7 @@ def generate_all_graphs(data):
     plt.rcParams["figure.figsize"] = figsize
     plt.rcParams["text.usetex"] = True
     plt.rcParams["hatch.linewidth"] = linewidth
-    all_lum_distance_vs_redshift_graph(data, save=True)
+    all_light_distance_vs_redshift_graph(data, save=True)
 
     plt.clf()
     plt.rcParams["figure.figsize"] = figsize
@@ -1076,7 +1076,7 @@ def generate_all_graphs(data):
 
 def my_model(data):
     xs = [sn.z for sn in data]
-    ys = [sn.lum_distance() for sn in data]
+    ys = [sn.light_distance() for sn in data]
 
     xs = [math.log(x) for x in xs]
     ys = [math.log(y) for y in ys]
@@ -1092,7 +1092,7 @@ def my_model(data):
     data = [sn for sn, y in zip(data, ys) if q1 - 1.5 * iqr <= y <= q3 + 1.5 * iqr]
 
     xs = [sn.z for sn in data]
-    ys = [sn.lum_distance() for sn in data]
+    ys = [sn.light_distance() for sn in data]
     coefficients = scipy.stats.siegelslopes(x=xs, y=ys)
     b, m = coefficients.intercept, coefficients.slope
 
@@ -1104,14 +1104,14 @@ def my_model(data):
 
     _, sigma = scipy.stats.norm.fit(ys)
     xs = [sn.z for sn in data]
-    ys = [sn.lum_distance() for sn in data]
+    ys = [sn.light_distance() for sn in data]
     m, b = scipy.stats.siegelslopes(x=xs, y=ys)
     return data, m, b, sigma
 
 
 def graph_model(data):
     xs = [sn.z for sn in data]
-    ys = [sn.lum_distance() for sn in data]
+    ys = [sn.light_distance() for sn in data]
 
     xmin, xmax = min(xs), max(xs)
     plt.scatter(
@@ -1143,7 +1143,7 @@ def graph_model(data):
 
 def graph(data):
     xs = [sn.comoving_distance() for sn in data]
-    ys = [sn.lum_distance() for sn in data]
+    ys = [sn.light_distance() for sn in data]
 
     xmin, xmax = min(xs), max(xs)
     plt.scatter(
@@ -1227,10 +1227,10 @@ if __name__ == "__main__":
     #velocity_vs_distance_graph(data, save=True)
     #k_equation_flow_graph(save=True)
 
-    generate_all_graphs(data)
+    #generate_all_graphs(data)
     #k_equation_flow_graph(save=True)
 
-    #all_lum_distance_vs_redshift_graph(data, save=False)
+    #all_light_distance_vs_redshift_graph(data, save=False)
     # velocity_vs_distance_graph(data, correction=Correction.ONE, save=False)
     # energy_loss_vs_orig_distance(data, correction=Correction.ONE, save=False)
     # recessional_velocity_vs_intercept_time_graph(data, correction=Correction.ONE, save=False)
