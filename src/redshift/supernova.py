@@ -792,7 +792,7 @@ def all_light_distance_vs_redshift_graph(data, save=True):
     # )
 
     ax.set_xlabel("z")
-    ax.set_ylabel("light travel distance (Mps)")
+    ax.set_ylabel(r"$d_{LT}$ (Mpc)")
 
     ax.set_title("Distance vs Redshift")
     ax.legend()  # ["uncorrected", "corrected", f"H0 = {Supernova.H0:.0f} km/s / Mpsc"])
@@ -963,7 +963,7 @@ def velocity_vs_distance_graph(data, correction=Correction.ONE, save=True):
     )
 
     ax.set_title("Linear Hubble constant")
-    ax.set_xlabel("distance (Mpc)")
+    ax.set_xlabel(r"$d_{LT}$ (Mpc)")
     ax.set_ylabel("velocity (km/s)")
     ax.legend()
 
