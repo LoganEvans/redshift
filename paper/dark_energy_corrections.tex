@@ -305,12 +305,11 @@
 
 \begin{abstract}
 We rederive the K-correction equation and discover that the version commonly
-used to calculate magnitudes contains multiple errors. The oldest of these
-errors traces back to 1930 and two new errors were introduced in 1996. We
-conclude that correcting apparent magnitudes for time dilation resolves two of
-the preeminent mysteries in cosmology: first, dark energy is not supported by
-observations of Type Ia supernovae and second, the Hubble tension is due to the
-errors in the K-correction equation.
+used to calculate magnitudes fails to account for time dilation. This error
+traces back to 1930. We conclude that correcting apparent magnitudes for time
+dilation resolves two of the preeminent mysteries in cosmology: first, dark
+energy is not supported by observations of Type Ia supernovae and second, the
+Hubble tension is due to the error in the K-correction equation.
 \end{abstract}
 
 \maketitle
@@ -379,7 +378,7 @@ to earlier work, and while they accounted for spectral bandwidth stretching,
 they did not account for time dilation. The paper by \citet{kim1996}, which is
 the basis for modern implementations of K-correction, extended the work of
 \citet{oke1968} to handle additional cross-filter comparisons and added a term
-that was intended to address zero-point corrections.
+that addresses zero-point corrections.
 
 The effect of using an incorrect redshift correction for SNe Ia is that we think
 objects are farther away than they really are; this effect compounds for
@@ -495,8 +494,8 @@ would measure the energy flux, but modern charge-coupled device (CCD) cameras
 effectively measure the photon flux, so \citet{kim1996} derived a form of the
 K-correction equation that uses photon flux. This is the form of the
 K-correction equation that is used by modern astrophysics, but we will show
-that it contains three errors, one of which is innocuous, one of which
-introduces measurement bias, and one that produces the dark energy phenomenon.
+that this equation still contains the time dilation error that produces the
+dark energy phenomenon.
 
 \section{Derivation of K-correction}
 
@@ -539,6 +538,7 @@ is Planck's constant, and $c$ is the speed of light. This gives us
 
 \begin{equation}
 \begin{aligned}
+\label{eq:eflux2pflux}
    F(\lambda) &= F'(\lambda) \times \frac{hc}{\lambda} \\
   F'(\lambda) &= \frac{\lambda F(\lambda)}{hc}.
 \end{aligned}
@@ -762,55 +762,67 @@ The modern version of the K-correction equation was presented by \citet{kim1996}
     &\quad + 2.5\text{log}(1+z) \\
     &\quad + 2.5\text{log}\left(
       \frac{\int \lambda F(\lambda)S_x(\lambda)d\lambda}
-           {\int \lambda F\left(\frac{\lambda}{1+z}\right)S_y(\lambda))d\lambda}\right) \quad \text{(incorrect)}.
+           {\int \lambda F\left(\frac{\lambda}{1+z}\right)S_y(\lambda)d\lambda}\right) \quad \text{(incorrect)}.
 \end{aligned}
 \end{equation}
 
-In order to fully compare Equation \ref{eq:K2k} against Equation \ref{eq:kim} we need to use the identity
+In order to fully compare Equation \ref{eq:K2k} against Equation \ref{eq:kim},
+we need to convert the zero-point value $P_x$ into an expression that describes
+the accumulation of flux $\mathcal{F}_x$. We start with
+Equation \ref{eq:flux2mag}, set ${m_x = 0}$, and solve for the zero-point value
+$P_x$:
 
 \begin{equation}
-  P = -2.5 \text{log} \left( \int \frac{\lambda}{hc} \mathcal{Z}(\lambda) S(\lambda) d\lambda \right)
+\begin{aligned}
+  m_x &= -2.5 \text{log}(\mathcal{F}_x) + P_x \\
+    0 &= -2.5 \text{log}(\mathcal{F}_x) + P_x \\
+  P_x &= 2.5 \text{log}(\mathcal{F}_x).
+\end{aligned}
 \end{equation}
 
-\noindent where, according to \citet{kim1996}, ``$\mathcal{Z}(\lambda)$ is an
-idealized spectral energy distribution at $z = 0$ for which
-$U = B = V = R = I = 0$ in the photometric system being used.'' Combining this
-with Equation \ref{eq:K2k}, we have
+\noindent Next, we convert the measured flux $\mathcal{F}_x$ to energy flux
+$F_x$ using Equation \ref{eq:flux_definition} before renaming
+$F(\lambda) = \mathcal{Z}(\lambda)$ to indicate that we are measuring the
+idealized zero-point flux.
+
+\begin{equation}
+\begin{aligned}
+  P_x &= 2.5 \text{log}(\mathcal{F}_x(\lambda)) \\
+      &= 2.5 \text{log}\left( \int \lambda F(\lambda) S_x(\lambda) d\lambda \right) \\
+      &= 2.5 \text{log}\left( \int \lambda \mathcal{Z}(\lambda) S_x(\lambda) d\lambda \right).
+\end{aligned}
+\end{equation}
+
+
+\noindent Combining this with Equation \ref{eq:K2k}, we have
 
 \begin{equation}
 \begin{aligned}
   K_{xy} &= 5 \text{log} (1 + z) \\
-         &\quad + 2.5 \text{log} \left(
+          &\quad + 2.5 \text{log} \left(
               \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
                    {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} \right) \\
-         &\quad - P_x + P_y \\
+          &\quad - P_x + P_y \\
          &= 5 \text{log} (1 + z) \\
-         &\quad + 2.5 \text{log} \left(
+          &\quad + 2.5 \text{log} \left(
               \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
                    {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} \right) \\
-         &\quad + 2.5 \text{log} \left( \int \frac{\lambda}{hc} \mathcal{Z}(\lambda) S_x(\lambda) d\lambda \right) \\
-         &\quad - 2.5 \text{log} \left( \int \frac{\lambda}{hc} \mathcal{Z}(\lambda) S_y(\lambda) d\lambda \right) \\
-         &= 2.5 \text{log} \left(
+          &\quad - 2.5 \text{log} \left( \int \frac{\lambda}{hc} \mathcal{Z}(\lambda) S_x(\lambda) d\lambda \right) \\
+          &\quad + 2.5 \text{log} \left( \int \frac{\lambda}{hc} \mathcal{Z}(\lambda) S_y(\lambda) d\lambda \right) \\
+         &= -2.5 \text{log} \left(
               \frac{\int \lambda \mathcal{Z}(\lambda) S_x(\lambda) d\lambda}
                    {\int \lambda \mathcal{Z}(\lambda) S_y(\lambda) d\lambda}
              \right) \\
-         &\quad + 5 \text{log} (1 + z) \\
-         &\quad + 2.5 \text{log} \left(
+          &\quad + 5 \text{log} (1 + z) \\
+          &\quad + 2.5 \text{log} \left(
               \frac{\int \lambda F(\lambda) S_x(\lambda) d\lambda}
                    {\int \frac{\lambda}{1+z} F\left(\frac{\lambda}{1+z}\right) S_y(\lambda) d\lambda} \right) .
 \end{aligned}
 \end{equation}
 
-Three differences with Equation \ref{eq:kim} stand out:
+Two differences with Equation \ref{eq:kim} stand out:
 
 \begin{itemize}
-  \item The sign is different for the first term. This will have a subtle but
-  frustrating effect for real measurements. The zero-point values for the two
-  filters are usually, but not always, roughly equal. As we observe more
-  distant supernovae, it is useful to switch our observational filter to a
-  filter that is sensitive to longer wavelengths, but each observation filter will
-  have its own small bias.
-
   \item The second term is multiplied by $2.5$ in \citet{kim1996}, but is
   multiplied by $5$ here. This is the manifestation of the error in
   \citet{tolman1930} and leads to the conclusion that the expansion of the
@@ -844,8 +856,7 @@ is no visual acceleration. Since the corrected values are approximately linear,
 we can use them to estimate the Hubble constant $H_0$ which is demonstrated in
 Figure \ref{fig:expansion}.
 
-The value estimated here, $H_0 = 65.94 \pm 1.3$, is highly suspicious
-because of the flipped zero-point corrections, but it is consistent with
+The value estimated here, $H_0 = 65.94 \pm 1.3$, is consistent with
 estimates of $H_0$ that are based on the CMB. \citet{planck2020} published the
 CMB value of $H_0 = 67.27 \pm 0.6$, and the one sigma error bars overlap.
 
